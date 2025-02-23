@@ -1,46 +1,70 @@
 ﻿@using WebApp.ViewModels;
 @model LoginViewModel;
 
-
 @{
 	ViewData["Title"] = "Login";
 	Layout = "~/Views/Shared/_AccountLayout.cshtml";
-
 }
 
-<div class="account-container">
+<div
+	class="account-container position-relative d-flex flex-column justify-content-center align-items-center min-vh-100 text-white text-center bg-dark overflow-hidden">
 	<div class="account-box">
-		<h2 class="text-center mb-4">Login</h2>
+		<div class="text-center mb-3">
+			<img src="~/assets/images/NEU_LOGO.png" alt="Logo" style="height:60px; width:auto;">
+		</div>
+		<div class="alert alert-danger text-center" role="alert" style="display:none;" id="session-timeout-msg">
+			Your session has timed out. Please log in again.
+		</div>
 		<form asp-action="Login" method="post">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<div class="mb-3">
-				<label asp-for="Email" class="form-label"></label>
-				<input asp-for="Email" class="form-control" />
+				<input asp-for="Email" class="form-control text-start" placeholder="Email" />
 				<span asp-validation-for="Email" class="text-danger"></span>
 			</div>
 			<div class="mb-3">
-				<label asp-for="Password" class="form-label"></label>
-				<input asp-for="Password" class="form-control" />
+				<input asp-for="Password" class="form-control text-start" placeholder="Password" type="password" />
 				<span asp-validation-for="Password" class="text-danger"></span>
 			</div>
-			<div class="float-end">
-				<a asp-controller="Account" asp-action="VerifyEmail" class="text-decoration-none">Forgot Password</a>
-			</div>
-			<div class="form-check mb-3">
-				<label class="form-check-label">
-					<input asp-for="RememberMe" class="form-check-input" />
-					@Html.DisplayNameFor(a=> a.RememberMe)
-				</label>
-			</div>
-			<input type="submit" value="Login" class="btn btn alert-success w-100 p-2" />
-			<p class="text-center mt-2">
-				Don't have an account? <a class="text-decoration-none" asp-controller="Account"
-					asp-action="Register">Register</a>
-			</p>
-			<div class="text-center">
-				<a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back</a>
+			<input type="submit" value="Log in" class="btn w-100 p-2 bg-primary fw-bold text-white" />
+			<div class="d-flex justify-content-between mt-2">
+				<a asp-controller="Account" asp-action="VerifyEmail" class="text-decoration-none">Lost password?</a>
+				<a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#cookieModal">
+					<i class="fa-solid fa-circle-exclamation"></i> Cookies notice
+				</a>
 			</div>
 		</form>
+		<div class="text-center pt-3">
+			<a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back</a>
+		</div>
+	</div>
+</div>
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="cookieModal" tabindex="-1" aria-labelledby="cookieModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="cookieModalLabel">Cookies Notice</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				Two cookies are used on this site:
+				<br>
+				<br>
+				The essential one is the session cookie, usually called MoodleSession. You must allow this cookie in
+				your browser to provide continuity and to remain logged in when browsing the site. When you log out or
+				close the browser, this cookie is destroyed (in your browser and on the server).
+				<br>
+				<br>
+				The other cookie is purely for convenience, usually called MOODLEID or similar. It just remembers your
+				username in the browser. This means that when you return to this site, the username field on the login
+				page is already filled in for you. It is safe to refuse this cookie - you will just have to retype your
+				username each time you log in.
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn bg-primary text-white" data-bs-dismiss="modal">Got it!</button>
+			</div>
+		</div>
 	</div>
 </div>
 

@@ -66,7 +66,7 @@ namespace WebApp.Controllers
                 }
                 else
                 {
-                    foreach(var err in result.Errors)
+                    foreach (var err in result.Errors)
                     {
                         ModelState.AddModelError("", err.Description);
                     }
@@ -81,11 +81,72 @@ namespace WebApp.Controllers
         {
             return View();
         }
-        public IActionResult ChangePassword()
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyEmail(VerifyEmailViewModel model)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.FindByNameAsync(model.Email);
+
+                if (user == null)
+                {
+                    ModelState.AddModelError("", "Something is wrong!");
+                    return View(model);
+                }
+                else
+                {
+                    return RedirectToAction("ChangePassword", "Account", new { username = user.UserName });
+                }
+            }
+            return View(model);
+        }
+        public IActionResult ChangePassword(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+            {
+                return RedirectToAction("VerifyEmail", "Account");
+            }
+            return View(new ChangePasswordViewModel { Email = username });
         }
 
+        [HttpPost]
+
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.FindByNameAsync(model.Email);
+                if (user != null)
+                {
+                    var result = await userManager.RemovePasswordAsync(user);
+                    if (result.Succeeded)
+                    {
+                        result = await userManager.AddPasswordAsync(user, model.NewPassword);
+                        return RedirectToAction("Login", "Account");
+                    }
+                    else
+                    {
+                        foreach (var err in result.Errors)
+                        {
+                            ModelState.AddModelError("", err.Description);
+                        }
+
+                        return View(model);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Email Not Found");
+                    return View(model);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Something went wrong. try again");
+                return View(model);
+            }
+        }
         public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();

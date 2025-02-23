@@ -10,21 +10,24 @@
 
 <div class="account-container">
 	<div class="account-box">
+		<div class="text-center mb-3">
+			<img src="~/assets/images/NEU_LOGO.png" alt="Logo" style="height:60px; width:auto;">
+		</div>
 		<h2 class="text-center mb-4">Verify Email</h2>
 		<form asp-action="VerifyEmail" method="post">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<div class="mb-3">
-				<label asp-for="Email" class="form-label"></label>
-				<input asp-for="Email" class="form-control" />
+				<input asp-for="Email" class="form-control text-start" placeholder="Email" />
 				<span asp-validation-for="Email" class="text-danger"></span>
 			</div>
-			<input type="submit" value="Verify" class="btn btn alert-success w-100 p-2"/>
-			<div class="text-center">
-				<a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back</a>
+			<input type="submit" value="Verify" class="btn w-100 p-2 bg-primary fw-bold text-white" />
+			<div class="text-center pt-3">
+				<a asp-controller="Account" asp-action="Login" class="text-decoration-none mt-3">Back</a>
 			</div>
 		</form>
 	</div>
 </div>
+
 
 @section Scripts {
 	@{
