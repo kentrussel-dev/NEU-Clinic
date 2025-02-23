@@ -137,10 +137,10 @@ C:\NEU\WebApp\WebApp\obj\Debug\net8.0\staticwebassets\msbuild.build.WebApp.props
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.WebApp.props
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.WebApp.props
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\staticwebassets.pack.json
-C:\NEU\WebApp\WebApp\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.csproj.Up2Date
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.dll
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\refint\WebApp.dll
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.pdb
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.genruntimeconfig.cache
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\ref\WebApp.dll
+C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.sourcelink.json

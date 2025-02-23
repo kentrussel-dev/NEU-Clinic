@@ -1,0 +1,45 @@
+/* Hide the hamburger icon by default */
+#hamburger-icon {
+    display: none;
+}
+
+/* Ensure the navbar links and login section are visible by default */
+.navbar-links,
+#login-section {
+    display: flex;
+}
+
+/* For screens less than 1000px */
+@media (max-width: 1000px) {
+
+    /* Hide the navigation links and login section */
+    .navbar-links,
+    #login-section {
+        display: none;
+    }
+
+    /* Show the hamburger icon */
+    #hamburger-icon {
+        display: block;
+    }
+}
+
+/* Customize Bootstrap Modal to Slide In from the Right */
+.modal.fade .modal-dialog {
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-dialog {
+    transform: translateX(0);
+}
+
+.modal-fullscreen {
+    width: 100%;
+    max-width: 300px;
+    /* Adjust the width as needed */
+    margin: 0;
+    margin-left: auto;
+    /* Push the modal to the right */
+    height: 100vh;
+}

@@ -1,0 +1,87 @@
+<nav class="navbar navbar-dark bg-primary box-shadow sticky-top">
+    <div class="container-fluid d-flex align-items-center flex-wrap position-relative">
+        <!-- Logo and Title -->
+        <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+            <img src="~/assets/images/NEU_LOGO.png" alt="NEU Logo" style="height:40px; width:auto; margin-left:10px;">
+            <div class="fw-semibold ms-3 text-white">
+                NEU Care
+            </div>
+        </a>
+
+        <!-- Hamburger Icon (Hidden by Default) -->
+        <button class="navbar-toggler ms-auto" type="button" id="hamburger-icon" data-bs-toggle="modal"
+            data-bs-target="#modal-nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navigation Links - Absolutely Centered -->
+        <div class="position-absolute top-50 start-50 translate-middle navbar-links" id="navbar-links">
+            <ul class="navbar-nav d-flex flex-row gap-4 align-items-center flex-wrap">
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-controller="Home" aria-label="QR Code Processing">
+                        <i class="fas fa-qrcode"></i> QR Code Processing
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-controller="Home" aria-label="Contact Us">
+                        <i class="fas fa-phone"></i> Contact Us
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-controller="Home" aria-label="Privacy Notice">
+                        <i class="fas fa-user-shield"></i> Privacy Notice
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Login Section - Pushed to the right -->
+        <div class="nav-item ms-auto flex-shrink-0" id="login-section">
+            <a class="nav-link text-white" asp-controller="Account" asp-action="Login" aria-label="Login">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Bootstrap Modal for Mobile Navigation -->
+<div class="modal fade" id="modal-nav" tabindex="-1" aria-labelledby="modal-nav-label" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-primary">
+            <!-- Modal Header -->
+            <div class="modal-header d-flex justify-content-center">
+                <div class="modal-title text-white" id="modal-nav-label">
+                    <img src="~/assets/images/NEU_LOGO.png" alt="NEU Logo" style="height:40px; width:auto;">
+                </div>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <ul class="navbar-nav d-flex flex-column gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Home" aria-label="QR Code Processing">
+                            <i class="fas fa-qrcode"></i> QR Code Processing
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Home" aria-label="Contact Us">
+                            <i class="fas fa-phone"></i> Contact Us
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Home" aria-label="Privacy Notice">
+                            <i class="fas fa-user-shield"></i> Privacy Notice
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Account" asp-action="Login" aria-label="Login">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>

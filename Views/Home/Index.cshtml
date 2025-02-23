@@ -1,8 +1,126 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<!-- Link the Home.css file -->
+<link rel="stylesheet" href="~/css/Home.css" asp-append-version="true" />
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+
+<div
+    class="home-container position-relative d-flex flex-column justify-content-center align-items-center min-vh-100 text-white text-center bg-dark overflow-hidden">
+    <div class="overlay position-relative top-0 start-0 w-100 h-100">
+
+        <!-- University Info Section -->
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-white text-center">
+                    <h1 class="display-4 fw-bold mb-4 pt-4">NEW ERA UNIVERSITY CARE</h1>
+                    <p class="lead">
+                        Experience convenient healthcare management with the New Era University Care app, connecting you
+                        with our services anytime, anywhere. Access medical records, book appointments, and consult with
+                        healthcare professionals—all in one easy-to-use app.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full-Page Carousel -->
+        <div id="fullPageCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="~/assets/images/NEU_SLIDE1.jpg" class="d-block w-100" alt="Slide 1">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Modern Healthcare Facilities</h5>
+                        <p>Access the best healthcare services anytime, anywhere.</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="~/assets/images/NEU_SLIDE2.jpg" class="d-block w-100" alt="Slide 2">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Expert Medical Professionals</h5>
+                        <p>Our team is dedicated to your well-being.</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="~/assets/images/NEU_SLIDE3.jpg" class="d-block w-100" alt="Slide 3">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Comprehensive Health Services</h5>
+                        <p>Your health is our priority.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#fullPageCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#fullPageCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#fullPageCarousel" data-bs-slide-to="0" class="active"
+                    aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#fullPageCarousel" data-bs-slide-to="1"
+                    aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#fullPageCarousel" data-bs-slide-to="2"
+                    aria-label="Slide 3"></button>
+            </div>
+        </div>
+
+
+        <!-- Announcements Section -->
+        <div class="container">
+            <div class="row justify-content-center py-5">
+                <div class="col-lg-9">
+                    <div class="card shadow-lg rounded-3 border-0">
+                        <div class="card-header bg-primary text-white fs-2 fw-semibold text-center rounded-top-3">
+                            Announcements
+                        </div>
+                        <div class="card-body bg-tertiary py-4">
+                            <!-- Article 1 -->
+                            <article class="row g-4 align-items-center pt-4 pb-4">
+                                <div class="col-md-4">
+                                    <img src="~/assets/images/NEW_ERA_GH.png" alt="Clinic Facilities"
+                                        class="img-fluid rounded-3 shadow-sm border border-secondary">
+                                </div>
+                                <div class="col-md-8">
+                                    <h5 class="fw-bold text-dark">Facilities in the Clinic</h5>
+                                    <p class="text-muted">
+                                        The New Era University Clinic offers state-of-the-art healthcare facilities,
+                                        including modern consultation rooms, diagnostic equipment, and a comfortable
+                                        waiting area.
+                                    </p>
+                                </div>
+                            </article>
+                            <!-- Article 2 -->
+                            <article class="row g-4 align-items-center pt-4 pb-4">
+                                <div class="col-md-4">
+                                    <img src="~/assets/images/NEW_ERA_GH.png" alt="Upcoming Services"
+                                        class="img-fluid rounded-3 shadow-sm border border-secondary">
+                                </div>
+                                <div class="col-md-8">
+                                    <h5 class="fw-bold text-dark">Upcoming Services</h5>
+                                    <p class="text-muted">
+                                        Stay tuned for upcoming healthcare programs designed to support the well-being
+                                        of our community.
+                                    </p>
+                                </div>
+                            </article>
+                            <!-- Article 3 -->
+                            <article class="row g-4 align-items-center pt-4 pb-4">
+                                <div class="col-md-4">
+                                    <img src="~/assets/images/NEW_ERA_GH.png" alt="Upcoming Services"
+                                        class="img-fluid rounded-3 shadow-sm border border-secondary">
+                                </div>
+                                <div class="col-md-8">
+                                    <h5 class="fw-bold text-dark">Upcoming Services</h5>
+                                    <p class="text-muted">
+                                        Stay tuned for upcoming healthcare programs designed to support the well-being
+                                        of our community.
+                                    </p>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

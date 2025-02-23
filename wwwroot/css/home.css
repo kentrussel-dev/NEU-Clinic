@@ -1,0 +1,157 @@
+.home-container {
+    background-image: url('/assets/images/NEU_BG.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+}
+
+.overlay {
+    background-color: rgba(0, 0, 0, 0.45);
+    position: relative;
+    /* Changed from absolute to relative */
+    width: 100%;
+    height: 100%;
+}
+
+
+.home-title {
+    font-weight: 600;
+    font-size: 3rem;
+}
+
+.home-link {
+    color: #ffc107;
+    /* Bootstrap warning color for contrast */
+    text-decoration: underline;
+}
+
+.home-link:hover {
+    color: #ffca2c;
+}
+
+.card {
+    border-radius: 1rem !important;
+}
+
+.card-header {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+}
+
+.card-body img {
+    object-fit: cover;
+    width: 100%;
+    height: 200px;
+}
+
+/* Full-Page Carousel Styling */
+#fullPageCarousel .carousel-item {
+    height: 65vh;
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: no-repeat center center scroll;
+    background-size: cover;
+}
+
+#fullPageCarousel .carousel-item img {
+    max-height: 100%;
+    object-fit: cover;
+    /* Ensures the image covers the area without stretching */
+    width: 100%;
+}
+
+#fullPageCarousel .carousel-caption {
+    bottom: 5;
+    background-color: rgba(0, 0, 0, 0.2);
+    /* Semi-transparent dark background */
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    /* Adds a subtle blur effect for modern look */
+    text-align: center;
+}
+
+#fullPageCarousel .carousel-caption h5 {
+    color: #f8f9fa;
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+#fullPageCarousel .carousel-caption p {
+    color: #e9ecef;
+    font-size: 1.1rem;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+}
+
+
+
+/* ✅ Responsive Styles */
+
+/* For screens below 1000px */
+@media (max-width: 1000px) {
+    #fullPageCarousel .carousel-caption {
+        bottom: 15%;
+        padding: 15px;
+    }
+
+    #fullPageCarousel .carousel-caption h5 {
+        font-size: 1.5rem;
+    }
+
+    #fullPageCarousel .carousel-caption p {
+        font-size: 1rem;
+    }
+}
+
+/* For screens below 769px (Tablets and Mobile) */
+@media (max-width: 769px) {
+    #fullPageCarousel .carousel-item {
+        height: 50vh;
+        /* Reduce height on smaller screens */
+    }
+
+    #fullPageCarousel .carousel-caption {
+        bottom: 10%;
+        padding: 10px;
+    }
+
+    #fullPageCarousel .carousel-caption h5 {
+        font-size: 1.2rem;
+    }
+
+    #fullPageCarousel .carousel-caption p {
+        font-size: 0.9rem;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+
+
+@media (max-width: 768px) {
+    .carousel-image {
+        height: 300px;
+
+    }
+}
+
+@media (min-width: 769px) {
+    .carousel-image {
+        height: 400px;
+        /* Larger height for larger screens */
+    }
+}

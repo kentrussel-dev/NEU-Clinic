@@ -28,13 +28,14 @@
 			</div>
 			<div class="form-check mb-3">
 				<label class="form-check-label">
-					<input asp-for="RememberMe" class="form-check-input"/>
+					<input asp-for="RememberMe" class="form-check-input" />
 					@Html.DisplayNameFor(a=> a.RememberMe)
 				</label>
 			</div>
-			<input type="submit" value="Login" class="btn btn alert-success w-100 p-2"/>
+			<input type="submit" value="Login" class="btn btn alert-success w-100 p-2" />
 			<p class="text-center mt-2">
-				Don't have an account? <a class="text-decoration-none" asp-controller="Account" asp-action="Register">Register</a>
+				Don't have an account? <a class="text-decoration-none" asp-controller="Account"
+					asp-action="Register">Register</a>
 			</p>
 			<div class="text-center">
 				<a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back</a>
@@ -43,7 +44,7 @@
 	</div>
 </div>
 
-@section Scripts{
+@section Scripts {
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 	}

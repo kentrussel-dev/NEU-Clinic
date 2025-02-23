@@ -1,5 +1,32 @@
+:root {
+  /* Bootstrap-Compatible Color Palette */
+  --bs-primary: #d27510;
+  --bs-secondary: #ab5f0e;
+  --bs-tertiary: #eecca7;
+  --bs-success: #198754;
+  --bs-danger: #dc3545;
+  --bs-warning: #ffc107;
+  --bs-info: #0dcaf0;
+  --bs-light: #f8f9fa;
+  --bs-dark: #212529;
+
+  /* Typography */
+  --font-size-base: 14px;
+  --font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  /* Shadows */
+  --focus-shadow: 0 0 0 0.2rem rgba(217, 131, 36, 0.5);
+
+  /* Spacing */
+  --main-padding: 60px;
+}
+
 html {
-  font-size: 14px;
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-base);
+  position: relative;
+  min-height: 100%;
+  scroll-behavior: smooth;
 }
 
 @media (min-width: 768px) {
@@ -8,15 +35,57 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bs-light);
+  color: var(--bs-dark);
+}
+
+main {
+  flex: 1;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: var(--focus-shadow);
+  outline: none;
+}
+
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+.bg-secondary {
+  background-color: var(--bs-secondary) !important;
+}
+
+.bg-tertiary {
+  background-color: var(--bs-tertiary) !important;
+  color: var(--bs-light);
+}
+
+/* 📝 Tertiary Text - NEW! */
+.text-tertiary {
+  color: var(--bs-tertiary) !important;
+}
+
+/* Navbar Styling */
+.navbar {
+  background-color: var(--bs-primary) !important;
+}
+
+.nav-link {
+  color: var(--bs-light) !important;
+}
+
+.nav-link:hover {
+  color: var(--bs-warning) !important;
+  text-decoration: underline;
 }
