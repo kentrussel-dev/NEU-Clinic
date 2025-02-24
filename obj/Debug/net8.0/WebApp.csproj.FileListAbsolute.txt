@@ -144,3 +144,4 @@ C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.pdb
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.genruntimeconfig.cache
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\ref\WebApp.dll
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.sourcelink.json
+C:\NEU\WebApp\WebApp\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll

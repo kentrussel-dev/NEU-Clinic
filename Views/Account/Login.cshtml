@@ -8,6 +8,8 @@
 
 <div
 	class="account-container position-relative d-flex flex-column justify-content-center align-items-center min-vh-100 text-white text-center bg-dark overflow-hidden">
+
+
 	<div class="account-box">
 		<div class="text-center mb-3">
 			<img src="~/assets/images/NEU_LOGO.png" alt="Logo" style="height:60px; width:auto;">
@@ -26,6 +28,11 @@
 				<span asp-validation-for="Password" class="text-danger"></span>
 			</div>
 			<input type="submit" value="Log in" class="btn w-100 p-2 bg-primary fw-bold text-white" />
+			<a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google"
+				class="btn btn-danger btn w-100 p-2 my-2">
+				<i class="fab fa-google"></i> Register with Google
+			</a>
+
 			<div class="d-flex justify-content-between mt-2">
 				<a asp-controller="Account" asp-action="VerifyEmail" class="text-decoration-none">Lost password?</a>
 				<a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#cookieModal">
