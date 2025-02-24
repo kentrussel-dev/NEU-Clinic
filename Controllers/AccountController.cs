@@ -33,7 +33,7 @@ namespace WebApp.Controllers
                     return RedirectToAction("Index", "Home");
                 }
                 else
-                {
+                {   
                     ModelState.AddModelError("", "Email or password is incorrect.");
                     return View(model);
                 }
