@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebApp.Data;
 using WebApp.Models;
 
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure Identity
+// Configure Identity with Google Authentication
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -19,19 +20,33 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-// Google Authentication
-builder.Services.AddAuthentication()
-    .AddGoogle(options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.SignInScheme = IdentityConstants.ExternalScheme;
+
+    // Redirect to profile creation after Google login
+    options.Events.OnCreatingTicket = async context =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-        options.SignInScheme = IdentityConstants.ExternalScheme;
-    });
+        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<Users>>();
+        var signInManager = context.HttpContext.RequestServices.GetRequiredService<SignInManager<Users>>();
+        var userEmail = context.Principal.FindFirstValue(System.Security.Claims.ClaimTypes.Email);
 
-builder.Services.AddIdentity<Users, IdentityRole>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+        var user = await userManager.FindByEmailAsync(userEmail);
+        if (user == null)
+        {
+            context.Response.Redirect("/Account/CreateProfile");
+        }
+    };
+});
 
+// Configure application cookie
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -42,13 +57,18 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// Middleware configuration
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapDefaultControllerRoute();
+
 app.Run();
