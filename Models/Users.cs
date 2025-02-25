@@ -9,6 +9,7 @@ namespace WebApp.Models
         public string? StudentId { get; set; }
         public string? Address { get; set; }
         public string? ESignaturePath { get; set; }
+        public string? ProfilePictureUrl { get; set; }
     }
 
 }

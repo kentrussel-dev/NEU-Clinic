@@ -9,10 +9,20 @@
         </a>
 
         <!-- Hamburger Icon (Hidden by Default) -->
-        <button class="navbar-toggler ms-auto" type="button" id="hamburger-icon" data-bs-toggle="modal"
-            data-bs-target="#modal-nav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <div class="d-flex gap-2">
+
+
+            <div class="nav-item ms-auto flex-shrink-0">
+                @await Html.PartialAsync("_LoginPartial")
+            </div>
+
+            <button class="navbar-toggler ms-auto" type="button" id="hamburger-icon" data-bs-toggle="modal"
+                data-bs-target="#modal-nav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+
+
 
         <!-- Navigation Links - Absolutely Centered -->
         <div class="position-absolute top-50 start-50 translate-middle navbar-links" id="navbar-links">
@@ -35,16 +45,6 @@
             </ul>
         </div>
 
-        <!-- Login Section - Pushed to the right -->
-        @* <div class="nav-item ms-auto flex-shrink-0" id="login-section">
-            <a class="nav-link text-white" asp-controller="Account" asp-action="Login" aria-label="Login">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </a>
-        </div> *@
-
-        <div class="nav-item ms-auto flex-shrink-0" id="login-section">
-            @await Html.PartialAsync("_LoginPartial")
-        </div>
     </div>
 </nav>
 
@@ -77,9 +77,6 @@
                         <a class="nav-link text-white" asp-controller="Home" aria-label="Privacy Notice">
                             <i class="fas fa-user-shield"></i> Privacy Notice
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        @await Html.PartialAsync("_LoginPartial")
                     </li>
                 </ul>
             </div>

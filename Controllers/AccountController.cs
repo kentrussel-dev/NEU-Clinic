@@ -54,6 +54,7 @@ namespace WebApp.Controllers
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
         {
             returnUrl ??= Url.Content("~/");
+
             if (remoteError != null)
             {
                 ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
@@ -61,9 +62,9 @@ namespace WebApp.Controllers
             }
 
             var info = await signInManager.GetExternalLoginInfoAsync();
-            if (info == null) return RedirectToAction(nameof(Login));
+            if (info == null)
+                return RedirectToAction(nameof(Login));
 
-            // ✅ Restrict Google login to @neu.edu.ph email addresses
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
             if (email == null || !email.EndsWith("@neu.edu.ph", StringComparison.OrdinalIgnoreCase))
             {
@@ -71,10 +72,14 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
+            // 🎯 Extracting profile picture URL from Google claims
+            var profilePictureUrl = info.Principal.FindFirstValue("urn:google:picture") ?? "/default-profile.png";
+
             var user = await userManager.FindByEmailAsync(email);
 
             if (user == null)
             {
+                // 🧱 Create new user with basic details
                 user = new Users
                 {
                     UserName = email,
@@ -84,7 +89,8 @@ namespace WebApp.Controllers
                     PhoneNumber = string.Empty,
                     FirstName = string.Empty,
                     LastName = string.Empty,
-                    ESignaturePath = string.Empty
+                    ESignaturePath = string.Empty,
+                    ProfilePictureUrl = profilePictureUrl
                 };
 
                 var createResult = await userManager.CreateAsync(user);
@@ -99,10 +105,24 @@ namespace WebApp.Controllers
                     return View(nameof(Login));
                 }
             }
+            else
+            {
+                // 🖼️ Update profile picture if changed
+                if (!string.IsNullOrEmpty(profilePictureUrl) && user.ProfilePictureUrl != profilePictureUrl)
+                {
+                    user.ProfilePictureUrl = profilePictureUrl;
+                    await userManager.UpdateAsync(user);
+                }
+            }
 
-            await signInManager.SignInAsync(user, isPersistent: false);
+            // ✨ Add ProfilePictureUrl claim during sign-in
+            var claims = new List<Claim>
+    {
+        new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/default-profile.png")
+    };
+            await signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
 
-            // ✅ Redirect users with incomplete profiles
+            // 🔗 Redirect for profile completion if required fields are missing
             if (string.IsNullOrEmpty(user.StudentId) ||
                 string.IsNullOrEmpty(user.Address) ||
                 string.IsNullOrEmpty(user.PhoneNumber))
@@ -112,6 +132,9 @@ namespace WebApp.Controllers
 
             return LocalRedirect(returnUrl);
         }
+
+
+
 
 
         [HttpGet]
