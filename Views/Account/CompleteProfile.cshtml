@@ -1,56 +1,75 @@
-@model WebApp.ViewModels.ProfileViewModel
+@using WebApp.ViewModels;
+@model ProfileViewModel;
 
 @{
-    ViewData["Title"] = "Complete Profile";
+    ViewData["Title"] = "Complete Your Profile";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
 }
 
-<h2>Complete Your Profile</h2>
+<div
+    class="account-container position-relative d-flex flex-column justify-content-center align-items-center min-vh-100 text-white text-center bg-primary overflow-hidden p-4">
+    <div class="account-box bg-white rounded-4 p-5 shadow-lg w-100" style="max-width: 800px;">
+        <div class="text-center mb-4">
+            <img src="~/assets/images/NEU_LOGO.png" alt="Logo" style="height:60px; width:auto;">
+            <h2 class="mt-3 fw-bold text-dark">Complete Your Profile</h2>
+            <p class="text-muted">Fill in the details to unlock your full experience.</p>
+        </div>
 
-<form asp-action="CompleteProfile" enctype="multipart/form-data" method="post">
-    <div class="form-group">
-        <label asp-for="StudentId" class="control-label"></label>
-        <input asp-for="StudentId" class="form-control" />
-        <span asp-validation-for="StudentId" class="text-danger"></span>
+        <form asp-action="CompleteProfile" enctype="multipart/form-data" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <input asp-for="StudentId" class="form-control text-start" placeholder="Student ID" />
+                    <span asp-validation-for="StudentId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <input asp-for="Username" class="form-control text-start" placeholder="Username" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+            </div>
+
+
+            <div class="mb-3">
+                <input asp-for="Password" class="form-control text-start" type="password" placeholder="Password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <input asp-for="ConfirmPassword" class="form-control text-start" type="password"
+                    placeholder="Confirm Password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <input asp-for="Address" class="form-control text-start" placeholder="Address" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <input asp-for="PhoneNumber" class="form-control text-start" placeholder="Phone Number" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted text-center">E-Signature (Upload)</label>
+                <input asp-for="ESignature" type="file"
+                    class="d-flex align-items-center form-control border-0 bg-transparent" />
+                <span asp-validation-for="ESignature" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn w-100 p-2 bg-primary fw-bold text-white">Submit & Complete
+                Profile</button>
+        </form>
+
+        <div class="text-center pt-4">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary fw-semibold">Back to
+                Home</a>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label asp-for="Username" class="control-label"></label>
-        <input asp-for="Username" class="form-control" />
-        <span asp-validation-for="Username" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Password" class="control-label"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="ConfirmPassword" class="control-label"></label>
-        <input asp-for="ConfirmPassword" class="form-control" type="password" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Address" class="control-label"></label>
-        <input asp-for="Address" class="form-control" />
-        <span asp-validation-for="Address" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="PhoneNumber" class="control-label"></label>
-        <input asp-for="PhoneNumber" class="form-control" />
-        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="ESignature" class="control-label">E-Signature (Upload)</label>
-        <input asp-for="ESignature" type="file" class="form-control-file" />
-        <span asp-validation-for="ESignature" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
