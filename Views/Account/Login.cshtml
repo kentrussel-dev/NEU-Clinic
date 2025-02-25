@@ -9,19 +9,26 @@
 <div
 	class="account-container position-relative d-flex flex-column justify-content-center align-items-center min-vh-100 text-white text-center bg-dark overflow-hidden">
 	<div class="account-box bg-white rounded-4 p-5 shadow-lg w-100" style="max-width: 600px;">
-		@if (TempData["ErrorMessage"] != null)
-		{
-			<div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-		}
-		<div class="text-center mb-3">
+
+
+		<div class="text-center mb-2">
 			<img src="~/assets/images/NEU_LOGO.png" alt="Logo" style="height:75px; width:auto;">
 		</div>
-		<div class="alert alert-danger text-center" role="alert" style="display:none;" id="session-timeout-msg">
-			Your session has timed out. Please log in again.
+
+		<div class="pt-2">
+			@if (TempData["ErrorMessage"] != null)
+			{
+				<div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+			}
+			@if (TempData["SessionTimeout"] != null)
+			{
+				<div class="alert alert-danger">@TempData["SessionTimeout"]</div>
+			}
 		</div>
+
 		<form asp-action="Login" method="post">
 			<div asp-validation-summary="ModelOnly" class="form-label text-danger d-block"></div>
-			<div class="my-5">
+			<div>
 				<div class="mb-4">
 					<input asp-for="Email" class="form-control text-start" placeholder="Email" />
 					<span asp-validation-for="Email" class="form-label text-start text-danger d-block"></span>
@@ -41,12 +48,16 @@
 				</div>
 			</div>
 
-			<input type="submit" value="Log in" class="form-control bg-primary fw-bold text-white w-100 p-2 my-2" />
+			<button type="submit"
+				class="form-control d-flex align-items-center justify-content-center gap-2 bg-primary fw-bold text-white w-100 p-2 my-2">
+				<i class="fa-solid fa-right-to-bracket"></i> Log in
+			</button>
 
 			<a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google"
-				class="form-control text-decoration-none bg-google fw-bold text-white w-100 p-2 my-2">
-				<i class="fab fa-google"></i> Register with Google
+				class="form-control d-flex align-items-center justify-content-center text-decoration-none gap-2 bg-google fw-bold text-white w-100 p-2 my-2">
+				<i class="fab fa-google"></i> Sign-up with Google
 			</a>
+
 
 			<div class="d-flex justify-content-between mt-2">
 				<a asp-controller="Account" asp-action="VerifyEmail" class="text-decoration-none">Lost password?</a>
