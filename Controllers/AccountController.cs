@@ -63,7 +63,14 @@ namespace WebApp.Controllers
             var info = await signInManager.GetExternalLoginInfoAsync();
             if (info == null) return RedirectToAction(nameof(Login));
 
+            // ✅ Restrict Google login to @neu.edu.ph email addresses
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (email == null || !email.EndsWith("@neu.edu.ph", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ErrorMessage"] = "Only @neu.edu.ph email addresses are allowed for Google login.";
+                return RedirectToAction(nameof(Login));
+            }
+
             var user = await userManager.FindByEmailAsync(email);
 
             if (user == null)
@@ -95,11 +102,17 @@ namespace WebApp.Controllers
 
             await signInManager.SignInAsync(user, isPersistent: false);
 
-            if (string.IsNullOrEmpty(user.StudentId) || string.IsNullOrEmpty(user.Address) || string.IsNullOrEmpty(user.PhoneNumber))
+            // ✅ Redirect users with incomplete profiles
+            if (string.IsNullOrEmpty(user.StudentId) ||
+                string.IsNullOrEmpty(user.Address) ||
+                string.IsNullOrEmpty(user.PhoneNumber))
+            {
                 return RedirectToAction("CompleteProfile", "Account", new { returnUrl });
+            }
 
             return LocalRedirect(returnUrl);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> CompleteProfile(string returnUrl = null)

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WebApp.Data;
 using WebApp.Models;
+using WebApp.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false; 
     options.Password.RequiredUniqueChars = 0;        
 })
+.AddUserValidator<CustomEmailValidator<Users>>()
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 

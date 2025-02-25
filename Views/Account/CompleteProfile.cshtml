@@ -51,25 +51,39 @@
 
 
             <div class="mb-3">
-                <input asp-for="Password" class="form-control text-start" type="password" placeholder="Password" />
+                <div class="input-group">
+                    <input asp-for="Password" id="password" class="form-control text-start" type="password"
+                        placeholder="Password" />
+                    <button type="button" class="input-group-text bg-white border-start-0"
+                        onclick="togglePasswordVisibility('password', this)">
+                        <i class="fa-solid fa-eye-slash" id="togglePasswordIcon"></i>
+                    </button>
+                </div>
                 <span asp-validation-for="Password" class="form-label text-start text-danger d-block"></span>
             </div>
 
             <div class="mb-3">
-                <input asp-for="ConfirmPassword" class="form-control text-start" type="password"
-                    placeholder="Confirm Password" />
-                <span asp-validation-for="ConfirmPassword" class="form-label text-danger d-block"></span>
+                <div class="input-group">
+                    <input asp-for="ConfirmPassword" id="confirmPassword" class="form-control text-start"
+                        type="password" placeholder="Confirm Password" />
+                    <button type="button" class="input-group-text bg-white border-start-0"
+                        onclick="togglePasswordVisibility('confirmPassword', this)">
+                        <i class="fa-solid fa-eye-slash" id="toggleConfirmPasswordIcon"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="form-label text-start text-danger d-block"></span>
             </div>
+
 
             <div class="mb-3">
                 <input asp-for="Address" class="form-control text-start" placeholder="Address" />
-                <span asp-validation-for="Address" class="form-label text-danger d-block"></span>
+                <span asp-validation-for="Address" class="form-label text-start text-danger d-block"></span>
             </div>
 
             <div class="mb-3">
-                <label for="formFile" class="form-label text-start d-block">Upload your E-Signature</label>
+                <label for="formFile" class="form-label text-muted text-start d-block">Upload your E-Signature</label>
                 <input asp-for="ESignature" class="form-control form-control-lg" type="file" id="formFile">
-                <span asp-validation-for="ESignature" class="text-danger"></span>
+                <span asp-validation-for="ESignature" class="form-label text-start text-danger d-block"></span>
             </div>
 
             <button type="submit" class="btn w-100 p-2 bg-primary fw-bold text-white">Submit & Complete
@@ -85,4 +99,21 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePasswordVisibility(inputId, button) {
+            const passwordInput = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            } else {
+                passwordInput.type = "password";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            }
+        }
+
+    </script>
 }

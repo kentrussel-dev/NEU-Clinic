@@ -8,9 +8,11 @@
 
 <div
 	class="account-container position-relative d-flex flex-column justify-content-center align-items-center min-vh-100 text-white text-center bg-dark overflow-hidden">
-
-
 	<div class="account-box bg-white rounded-4 p-5 shadow-lg w-100" style="max-width: 600px;">
+		@if (TempData["ErrorMessage"] != null)
+		{
+			<div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+		}
 		<div class="text-center mb-3">
 			<img src="~/assets/images/NEU_LOGO.png" alt="Logo" style="height:75px; width:auto;">
 		</div>
@@ -24,14 +26,25 @@
 					<input asp-for="Email" class="form-control text-start" placeholder="Email" />
 					<span asp-validation-for="Email" class="form-label text-start text-danger d-block"></span>
 				</div>
+
+				<!-- Password input with toggle eye icon -->
 				<div class="mb-4">
-					<input asp-for="Password" class="form-control text-start" placeholder="Password" type="password" />
+					<div class="input-group">
+						<input asp-for="Password" id="password" class="form-control text-start" placeholder="Password"
+							type="password" />
+						<button type="button" class="input-group-text bg-white border-start-0"
+							onclick="togglePasswordVisibility('password', this)">
+							<i class="fa-solid fa-eye-slash"></i>
+						</button>
+					</div>
 					<span asp-validation-for="Password" class="form-label text-start text-danger d-block"></span>
 				</div>
 			</div>
-			<input type="submit" value="Log in" class="form-control bg-primary fw-bold text-white" />
+
+			<input type="submit" value="Log in" class="form-control bg-primary fw-bold text-white w-100 p-2 my-2" />
+
 			<a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google"
-				class="form-control fw-bold btn btn-danger btn w-100 p-2 my-2">
+				class="form-control text-decoration-none bg-google fw-bold text-white w-100 p-2 my-2">
 				<i class="fab fa-google"></i> Register with Google
 			</a>
 
@@ -43,7 +56,7 @@
 			</div>
 		</form>
 		<div class="text-center pt-3">
-			<a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back</a>
+			<a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back to Home</a>
 		</div>
 	</div>
 </div>
@@ -58,13 +71,11 @@
 			</div>
 			<div class="modal-body">
 				Two cookies are used on this site:
-				<br>
-				<br>
+				<br><br>
 				The essential one is the session cookie, usually called MoodleSession. You must allow this cookie in
 				your browser to provide continuity and to remain logged in when browsing the site. When you log out or
 				close the browser, this cookie is destroyed (in your browser and on the server).
-				<br>
-				<br>
+				<br><br>
 				The other cookie is purely for convenience, usually called MOODLEID or similar. It just remembers your
 				username in the browser. This means that when you return to this site, the username field on the login
 				page is already filled in for you. It is safe to refuse this cookie - you will just have to retype your
@@ -81,4 +92,21 @@
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 	}
+	<script>
+		// Toggle Password Visibility Function
+		function togglePasswordVisibility(inputId, button) {
+			const passwordInput = document.getElementById(inputId);
+			const icon = button.querySelector('i');
+
+			if (passwordInput.type === "password") {
+				passwordInput.type = "text";
+				icon.classList.remove("fa-eye-slash");
+				icon.classList.add("fa-eye");
+			} else {
+				passwordInput.type = "password";
+				icon.classList.remove("fa-eye");
+				icon.classList.add("fa-eye-slash");
+			}
+		}
+	</script>
 }

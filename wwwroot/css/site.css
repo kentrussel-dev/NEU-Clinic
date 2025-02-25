@@ -9,6 +9,7 @@
   --bs-info: #0dcaf0;
   --bs-light: #f8f9fa;
   --bs-dark: #212529;
+  --bs-google: #d50000;
 
   /* Typography */
   --font-size-base: 14px;
@@ -78,6 +79,11 @@ main {
 
 .bg-tertiary {
   background-color: var(--bs-tertiary) !important;
+  color: var(--bs-light);
+}
+
+.bg-google {
+  background-color: var(--bs-google) !important;
   color: var(--bs-light);
 }
 
