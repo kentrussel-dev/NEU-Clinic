@@ -34,3 +34,24 @@
     border-radius: 8px;
     height: 45px;
 }
+
+.file-upload-control {
+
+    border-radius: 8px;
+    height: 45px;
+    padding: 10px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.file-upload-control:hover {
+    border-color: #adaaaa;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+.file-upload-control:focus {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}

@@ -82,7 +82,7 @@
 
             <div class="mb-3">
                 <label for="formFile" class="form-label text-muted text-start d-block">Upload your E-Signature</label>
-                <input asp-for="ESignature" class="form-control form-control-lg" type="file" id="formFile">
+                <input asp-for="ESignature" class="form-control file-upload-control" type="file" id="formFile">
                 <span asp-validation-for="ESignature" class="form-label text-start text-danger d-block"></span>
             </div>
 
@@ -114,6 +114,5 @@
                 icon.classList.add("fa-eye-slash");
             }
         }
-
     </script>
 }
