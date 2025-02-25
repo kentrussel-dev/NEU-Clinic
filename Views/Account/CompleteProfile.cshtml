@@ -20,14 +20,32 @@
 
 
             <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <input asp-for="StudentId" class="form-control text-start" placeholder="First Name" />
+                    <span asp-validation-for="StudentId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <input asp-for="Username" class="form-control text-start" placeholder="Last Name" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
                     <input asp-for="StudentId" class="form-control text-start" placeholder="Student ID" />
                     <span asp-validation-for="StudentId" class="text-danger"></span>
                 </div>
 
+            </div>
+
+
+            <div class="row mb-3">
                 <div class="col-md-6">
                     <input asp-for="Username" class="form-control text-start" placeholder="Username" />
                     <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <input asp-for="PhoneNumber" class="form-control text-start" placeholder="Phone Number" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                 </div>
             </div>
 
@@ -49,16 +67,20 @@
             </div>
 
             <div class="mb-3">
-                <input asp-for="PhoneNumber" class="form-control text-start" placeholder="Phone Number" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                <label for="formFile" class="form-label text-muted text-start d-block">Upload your E-Signature</label>
+                <input class="form-control form-control-lg" type="file" id="formFile">
             </div>
 
-            <div class="mb-3">
-                <label class="form-label text-muted text-center">E-Signature (Upload)</label>
-                <input asp-for="ESignature" type="file"
-                    class="d-flex align-items-center form-control border-0 bg-transparent" />
-                <span asp-validation-for="ESignature" class="text-danger"></span>
-            </div>
+
+            @* <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label text-muted text-center">E-Signature (Upload)</label>
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="ESignature" type="file" class="form-control border-0 bg-transparent" />
+                    <span asp-validation-for="ESignature" class="text-danger"></span>
+                </div>
+            </div> *@
 
             <button type="submit" class="btn w-100 p-2 bg-primary fw-bold text-white">Submit & Complete
                 Profile</button>
