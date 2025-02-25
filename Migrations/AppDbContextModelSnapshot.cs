@@ -170,9 +170,6 @@ namespace WebApp.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ContactNumber")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ESignaturePath")
                         .HasColumnType("nvarchar(max)");
 
@@ -183,7 +180,10 @@ namespace WebApp.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")

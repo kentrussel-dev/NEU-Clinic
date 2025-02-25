@@ -75,7 +75,8 @@ namespace WebApp.Controllers
                     StudentId = string.Empty,
                     Address = string.Empty,
                     PhoneNumber = string.Empty,
-                    FullName = string.Empty,
+                    FirstName = string.Empty,
+                    LastName = string.Empty,
                     ESignaturePath = string.Empty
                 };
 
@@ -127,6 +128,8 @@ namespace WebApp.Controllers
             await userManager.RemovePasswordAsync(user);
             await userManager.AddPasswordAsync(user, model.Password);
 
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
             user.StudentId = model.StudentId;
             user.UserName = model.Username;
             user.Address = model.Address;
@@ -163,7 +166,7 @@ namespace WebApp.Controllers
             {
                 Users users = new Users()
                 {
-                    FullName = model.Name,
+                    FirstName = model.Name,
                     Email = model.Email,
                     UserName = model.Email,
                     StudentId = string.Empty,
