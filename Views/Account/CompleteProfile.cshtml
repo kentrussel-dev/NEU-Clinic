@@ -10,29 +10,29 @@
     class="account-container position-relative d-flex flex-column justify-content-center align-items-center min-vh-100 text-white text-center bg-primary overflow-hidden p-4">
     <div class="account-box bg-white rounded-4 p-5 shadow-lg w-100" style="max-width: 800px;">
         <div class="text-center mb-4">
-            <img src="~/assets/images/NEU_LOGO.png" alt="Logo" style="height:60px; width:auto;">
+            <img src="~/assets/images/NEU_LOGO.png" alt="Logo" style="height:75px; width:auto;">
             <h2 class="mt-3 fw-bold text-dark">Complete Your Profile</h2>
             <p class="text-muted">Fill in the details to unlock your full experience.</p>
         </div>
 
         <form asp-action="CompleteProfile" enctype="multipart/form-data" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="form-label text-start text-danger d-block"></div>
 
 
             <div class="row mb-3">
                 <div class="col-md-4">
                     <input asp-for="StudentId" class="form-control text-start" placeholder="First Name" />
-                    <span asp-validation-for="StudentId" class="text-danger"></span>
+                    <span asp-validation-for="StudentId" class="form-label text-start text-danger d-block"></span>
                 </div>
 
                 <div class="col-md-4">
                     <input asp-for="Username" class="form-control text-start" placeholder="Last Name" />
-                    <span asp-validation-for="Username" class="text-danger"></span>
+                    <span asp-validation-for="Username" class="form-label text-start text-danger d-block"></span>
                 </div>
 
                 <div class="col-md-4">
                     <input asp-for="StudentId" class="form-control text-start" placeholder="Student ID" />
-                    <span asp-validation-for="StudentId" class="text-danger"></span>
+                    <span asp-validation-for="StudentId" class="form-label text-start text-danger d-block"></span>
                 </div>
 
             </div>
@@ -41,46 +41,36 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <input asp-for="Username" class="form-control text-start" placeholder="Username" />
-                    <span asp-validation-for="Username" class="text-danger"></span>
+                    <span asp-validation-for="Username" class="form-label text-start text-danger d-block"></span>
                 </div>
                 <div class="col-md-6">
                     <input asp-for="PhoneNumber" class="form-control text-start" placeholder="Phone Number" />
-                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    <span asp-validation-for="PhoneNumber" class="form-label text-start text-danger d-block"></span>
                 </div>
             </div>
 
 
             <div class="mb-3">
                 <input asp-for="Password" class="form-control text-start" type="password" placeholder="Password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+                <span asp-validation-for="Password" class="form-label text-start text-danger d-block"></span>
             </div>
 
             <div class="mb-3">
                 <input asp-for="ConfirmPassword" class="form-control text-start" type="password"
                     placeholder="Confirm Password" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                <span asp-validation-for="ConfirmPassword" class="form-label text-danger d-block"></span>
             </div>
 
             <div class="mb-3">
                 <input asp-for="Address" class="form-control text-start" placeholder="Address" />
-                <span asp-validation-for="Address" class="text-danger"></span>
+                <span asp-validation-for="Address" class="form-label text-danger d-block"></span>
             </div>
 
             <div class="mb-3">
-                <label for="formFile" class="form-label text-muted text-start d-block">Upload your E-Signature</label>
-                <input class="form-control form-control-lg" type="file" id="formFile">
+                <label for="formFile" class="form-label text-start d-block">Upload your E-Signature</label>
+                <input asp-for="ESignature" class="form-control form-control-lg" type="file" id="formFile">
+                <span asp-validation-for="ESignature" class="text-danger"></span>
             </div>
-
-
-            @* <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label text-muted text-center">E-Signature (Upload)</label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="ESignature" type="file" class="form-control border-0 bg-transparent" />
-                    <span asp-validation-for="ESignature" class="text-danger"></span>
-                </div>
-            </div> *@
 
             <button type="submit" class="btn w-100 p-2 bg-primary fw-bold text-white">Submit & Complete
                 Profile</button>
