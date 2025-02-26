@@ -125,7 +125,6 @@ C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.csproj.CoreCompileInputs.cache
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.MvcApplicationPartsAssemblyInfo.cache
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.RazorAssemblyInfo.cache
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.RazorAssemblyInfo.cs
-C:\NEU\WebApp\WebApp\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\scopedcss\bundle\WebApp.styles.css
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\scopedcss\projectbundle\WebApp.bundle.scp.css
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\staticwebassets.build.json
@@ -145,3 +144,4 @@ C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.genruntimeconfig.cache
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\ref\WebApp.dll
 C:\NEU\WebApp\WebApp\obj\Debug\net8.0\WebApp.sourcelink.json
 C:\NEU\WebApp\WebApp\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll
+C:\NEU\WebApp\WebApp\obj\Debug\net8.0\scopedcss\Views\Shared\Layouts\_Layout.cshtml.rz.scp.css

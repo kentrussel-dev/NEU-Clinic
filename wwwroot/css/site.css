@@ -22,7 +22,7 @@
   --main-padding: 60px;
 }
 
-
+/* 🌄 Background Container */
 .-container {
   background-image: url('/assets/images/NEU_BG.jpg');
   background-size: cover;
@@ -32,6 +32,7 @@
   position: relative;
 }
 
+/* 🌐 Global Styles */
 html {
   font-size: var(--font-size-base);
   font-family: var(--font-family-base);
@@ -60,6 +61,7 @@ main {
   flex: 1;
 }
 
+/* 🖱️ Focus Styles */
 .btn:focus,
 .btn:active:focus,
 .btn-link.nav-link:focus,
@@ -69,6 +71,7 @@ main {
   outline: none;
 }
 
+/* 🎨 Background Utility Classes */
 .bg-primary {
   background-color: var(--bs-primary) !important;
 }
@@ -87,12 +90,12 @@ main {
   color: var(--bs-light);
 }
 
-/* 📝 Tertiary Text - NEW! */
+/* 📝 Tertiary Text */
 .text-tertiary {
   color: var(--bs-tertiary) !important;
 }
 
-/* Navbar Styling */
+/* 🔗 Navbar Styling */
 .navbar {
   background-color: var(--bs-primary) !important;
 }
@@ -104,4 +107,112 @@ main {
 .nav-link:hover {
   color: var(--bs-warning) !important;
   text-decoration: underline;
+}
+
+/* 🖋️ Border Color Classes */
+.border-primary {
+  border: 1px solid var(--bs-primary) !important;
+}
+
+.border-secondary {
+  border: 1px solid var(--bs-secondary) !important;
+}
+
+.border-tertiary {
+  border: 1px solid var(--bs-tertiary) !important;
+}
+
+.border-success {
+  border: 1px solid var(--bs-success) !important;
+}
+
+.border-danger {
+  border: 1px solid var(--bs-danger) !important;
+}
+
+.border-warning {
+  border: 1px solid var(--bs-warning) !important;
+}
+
+.border-info {
+  border: 1px solid var(--bs-info) !important;
+}
+
+.border-light {
+  border: 1px solid var(--bs-light) !important;
+}
+
+.border-dark {
+  border: 1px solid var(--bs-dark) !important;
+}
+
+.border-google {
+  border: 1px solid var(--bs-google) !important;
+}
+
+/* ⚡ Smooth Transition for All Borders */
+.border-primary,
+.border-secondary,
+.border-tertiary,
+.border-success,
+.border-danger,
+.border-warning,
+.border-info,
+.border-light,
+.border-dark,
+.border-google {
+  transition: all 0.3s ease-in-out;
+}
+
+/* ✨ Button Hover Effect */
+.btn:hover {
+  opacity: 0.9;
+  transition: all 0.3s ease;
+}
+
+/* 🟦 General Button Spacing & Look */
+.btn {
+  border-radius: 0.5rem;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* 🎡 Smooth Transitions */
+.nav-link,
+.btn,
+.list-group-item {
+  transition: all 0.3s ease;
+}
+
+/* 🪄 Shadow on Hover */
+.btn:hover,
+.list-group-item:hover {
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 📝 Typography Improvements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-base);
+  font-weight: 600;
+}
+
+p,
+span,
+a {
+  font-family: var(--font-family-base);
+}
+
+/* 📱 Responsive Adjustments */
+@media (max-width: 768px) {
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 }

@@ -117,36 +117,49 @@ namespace WebApp.Controllers
 
             // ✨ Add ProfilePictureUrl claim during sign-in
             var claims = new List<Claim>
-    {
-        new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/default-profile.png")
-    };
+            {
+                new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/default-profile.png")
+            };
             await signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
 
-            // 🔗 Redirect for profile completion if required fields are missing
             if (string.IsNullOrEmpty(user.StudentId) ||
                 string.IsNullOrEmpty(user.Address) ||
-                string.IsNullOrEmpty(user.PhoneNumber))
+                string.IsNullOrEmpty(user.PhoneNumber) ||
+                string.IsNullOrEmpty(user.FirstName) ||
+                string.IsNullOrEmpty(user.LastName) ||
+                string.IsNullOrEmpty(user.PasswordHash) ||
+                string.IsNullOrEmpty(user.UserName)||
+                string.IsNullOrEmpty(user.ESignaturePath))
             {
                 return RedirectToAction("CompleteProfile", "Account", new { returnUrl });
             }
 
-            return LocalRedirect(returnUrl);
+            return RedirectToAction("Index", "Dashboard");
         }
 
 
-
-
-
+        [HttpGet]
         [HttpGet]
         public async Task<IActionResult> CompleteProfile(string returnUrl = null)
         {
             var user = await userManager.GetUserAsync(User);
-            if (user == null || (!string.IsNullOrEmpty(user.StudentId) && !string.IsNullOrEmpty(user.Address) && !string.IsNullOrEmpty(user.PhoneNumber)))
-                return RedirectToAction("Index", "Home");
+            if (user == null ||
+               (!string.IsNullOrEmpty(user.StudentId) &&
+                !string.IsNullOrEmpty(user.Address) &&
+                !string.IsNullOrEmpty(user.PhoneNumber) &&
+                !string.IsNullOrEmpty(user.FirstName) &&
+                !string.IsNullOrEmpty(user.LastName) &&
+                !string.IsNullOrEmpty(user.PasswordHash) &&
+                !string.IsNullOrEmpty(user.UserName) &&
+                !string.IsNullOrEmpty(user.ESignaturePath)))
+            {
+                return RedirectToAction("Index", "Dashboard"); // ✅ Redirect to Dashboard
+            }
 
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
+
 
         public async Task<IActionResult> CompleteProfile(ProfileViewModel model, string returnUrl = null)
         {
@@ -154,15 +167,12 @@ namespace WebApp.Controllers
 
             var user = await userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction(nameof(Login));
-         
+
             var result = await userManager.RemovePasswordAsync(user);
             if (result.Succeeded)
             {
                 result = await userManager.AddPasswordAsync(user, model.Password);
             }
-
-            await userManager.RemovePasswordAsync(user);
-            await userManager.AddPasswordAsync(user, model.Password);
 
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
@@ -170,8 +180,6 @@ namespace WebApp.Controllers
             user.UserName = model.Username;
             user.Address = model.Address;
             user.PhoneNumber = model.PhoneNumber;
-
-            
 
             if (model.ESignature != null && model.ESignature.Length > 0)
             {
@@ -185,13 +193,14 @@ namespace WebApp.Controllers
                 user.ESignaturePath = $"/uploads/{user.Id}_signature.png";
             }
 
-            // 🔄 Force user re-login to reflect changes
             await userManager.UpdateAsync(user);
             await signInManager.SignOutAsync();
             await signInManager.PasswordSignInAsync(user.UserName, model.Password, false, false);
 
-            return LocalRedirect(returnUrl ?? Url.Content("~/"));
+            // 🎯 Redirecting to Dashboard after successful profile completion
+            return RedirectToAction("Index", "Dashboard");
         }
+
 
         public IActionResult Register() => View();
 

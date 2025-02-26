@@ -2,7 +2,7 @@
   "Files": [
     {
       "Id": "C:\\NEU\\WebApp\\WebApp\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\WebApp.bundle.scp.css",
-      "PackagePath": "staticwebassets\\WebApp.kgyr9w213v.bundle.scp.css"
+      "PackagePath": "staticwebassets\\WebApp.wxev75aj01.bundle.scp.css"
     },
     {
       "Id": "C:\\NEU\\WebApp\\WebApp\\wwwroot\\assets\\images\\NEU_BG.JPG",
@@ -35,6 +35,10 @@
     {
       "Id": "C:\\NEU\\WebApp\\WebApp\\wwwroot\\css\\account.css",
       "PackagePath": "staticwebassets\\css\\account.css"
+    },
+    {
+      "Id": "C:\\NEU\\WebApp\\WebApp\\wwwroot\\css\\dashboard.css",
+      "PackagePath": "staticwebassets\\css\\dashboard.css"
     },
     {
       "Id": "C:\\NEU\\WebApp\\WebApp\\wwwroot\\css\\home.css",
@@ -9023,6 +9027,10 @@
     {
       "Id": "C:\\NEU\\WebApp\\WebApp\\wwwroot\\lib\\jquery\\dist\\jquery.min.map",
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.map"
+    },
+    {
+      "Id": "C:\\NEU\\WebApp\\WebApp\\wwwroot\\uploads\\55a0920a-d38a-4076-847b-e279b4876801_signature.png",
+      "PackagePath": "staticwebassets\\uploads\\55a0920a-d38a-4076-847b-e279b4876801_signature.png"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.WebApp.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",

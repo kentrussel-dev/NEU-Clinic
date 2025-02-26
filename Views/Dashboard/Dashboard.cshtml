@@ -1,0 +1,57 @@
+@using WebApp.ViewModels;
+@* @model ChangePasswordViewModel; *@
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+}
+
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div class="bg-dark border-end" id="sidebar-wrapper">
+        <div
+            class="bg-primary text-white p-3 sidebar-header shadow-lg d-flex flex-column flex-sm-row justify-content-between align-items-center">
+            <h4 class="m-0 sidebar-text text-nowrap">
+                <i class="fas fa-heartbeat me-2"></i>Dashboard
+            </h4>
+            <button class="btn text-white border-0 toggle-btn" id="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="list-group list-group-flush mt-3 sidebar-content">
+            <a href="#" class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center">
+                <i class="fas fa-home"></i><span class="sidebar-text ms-2">Home</span>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center">
+                <i class="fas fa-user"></i><span class="sidebar-text ms-2">Profile</span>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center">
+                <i class="fas fa-cog"></i><span class="sidebar-text ms-2">Settings</span>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center">
+                <i class="fas fa-sign-out-alt"></i><span class="sidebar-text ms-2">Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="w-100">
+        <div class="container-fluid p-4">
+            <h2>Welcome to the Dashboard</h2>
+            <p>This is your dashboard content.</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.getElementById("menu-toggle").addEventListener("click", function () {
+            document.getElementById("wrapper").classList.toggle("toggled");
+        });
+    </script>
+
+}

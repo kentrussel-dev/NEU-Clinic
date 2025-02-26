@@ -1,0 +1,87 @@
+/* Sidebar width adjustments */
+#sidebar-wrapper {
+    width: 300px;
+    transition: width 0.3s ease;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    width: 80px;
+}
+
+/* Hide text when toggled */
+#wrapper.toggled .sidebar-text {
+    display: none;
+}
+
+/* Page content width adjustment */
+#page-content-wrapper {
+    width: calc(100% - 320px);
+    transition: width 0.3s ease;
+}
+
+#wrapper.toggled #page-content-wrapper {
+    width: calc(100% - 80px);
+}
+
+/* Align icons and text consistently */
+.list-group-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+}
+
+.list-group-item i {
+    width: 30px;
+    font-size: 20px;
+    text-align: center;
+}
+
+/* Adjust text position consistently */
+.sidebar-text {
+    margin-left: 10px;
+}
+
+/* Center icons horizontally in collapsed state */
+#wrapper.toggled .list-group-item {
+    justify-content: center;
+    padding: 12px 0;
+}
+
+#wrapper.toggled .list-group-item i {
+    margin: 0 auto;
+}
+
+/* Center the hamburger button horizontally */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#wrapper.toggled .toggle-btn {
+    margin: 0 auto;
+}
+
+/* Sidebar full height */
+#wrapper,
+#page-content-wrapper,
+#sidebar-wrapper {
+    height: 100vh;
+}
+
+/* Smooth hover effect */
+.list-group-item:hover {
+    background-color: #ffffff !important;
+    color: rgb(0, 0, 0) !important;
+}
+
+@media (max-width: 800px) {
+    .sidebar-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .sidebar-header h4 {
+        margin-bottom: 10px;
+    }
+}
