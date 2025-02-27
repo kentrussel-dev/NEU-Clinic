@@ -87,3 +87,14 @@ secrets.json
 *.vspscc
 *.vssscc
 *.vs/
+
+# Ignore build-related files explicitly (already covered by obj/)
+obj/Debug/net8.0/WebApp.AssemblyInfo.cs
+obj/Debug/net8.0/WebApp.AssemblyInfoInputs.cache
+obj/Debug/net8.0/WebApp.GeneratedMSBuildEditorConfig.editorconfig
+obj/Debug/net8.0/WebApp.assets.cache
+obj/Debug/net8.0/WebApp.csproj.AssemblyReference.cache
+obj/WebApp.csproj.nuget.dgspec.json
+obj/WebApp.csproj.nuget.g.props
+obj/project.assets.json
+obj/project.nuget.cache
