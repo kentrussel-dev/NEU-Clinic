@@ -1,0 +1,136 @@
+/* Nav Tabs Styling */
+.nav-tabs {
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--bs-primary);
+}
+
+.nav-tabs .nav-link {
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #444;
+    border-bottom: none;
+    margin-right: 5px;
+    border-radius: 8px 8px 0 0;
+    text-align: left;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: var(--bs-primary) !important;
+    color: #fff;
+    border-color: var(--bs-primary) !important;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Tab Content Styling */
+.tab-content {
+    text-align: left;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    margin-top: 10px;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.tab-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Text Design */
+.tab-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--bs-primary);
+    padding-bottom: 0.5rem;
+}
+
+.tab-content h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.tab-content h3 {
+    font-size: 1.75rem;
+    font-weight: 500;
+    color: #fff;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.tab-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #e0e0e0;
+    margin-bottom: 1.5rem;
+}
+
+.tab-content ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.tab-content ul li {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #e0e0e0;
+    margin-bottom: 0.5rem;
+}
+
+.tab-content a {
+    color: var(--bs-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.tab-content a:hover {
+    color: #ffca2c;
+    text-decoration: underline;
+}
+
+/* Overlay Styling */
+.overlay {
+    background-color: rgba(0, 0, 0, 0.45);
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Home Container Styling */
+.home-container {
+    background-image: url('/assets/images/NEU_BG.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+}

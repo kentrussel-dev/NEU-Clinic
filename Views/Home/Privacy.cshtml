@@ -1,6 +1,804 @@
-﻿@{
+﻿<link rel="stylesheet" href="~/css/Home.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/privacy.css" asp-append-version="true" />
+
+@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div
+    class="home-container position-relative d-flex flex-column justify-content-center align-items-center min-vh-100 text-white text-center bg-dark overflow-hidden">
+    <div class="overlay">
+        <div class="container py-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-white text-center">
+                    <h1 class="display-4 fw-bold my-3">NEW ERA UNIVERSITY PRIVACY NOTICE</h1>
+                    <p class="lead">
+                        New Era University (‘NEU’) is the data controller and processor for all information collected as
+                        part of your use of this website, data processing systems and services of NEU (the ‘Service’).
+                        This page informs you (the ‘user’) of our policies regarding the collection, use, and disclosure
+                        of personal data when you use our Service. We use your data to provide and improve the Service.
+                        By using the website and other data processing systems of NEU, you voluntarily consent to and
+                        agree with the collection and use of your information in accordance with this policy along with
+                        the Data Privacy Policies of the University.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap Tabs Navigation -->
+        <ul class="nav nav-tabs d-flex justify-content-center" id="privacyTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="policy-tab" data-bs-toggle="tab" data-bs-target="#policy"
+                    type="button" role="tab">Privacy Notice</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="terms-tab" data-bs-toggle="tab" data-bs-target="#terms" type="button"
+                    role="tab">Information Security Policy</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button"
+                    role="tab">Security Incident Management Policy</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mt-3" id="privacyTabsContent">
+            <div class="tab-pane fade show active" id="policy" role="tabpanel">
+                <h1>Privacy Notice</h1>
+
+                <div class="section">
+                    <h2>1. Information Collection and Use of Data</h2>
+                    <p>We collect various types of information to provide and improve our Service.</p>
+                    <h3>1.1 Personal Information</h3>
+                    <p>While using our services, we may ask you to provide personally identifiable information such as:
+                    </p>
+                    <ul>
+                        <li>Parent/Guardian details for communication and student progress tracking.</li>
+                        <li>Student details such as name, address, contact, grades, attendance, and educational
+                            background.</li>
+                        <li>Health and legal records to comply with University obligations.</li>
+                        <li>Billing and financial information for application processing.</li>
+                        <li>Videos and pictures for academic and security purposes.</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>2. Data Being Shared with Third Parties</h2>
+                    <p>We may share your data with service providers such as:</p>
+                    <ul>
+                        <li>Cloud hosting providers (AWS, Cloudflare).</li>
+                        <li>Google Fonts and third-party styling components.</li>
+                        <li>Social media platforms for content sharing.</li>
+                        <li>Analytics services (Google Analytics) for website optimization.</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>3. Tracking and Cookies Data</h2>
+                    <p>We use cookies for functionality, preferences, and security.</p>
+                    <ul>
+                        <li>Session Cookies for service operation.</li>
+                        <li>Preference Cookies for remembering settings.</li>
+                        <li>Security Cookies for authentication and protection.</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>4. Lawful Basis for Processing</h2>
+                    <p>We process data under the following conditions:</p>
+                    <ul>
+                        <li>User consent (e.g., signing up for services).</li>
+                        <li>Legitimate interest (e.g., copyright protection).</li>
+                        <li>Legal obligations (e.g., compliance with data privacy laws).</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>5. Disclosure of Data</h2>
+                    <p>We may disclose your data to comply with legal obligations, protect rights, prevent fraud, and
+                        enhance security.</p>
+                </div>
+
+                <div class="section">
+                    <h2>6. Links to Other Sites</h2>
+                    <p>We are not responsible for third-party website policies.</p>
+                </div>
+
+                <div class="section">
+                    <h2>7. Children’s Privacy</h2>
+                    <p>Children under the age of consent require parental supervision for data submission.</p>
+                </div>
+
+                <div class="section">
+                    <h2>8. Your Rights</h2>
+                    <p>You have rights including:</p>
+                    <ul>
+                        <li>Right to be informed.</li>
+                        <li>Right to object.</li>
+                        <li>Right to access and correct data.</li>
+                        <li>Right to erasure or blocking.</li>
+                    </ul>
+                    <p>For more details, visit <a href="https://privacy.gov.ph/data-privacy-act/" target="_blank">Data
+                            Privacy Act of 2012</a>.</p>
+                </div>
+
+                <div class="section">
+                    <h2>9. Data Controller and Processor</h2>
+                    <p>New Era University controls and processes data at the following locations:</p>
+                    <ul>
+                        <li>Main Campus: No. 9, Central Avenue, New Era, Quezon City</li>
+                        <li>Branches in Lipa City, Pampanga, General Santos City, and Rizal.</li>
+                    </ul>
+                    <p>For concerns, contact:</p>
+                    <p>Email: <a href="mailto:dpo@neu.edu.ph">dpo@neu.edu.ph</a></p>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="terms" role="tabpanel">
+                <h1>Information Security Policy</h1>
+                <p>This policy provides guidance, procedures, and actions to be taken in case of security or personal
+                    breach involving any data processing system of the University and/or personal data under its control
+                    and custody.</p>
+
+                <div class="section">
+                    <h2>1. Objective</h2>
+                    <p>This policy is promulgated to:</p>
+                    <ul>
+                        <li>Provide a set of rules and regulations to govern the use of the technology resources,
+                            networks, and data processing systems of the New Era University.</li>
+                        <li>Secure and protect the personal information and sensitive personal information of the
+                            employees, students, and applicants.</li>
+                        <li>Secure the confidentiality, integrity, and availability of the information under the control
+                            and custody of the University.</li>
+                        <li>Guarantee compliance with the Data Privacy Act of 2012.</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>2. Scope</h2>
+                    <p>This policy governs all New Era University’s branches, academic units and administrative offices,
+                        personnel, and students.</p>
+                </div>
+
+                <div class="section">
+                    <h2>3. Definition of Terms</h2>
+                    <p>For the purpose of this policy, the following terms are defined, as follows:</p>
+                    <h3>3.1. “Personal Data”</h3>
+                    <p>Refers to personal information, sensitive personal information, and privileged information as
+                        defined by the Data Privacy Act of 2012.</p>
+                    <h3>3.2. “Sensitive Personal Information”</h3>
+                    <p>Refers to personal information:</p>
+                    <ul>
+                        <li>About an individual’s race, ethnic origin, marital status, age, color, and religious,
+                            philosophical or political affiliations.</li>
+                        <li>About an individual’s health, education, genetic or sexual life of a person, or to any
+                            proceeding for any offense committed or alleged to have been committed by such person, the
+                            disposal of such proceedings, or the sentence of any court in such proceedings.</li>
+                        <li>Issued by government agencies peculiar to an individual which includes, but is not limited
+                            to, social security numbers, previous or current health records, licenses or its denials,
+                            suspension or revocation, and tax returns.</li>
+                        <li>Specifically established by an executive order or an act of Congress to be kept classified.
+                        </li>
+                    </ul>
+                    <h3>3.3. “Data Processing System”</h3>
+                    <p>Refers to the structure and procedure by which personal data is collected and processed in an
+                        information and communications system, or any other relevant filing system. It includes the
+                        purpose and intended output of the processing (National Privacy Commission, op.cit.).</p>
+                    <h3>3.4. “Personal Data Breach”</h3>
+                    <p>Refers to a breach of security leading to the accidental or unlawful destruction, loss,
+                        alteration, unauthorized disclosure of, or access to, personal data transmitted, stored, or
+                        otherwise processed. A personal data breach may be in the nature of:</p>
+                    <ul>
+                        <li>An availability breach resulting from loss, accidental or unlawful destruction of personal
+                            data.</li>
+                        <li>Integrity breach resulting from alteration of personal data.</li>
+                        <li>A confidentiality breach resulting from the unauthorized disclosure of or access to personal
+                            data.</li>
+                    </ul>
+                    <h3>3.5. “Data Processor”</h3>
+                    <p>Refers to the NEU personnel who process Personal Data pertaining to a Data Subject.</p>
+                    <h3>3.6. “University”</h3>
+                    <p>Refers to New Era University and all its branches.</p>
+                    <h3>3.7. “Data Subject”</h3>
+                    <p>Refers to an individual whose personal data is processed.</p>
+                    <h3>3.8. “Personnel”</h3>
+                    <p>Refers to all members of the faculty, also called as the academic personnel, both to the teaching
+                        and non-teaching personnel, working in the New Era University Main Campus in New Era, Quezon
+                        City and in its branches in Lipa City, Batangas; City of San Fernando, Pampanga; General Santos
+                        City, South Cotabato; and Pinugay, Baras, Rizal.</p>
+                    <h3>3.9. “Security Incident Response Team (SIRT)”</h3>
+                    <p>Refers to the personnel that would be the first responders to any and all data breach incidents.
+                        The team is also tasked to provide regular updates to the affected University personnel as to
+                        the ongoing measures to address the security incident.</p>
+                    <h3>3.10. “Compliance Officer for Privacy (COP)”</h3>
+                    <p>Refers to the personnel assigned to each department of the University to oversee compliance of
+                        data privacy within the department.</p>
+                    <h3>3.11. “Security Incident”</h3>
+                    <p>Refers to an event or occurrence that affects or tends to affect data protection, or may
+                        compromise the availability, integrity, and confidentiality of personal data. It shall include
+                        incidents that would result to a personal data breach, if not for safeguards that have been put
+                        in place. The term “Security Incident” includes “Personal Data Breach.”</p>
+                    <p>A Security Incident includes, but is not restricted to, the following:</p>
+                    <ul>
+                        <li>The loss or theft of data or information.</li>
+                        <li>The transfer of data or information to those who are not entitled to receive that
+                            information.</li>
+                        <li>Attempts (either failed or successful) to gain unauthorised access to data or information
+                            storage or a computer system.</li>
+                        <li>Changes to information or data or system hardware, firmware, or software characteristics
+                            without the NEU's knowledge, instruction, or consent.</li>
+                        <li>Unwanted disruption or denial of service to a system.</li>
+                        <li>The unauthorised use of a system for the processing or storage of data by any person.</li>
+                    </ul>
+                    <h3>3.12. “Incident Report”</h3>
+                    <p>Refers to a document that provides a detailed account of a suspected security incident which
+                        could be a basis for initial assessment of the incident.</p>
+                    <h3>3.13. “Risk”</h3>
+                    <p>Refers to the potential of an incident to result in harm or danger to a Data Subject or
+                        organization.</p>
+                    <h3>3.14. “Vulnerability”</h3>
+                    <p>Refers to a weakness of a data processing system that makes it susceptible to threats and other
+                        attacks.</p>
+                    <h3>3.15. “Threat”</h3>
+                    <p>Refers to a potential cause of an unwanted incident, which may result in harm or danger to a Data
+                        Subject, system, or organization.</p>
+                    <h3>3.16. “DPA”</h3>
+                    <p>Refers to Republic Act No. 10173, otherwise known as the Data Privacy Act of 2012.</p>
+                    <h3>3.17. “IRR”</h3>
+                    <p>Refers to the Implementing Rules and Regulations of Republic Act No. 10173, otherwise known as
+                        the Data Privacy Act of 2012.</p>
+                    <h3>3.18. “NPC”</h3>
+                    <p>Refers to the National Privacy Commission of the Philippines as created by the Data Privacy Act
+                        of 2012.</p>
+                </div>
+
+                <div class="section">
+                    <h2>4. Data Governance</h2>
+                    <p>In order to implement the proper security measures for the data processing systems of the
+                        University, a corresponding inventory and data classification shall be done by each department
+                        to be led by the assigned COP per department. A corresponding Records of Processing System Form
+                        shall be distributed and filled out by each department and submitted to the Data Protection
+                        Officer (DPO) and the Security Incident Response Team (SIRT) to assess the necessity of suitable
+                        data privacy policies and procedures.</p>
+                    <p>The DPO and SIRT then will recommend the proper security measures to be implemented to secure
+                        personal and sensitive personal information collected or processed.</p>
+                </div>
+
+                <div class="section">
+                    <h2>5. General Guidelines for Computer Use</h2>
+                    <p>In line with our effort to ensure the integrity of our computer facilities, please be reminded of
+                        the following guidelines for proper use of computers and internet connections:</p>
+                    <ul>
+                        <li>Only approved work-related or education-related software will be installed in the
+                            University’s computer units (ex. Word, Excel, and Students Record System (SRS) application
+                            and the like); non-work-related or non-education-related software will be uninstalled.
+                            Should there be a need to install additional software in the computer units, the same shall
+                            be done with clearance and assistance from the Computer Services Department (CSD).</li>
+                        <li>It is prohibited to make unauthorized system changes, plugging unknown devices, and
+                            disabling security features of the computer units or the University’s data processing
+                            systems.</li>
+                        <li>Those with internet access should only use the same for legitimate and/or official purposes.
+                            The following are prohibited:
+                            <ul>
+                                <li>Downloading, watching, or streaming videos, music videos, and similar materials
+                                    unless authorized by the instructor or part of the study.</li>
+                                <li>Downloading and/or playing video games (online/offline).</li>
+                                <li>Engaging in online games or gambling, online marketing, cryptocurrency mining or
+                                    trading.</li>
+                                <li>Visiting malicious sites like pornographic and gambling sites.</li>
+                                <li>Use of VPN and/or unauthorized (wifi) routers or switches and other network devices.
+                                </li>
+                                <li>Use of the University’s facilities and services for other illegitimate purposes.
+                                </li>
+                                <li>The playing of computer games is strictly prohibited.</li>
+                            </ul>
+                        </li>
+                        <li>Use of computer units shall only be during the scheduled class except those in the library
+                            and other services that require access anytime provided there is approval of the Head of the
+                            Department concerned.</li>
+                        <li>Always keep your computer clean and orderly.</li>
+                        <li>Eating and drinking near the computer units is not allowed (even candies, juices, and the
+                            like). Food crumbs and liquid spills might cause damage to the computer units.</li>
+                        <li>Do not let small objects such as staple wires, hair pins, paper clips, and the like, fall
+                            into the printer or keyboard.</li>
+                        <li>Avoid using bond paper with staple wire in the printer for this will damage the print head
+                            or the printer itself.</li>
+                        <li>Report to the CSD office any case of system trouble. Do not attempt to troubleshoot or fix
+                            the computer.</li>
+                        <li>Before leaving the office or room, check if the computer unit is properly shut down.</li>
+                        <li>The concerned employee or department shall be responsible for the assigned computer
+                            equipment and peripherals and shall be liable for any damage sustained by the equipment
+                            because of misuse.</li>
+                        <li>Employees shall lock their assigned computers when not in use or when leaving computers
+                            unattended for any length of time. This shall be done despite the configuration of the
+                            computer to automatically lock after a specified minutes of idle time.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="security" role="tabpanel">
+                <h1>Security Incident Management Policy</h1>
+                <p>This policy provides guidance, procedures, and actions to be taken in case of security or personal
+                    breach involving any data processing system of the University and/or personal data under its control
+                    and custody.</p>
+
+                <div class="section">
+                    <h2>1. Objective</h2>
+                    <p>This policy is promulgated to:</p>
+                    <ul>
+                        <li>Ensure that the University, its offices, personnel, and students react appropriately to any
+                            actual or suspected security incidents relating to the data processing systems and personal
+                            data within the custody of the University.</li>
+                        <li>Establish a data breach response team and define its roles and responsibilities.</li>
+                        <li>Implement security measures to prevent or minimize the occurrence of a personal data breach
+                            and assure the timely discovery of a security incident.</li>
+                        <li>Establish an incident response procedure to ensure the availability, integrity, and
+                            confidentiality of the personal data being processed through the University’s data
+                            processing system.</li>
+                        <li>Establish procedures for mitigating possible harm and negative consequences in the event of
+                            data breach.</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>2. Scope</h2>
+                    <p>This policy governs all New Era University’s branches, academic units and administrative offices,
+                        personnel, and students.</p>
+                </div>
+
+                <div class="section">
+                    <h2>3. Definition of Terms</h2>
+                    <p>For the purpose of this policy, the following terms are defined, as follows:</p>
+                    <h3>3.1. “Personal Data”</h3>
+                    <p>Refers to personal information, sensitive personal information, and privileged information as
+                        defined by the Data Privacy Act of 2012.</p>
+                    <h3>3.2. “Sensitive Personal Information”</h3>
+                    <p>Refers to personal information:</p>
+                    <ul>
+                        <li>About an individual’s race, ethnic origin, marital status, age, color, and religious,
+                            philosophical or political affiliations.</li>
+                        <li>About an individual’s health, education, genetic or sexual life of a person, or to any
+                            proceeding for any offense committed or alleged to have been committed by such person, the
+                            disposal of such proceedings, or the sentence of any court in such proceedings.</li>
+                        <li>Issued by government agencies peculiar to an individual which includes, but is not limited
+                            to, social security numbers, previous or current health records, licenses or its denials,
+                            suspension or revocation, and tax returns.</li>
+                        <li>Specifically established by an executive order or an act of Congress to be kept classified.
+                        </li>
+                    </ul>
+                    <h3>3.3. “Data Processing System”</h3>
+                    <p>Refers to the structure and procedure by which personal data is collected and processed in an
+                        information and communications system, or any other relevant filing system. It includes the
+                        purpose and intended output of the processing (National Privacy Commission, op.cit.).</p>
+                    <h3>3.4. “Personal Data Breach”</h3>
+                    <p>Refers to a breach of security leading to the accidental or unlawful destruction, loss,
+                        alteration, unauthorized disclosure of, or access to, personal data transmitted, stored, or
+                        otherwise processed. A personal data breach may be in the nature of:</p>
+                    <ul>
+                        <li>An availability breach resulting from loss, accidental or unlawful destruction of personal
+                            data.</li>
+                        <li>Integrity breach resulting from alteration of personal data.</li>
+                        <li>A confidentiality breach resulting from the unauthorized disclosure of or access to personal
+                            data.</li>
+                    </ul>
+                    <h3>3.5. “Data Processor”</h3>
+                    <p>Refers to the NEU personnel who process Personal Data pertaining to a Data Subject.</p>
+                    <h3>3.6. “University”</h3>
+                    <p>Refers to New Era University and all its branches.</p>
+                    <h3>3.7. “Data Subject”</h3>
+                    <p>Refers to an individual whose personal data is processed.</p>
+                    <h3>3.8. “Personnel”</h3>
+                    <p>Refers to all members of the faculty, also called as the academic personnel, both to the teaching
+                        and non-teaching personnel, working in the New Era University Main Campus in New Era, Quezon
+                        City and in its branches in Lipa City, Batangas; City of San Fernando, Pampanga; General Santos
+                        City, South Cotabato; and Pinugay, Baras, Rizal.</p>
+                    <h3>3.9. “Security Incident Response Team (SIRT)”</h3>
+                    <p>Refers to the personnel that would be the first responders to any and all data breach incidents.
+                        The team is also tasked to provide regular updates to the affected University personnel as to
+                        the ongoing measures to address the security incident.</p>
+                    <h3>3.10. “Compliance Officer for Privacy (COP)”</h3>
+                    <p>Refers to the personnel assigned to each department of the University to oversee compliance of
+                        data privacy within the department.</p>
+                    <h3>3.11. “Security Incident”</h3>
+                    <p>Refers to an event or occurrence that affects or tends to affect data protection, or may
+                        compromise the availability, integrity, and confidentiality of personal data. It shall include
+                        incidents that would result to a personal data breach, if not for safeguards that have been put
+                        in place. The term “Security Incident” includes “Personal Data Breach.”</p>
+                    <p>A Security Incident includes, but is not restricted to, the following:</p>
+                    <ul>
+                        <li>The loss or theft of data or information.</li>
+                        <li>The transfer of data or information to those who are not entitled to receive that
+                            information.</li>
+                        <li>Attempts (either failed or successful) to gain unauthorised access to data or information
+                            storage or a computer system.</li>
+                        <li>Changes to information or data or system hardware, firmware, or software characteristics
+                            without the NEU's knowledge, instruction, or consent.</li>
+                        <li>Unwanted disruption or denial of service to a system.</li>
+                        <li>The unauthorised use of a system for the processing or storage of data by any person.</li>
+                    </ul>
+                    <h3>3.12. “Incident Report”</h3>
+                    <p>Refers to a document that provides a detailed account of a suspected security incident which
+                        could be a basis for initial assessment of the incident.</p>
+                    <h3>3.13. “Risk”</h3>
+                    <p>Refers to the potential of an incident to result in harm or danger to a Data Subject or
+                        organization.</p>
+                    <h3>3.14. “Vulnerability”</h3>
+                    <p>Refers to a weakness of a data processing system that makes it susceptible to threats and other
+                        attacks.</p>
+                    <h3>3.15. “Threat”</h3>
+                    <p>Refers to a potential cause of an unwanted incident, which may result in harm or danger to a Data
+                        Subject, system, or organization.</p>
+                    <h3>3.16. “DPA”</h3>
+                    <p>Refers to Republic Act No. 10173, otherwise known as the Data Privacy Act of 2012.</p>
+                    <h3>3.17. “IRR”</h3>
+                    <p>Refers to the Implementing Rules and Regulations of Republic Act No. 10173, otherwise known as
+                        the Data Privacy Act of 2012.</p>
+                    <h3>3.18. “NPC”</h3>
+                    <p>Refers to the National Privacy Commission of the Philippines as created by the Data Privacy Act
+                        of 2012.</p>
+                </div>
+
+                <div class="section">
+                    <h2>4. Security Incident Response Team (SIRT) and Compliance Officer for Privacy (COP)</h2>
+                    <p>The NEU Security Incident Response Team (SIRT) shall be responsible for investigation of a
+                        suspected security incident and reporting to the University President and Board of Trustees.</p>
+                    <p>The COP of each department shall serve as the main point of contact for all reports of a
+                        suspected security incident coming from their assigned department.</p>
+                </div>
+
+                <div class="section">
+                    <h2>5. Composition of Security Incident Response Team (SIRT)</h2>
+                    <p>Headed by the Director of the SIRT and assisted by the Data Protection Officer, the team shall
+                        have two (2) other permanent members recommended by the Director of the SIRT and approved by the
+                        University President. Where the member of the Team is the data processor involved in a reported
+                        incident, the University president will recommend a competent alternative. Additional members
+                        shall be appointed as necessity arises and depending on the recommendation of the Director of
+                        the SIRT.</p>
+                </div>
+
+                <div class="section">
+                    <h2>6. Duties and Responsibilities</h2>
+                    <p>The following offices and individuals shall perform their respective functions and
+                        responsibilities:</p>
+                    <h3>6.1. CSD</h3>
+                    <ul>
+                        <li>Responsible for the daily operation and maintenance of the University’s I.T. facilities.
+                        </li>
+                        <li>Responsible for immediately reporting possible security incidents that need further
+                            investigation by the SIRT.</li>
+                        <li>Cooperate and allow the SIRT and DPO to regularly check the operations of the CSD to comply
+                            with the former’s obligation in monitoring security breaches and vulnerability of computer
+                            networks.</li>
+                        <li>Submit inventory of user access and access level control of employees as to the assigned
+                            accounts for the use of the data processing system of the University e.g. institutional
+                            email, NEU Automate, and existing google forms.</li>
+                        <li>Secure necessary logs in maintaining the infrastructure of the University.</li>
+                    </ul>
+                    <h3>6.2. COP</h3>
+                    <ul>
+                        <li>Responsible for conducting data audits within the department. This should involve
+                            identifying:
+                            <ul>
+                                <li>The categories of personal data processed.</li>
+                                <li>The locations where it is stored e.g. physical filing cabinets, hard disks, and
+                                    cloud drives.</li>
+                                <li>Inflows or sources of personal information e.g. google or web forms, physical forms,
+                                    email, and phone calls.</li>
+                                <li>Outflows or third parties with whom the personal data is shared e.g. mail carriers,
+                                    advertisers, cloud storage providers, and third-party online platforms.</li>
+                            </ul>
+                        </li>
+                        <li>Responsible for checking that all physical and electronic records are secured, tracked,
+                            and/or monitored.</li>
+                        <li>Records and secures all reports and documents related to suspected security incidents.</li>
+                        <li>Review and recommend, along with the head of the department, information security measures
+                            and the acquisition of necessary equipment to implement such information security measures
+                            to the University President, SIRT, and/or DPO.</li>
+                        <li>Assist in the implementation of information security measures within the department.</li>
+                        <li>Submit the Incident Report to the SIRT and DPO in accordance with this policy.</li>
+                    </ul>
+                    <h3>6.3. SIRT</h3>
+                    <ul>
+                        <li>Investigate and assess suspected security incidents in coordination with all concerned units
+                            and offices of the University.</li>
+                        <li>Recommend remedial measures to be performed concerning a suspected security incident.</li>
+                        <li>Accomplish a Security Incident Report, as prescribed by the Board of Trustees.</li>
+                        <li>Recommend permanent and additional members of SIRT to the University President.</li>
+                    </ul>
+                    <h3>6.4. SIRT Head and DPO</h3>
+                    <ul>
+                        <li>Serve as the main point of contact for all reports of a suspected security incident.</li>
+                        <li>Act as custodian of all reports and documents generated or prepared in relation to suspected
+                            security incidents. Document all the remedial actions taken.</li>
+                        <li>Review and revise this Policy in accordance with the Philippine Data Privacy Act of 2012 and
+                            other laws, guidelines, and standards applicable to the protection of Data Processing
+                            Systems and Personal Data.</li>
+                        <li>Report to the University President, recommend and implement approved remedial measures to be
+                            performed in relation to a suspected security incident.</li>
+                        <li>Notify the NPC and/or affected data subjects when required by the Data Privacy Act of 2012.
+                        </li>
+                    </ul>
+                    <h3>6.5. University President</h3>
+                    <ul>
+                        <li>Approve, reject, or otherwise take action on the findings or recommendations of the SIRT and
+                            DPO.</li>
+                        <li>Appoint the permanent members of the SIRT.</li>
+                        <li>Appoint the alternate of any permanent member of the SIRT, when necessary.</li>
+                        <li>Approve, reject, or otherwise comment on proposed revisions to this Policy.</li>
+                        <li>Approve identified and authorised staff that should have access to the affected systems
+                            during the incident.</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>7. Procedure for Reporting Security Incident</h2>
+                    <p>Security incidents as well as events and weaknesses of the data processing system need to be
+                        reported at the earliest possible stage as they need to be assessed by the Data Protection
+                        Officer and the Head of the SIRT. The Data Protection Officer enables the Security Incident
+                        Response Team (SIRT) to identify when a series of events or weaknesses have escalated to become
+                        an incident. The SIRT needs to gain as much information as possible from the data subjects or
+                        personnel to identify if an incident is occurring.</p>
+                    <p>Examples of the security events, weaknesses, and common forms of Security Incidents have been
+                        provided below:</p>
+                    <h3>Security events can include:</h3>
+                    <ul>
+                        <li>Uncontrolled system changes.</li>
+                        <li>Access violations – e.g. password sharing.</li>
+                        <li>Breaches of physical security.
+                            <ul>
+                                <li>Loss of ID badge/s.</li>
+                                <li>Missing correspondence.</li>
+                                <li>Exposure of Uncollected print-outs.</li>
+                            </ul>
+                        </li>
+                        <li>Misplaced or missing media.</li>
+                        <li>Loss of mobile phones and portable devices.</li>
+                        <li>Systems being hacked or manipulated.</li>
+                        <li>Non-compliance with policies.</li>
+                    </ul>
+                    <h3>Security weaknesses can include:</h3>
+                    <ul>
+                        <li>Inadequate firewall or antivirus protection.</li>
+                        <li>System malfunctions or overloads.</li>
+                        <li>Malfunctions of software applications.</li>
+                        <li>Human errors.</li>
+                    </ul>
+                    <h3>The most common Security Incidents are listed below. It should be noted that this list is not
+                        exhaustive.</h3>
+                    <h4>Malicious</h4>
+                    <ul>
+                        <li>Giving information to someone who should not have access to it - verbally, in writing, or
+                            electronically.</li>
+                        <li>Computer infected by a Virus or other malware.</li>
+                        <li>Sending a sensitive e-mail to 'all staff' by mistake.</li>
+                        <li>Receiving unsolicited mail of an offensive nature.</li>
+                        <li>Receiving unsolicited mail that requires you to enter personal data.</li>
+                        <li>Finding data that has been changed by an unauthorized person.</li>
+                        <li>Receiving and forwarding chain letters – including virus warnings, scam warnings, and other
+                            emails that encourage the recipient to forward to others.</li>
+                        <li>Unknown people ask for information that could gain them access to the University data (e.g.
+                            a password or details of a third party).</li>
+                    </ul>
+                    <h4>Misuse</h4>
+                    <ul>
+                        <li>Use of unapproved or unlicensed software on the University’s equipment.</li>
+                        <li>Accessing a computer database using someone else's authorization (e.g. someone else's user
+                            ID and password).</li>
+                        <li>Writing down your password and leaving it on display / somewhere easy to find.</li>
+                        <li>Printing or copying confidential information and not storing it correctly or confidentially.
+                        </li>
+                    </ul>
+                    <h4>Theft / Loss</h4>
+                    <ul>
+                        <li>Theft/loss of a hard copy file.</li>
+                        <li>Theft/loss of any of the University’s computer equipment.</li>
+                    </ul>
+                    <h3>7.1. Notification or Report to the Data Protection Officer and the Security Incident Response
+                        Team (SIRT)</h3>
+                    <p>Security Incident Report shall be submitted or coordinated through:</p>
+                    <ul>
+                        <li>The Data Protection Officer (DPO) and/or</li>
+                        <li>Head of the Security Incident Response Team (SIRT)</li>
+                        <li>Email addresses: dpo-notification@neu.edu.ph</li>
+                        <li>Contact Numbers: 028-9814221 local 3859</li>
+                    </ul>
+                    <p>The following information should be provided:</p>
+                    <ul>
+                        <li>Details of the incident (if known).</li>
+                        <li>Date and Time of Incident.</li>
+                        <li>Number of Persons Affected.</li>
+                        <li>Name of office processing the information.</li>
+                        <li>Contact name and number of the person reporting the incident.</li>
+                        <li>The type of data, information, or equipment involved.</li>
+                        <li>Whether the loss of the data puts any person or other data at risk.</li>
+                        <li>Location of the incident.</li>
+                        <li>Inventory numbers of any equipment affected.</li>
+                        <li>Location of data or equipment affected.</li>
+                    </ul>
+                    <h3>7.2. The SIRT shall investigate and assess the reported suspected security incidents in
+                        coordination with the concerned unit or office.</h3>
+                    <h3>7.3. The SIRT shall inform immediately, or within one (1) hour from the discovery of the
+                        security incident, to the University President for appropriate action. A Security Incident
+                        Report shall be accomplished within twenty-four (24) hours and submit the same to the University
+                        President.</h3>
+                    <h3>7.4. The SIRT shall evaluate the Security Incident Report submitted to them. The Head of the
+                        SIRT will determine if additional members or experts are necessary to investigate the reported
+                        incident. If deemed necessary, the Head of the SIRT shall recommend the designation of
+                        additional members to the University President.</h3>
+                    <h3>7.5. The SIRT shall conduct its investigation based on the Security Incident Report submitted
+                        and shall perform the following tasks:</h3>
+                    <ul>
+                        <li>Collate the following information:
+                            <ul>
+                                <li>The nature and circumstances of the security incident.</li>
+                                <li>Data processing systems involved.</li>
+                                <li>Data Processor and other persons responsible or involved, designation and their
+                                    contact details.</li>
+                            </ul>
+                        </li>
+                        <li>Conduct clarificatory questions to the Data Processor.</li>
+                        <li>Require additional submissions of documents, reports, or information from the Data
+                            Processor.</li>
+                        <li>Request for a meeting with the Data Processor and other concerned offices or individuals in
+                            the University.</li>
+                        <li>Perform actions to obtain the necessary information related to the reported Security
+                            Incident.</li>
+                        <li>Consult with the DPO and Head of the SIRT before performing major actions that may need
+                            permission from the University President and/or Board of Trustees.</li>
+                        <li>Complete its investigation within forty-eight (48) hours after the endorsement of the
+                            Security incident Report for investigation. Any request for extension of investigation and
+                            submission of initial assessment shall be relayed to the University President, DPO, and Head
+                            of the SIRT.</li>
+                    </ul>
+                    <h3>7.6. The results of the investigation and initial recommendation (SIRT Security Incident Report)
+                        shall be signed by all members of the SIRT and submitted to the University President, copy
+                        furnished to the DPO.</h3>
+                    <h3>7.7. The University President, DPO and Head of the SIRT shall then make a final recommendation
+                        to the Board of Trustees for appropriate approval and action.</h3>
+                    <h3>7.8. All documents submitted related to the Security Incident shall be consolidated and kept by
+                        the DPO and Head of the SIRT.</h3>
+                </div>
+
+                <div class="section">
+                    <h2>8. Security Measures</h2>
+                    <h3>8.1. The DPO and Head of the SIRT, with the approval of the University President, will conduct a
+                        debriefing session with the COPs, Data Processor and concern individuals to implement remedial
+                        or preventive measures. The DPO may also conduct an orientation regarding data privacy and
+                        compliance with the Data Privacy Act of 2012.</h3>
+                    <h3>8.2. The DPO and Head of the SIRT may recommend the conduct of Privacy Impact Assessment (PIA)
+                        on the data processing system involved in the security incident or the office concern.</h3>
+                    <h3>8.3. The University President shall issue a corresponding memorandum to implement the new
+                        security measures as recommended by the DPO and the Head of the SIRT.</h3>
+                    <h3>8.4. The SIRT shall conduct the following:</h3>
+                    <ul>
+                        <li>Regular monitoring for security breaches and vulnerability scanning of computer networks.
+                        </li>
+                        <li>Change user and administrative access credentials.</li>
+                        <li>Conduct backup of data as deemed necessary. General or scheduled back-up shall be
+                            implemented by CSD.</li>
+                        <li>Shut down or disconnect the affected devices from the internet or intranet.</li>
+                        <li>Conduct inventory and review of access control, equipment and assets, and secure log files
+                            as deemed necessary. General inventory shall be done by CSD and reported to the SIRT and
+                            DPO.</li>
+                        <li>Restore, repair or rebuild the system or application that was compromised.</li>
+                        <li>Review and approve the Assets Inventory Report conducted by the CSD.</li>
+                    </ul>
+                    <h3>8.5. The Computer Service Department (CSD) shall remain to be responsible for the daily
+                        operation and maintenance of the University’s I.T. facilities. They shall immediately report to
+                        the SIRT in case there is a belief or possibility that a security incident might arise and need
+                        further investigation by the SIRT. They will cooperate and allow the SIRT and DPO to regularly
+                        check the operations of the CSD to comply with the former’s obligation to monitor security
+                        breaches and vulnerability of computer networks.</h3>
+                    <h3>8.6. The Acceptable Use Policy of the University, including but not limited to the Information
+                        Security Policy, shall govern the use of computing facilities and network infrastructure in the
+                        University.</h3>
+                </div>
+
+                <div class="section">
+                    <h2>9. Confidentiality</h2>
+                    <p>All information related to reported security incidents shall be kept confidential by all
+                        concerned Parties. A corresponding Non-Disclosure Agreement prescribed by the DPO shall be
+                        explained to the concerned parties and signed by them before they assume their functions under
+                        this Policy. Any public pronouncements involving any security incidents must be upon the
+                        approval of the DPO, University President, and/or Board of Trustees.</p>
+                </div>
+
+                <div class="section">
+                    <h2>10. Data Breach Notification of the NPC and Data Subjects</h2>
+                    <p>The DPO shall assess and recommend whether the Personal Data Breach should be reported to the
+                        National Privacy Commission (NPC) as required under the Data Privacy Act of 2012.</p>
+                    <p>The following shall be reported to NPC:</p>
+                    <ul>
+                        <li>The personal data involves sensitive personal information or any other information that may
+                            be used to enable identity fraud.</li>
+                        <li>Other information includes, but is not limited to, the following:
+                            <ul>
+                                <li>Data about the financial or economic situation of the data subject.</li>
+                                <li>Usernames, passwords, and other login data.</li>
+                                <li>Biometric data.</li>
+                                <li>Copies of identification documents, licenses, or unique identifiers like Philhealth,
+                                    SSS, GSIS, TIN number.</li>
+                                <li>Other similar information, which may be made the basis of decisions concerning the
+                                    data subject, including the grant of rights or benefits.</li>
+                            </ul>
+                        </li>
+                        <li>There is reason to believe that the information may have been acquired by an unauthorized
+                            person.</li>
+                        <li>The personal information controller believes that the data breach is likely to give rise to
+                            a real risk of serious harm to the affected data subject.</li>
+                    </ul>
+                    <p>When there is doubt as to whether notification is necessary, consider factors:</p>
+                    <ul>
+                        <li>The likelihood of harm or negative consequences on the affected data subjects.</li>
+                        <li>How notification, particularly of the data subjects, could reduce the risks arising from the
+                            personal data breach reasonably believed to have occurred.</li>
+                        <li>If the data involves:
+                            <ul>
+                                <li>Information that would likely affect national security, public safety, public order,
+                                    or public health.</li>
+                                <li>At least one hundred (100) individuals.</li>
+                                <li>Information required by all applicable laws or rules to be confidential.</li>
+                                <li>Personal data of vulnerable groups.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p>Aside from notifying the NPC, the University, through the DPO, SIRT, and University President,
+                        shall also notify the affected Data Subjects within seventy-two (72) hours upon knowledge of or
+                        the reasonable belief by the University that a Personal Data Breach has occurred.</p>
+                    <p>Generally, there shall be no delay in notification, except to the extent necessary to determine
+                        the following:</p>
+                    <ul>
+                        <li>The scope of the breach.</li>
+                        <li>To prevent further disclosures.</li>
+                        <li>To restore reasonable integrity to the information and communications system.</li>
+                    </ul>
+                    <p>Delay is not allowed if the breach involves at least one hundred (100) data subjects, or the
+                        disclosure of sensitive, personal information will harm or adversely affect the data subject
+                        except when the University is granted additional time by the NPC to comply.</p>
+                </div>
+
+                <div class="section">
+                    <h2>11. Learning from Information Security Incidents</h2>
+                    <p>Security Incidents shall be recorded and reviewed to improve the response process of the
+                        University. The information collated shall be considered in reviewing and recommending the
+                        revision of the University’s Data Privacy Policy.</p>
+                </div>
+
+                <div class="section">
+                    <h2>12. Policy Governance</h2>
+                    <p>The following table identifies who within the University is Accountable, Responsible, Informed or
+                        Consulted with regards to this policy. The following definitions apply:</p>
+                    <ul>
+                        <li><strong>Responsible</strong> – the person(s) responsible for developing and implementing the
+                            policy.</li>
+                        <li><strong>Accountable</strong> – the person who has ultimate accountability and authority for
+                            the policy.</li>
+                        <li><strong>Consulted</strong> – the person(s) or groups to be consulted prior to final policy
+                            implementation or amendment.</li>
+                        <li><strong>Informed</strong> – the person(s) or groups to be informed after policy
+                            implementation or amendment.</li>
+                    </ul>
+                </div>
+                <div class="section">
+                    <h2>13. Penalties</h2>
+                    <p>If any user is found to have breached this policy, they may be subject to the University’s
+                        disciplinary procedure. If a criminal offence is considered to have been committed, further
+                        action may be taken to assist in the prosecution of the perpetrators, all participants, and
+                        accomplices.</p>
+                </div>
+
+                <div class="section">
+                    <h2>14. Review and Revision</h2>
+                    <p>This policy, and all related appendices, will be reviewed as it is deemed appropriate, but no
+                        less frequently than every 12 months.</p>
+                    <p>Policy review will be undertaken by the Data Protection Officer and the head of the SIRT.</p>
+                </div>
+
+                <div class="section">
+                    <h2>15. Effectivity</h2>
+                    <p>Upon the approval of the Board of Trustees, this Policy and any subsequent amendments shall take
+                        effect within fifteen (15) calendar days after it has been posted in the University’s website.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
