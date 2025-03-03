@@ -1,17 +1,14 @@
 ﻿@using WebApp.ViewModels;
-@model LoginViewModel;
 
 @{
 	ViewData["Title"] = "NEU Care | Login";
 	Layout = "~/Views/Shared/Layouts/_AccountLayout.cshtml";
 }
 
-<div
-	class="account-container position-relative d-flex flex-column justify-content-center align-items-center min-vh-100 text-white text-center bg-dark overflow-hidden">
-	<div class="account-box bg-white rounded-4 p-5 shadow-lg w-100" style="max-width: 600px;">
-
-
-		<div class="text-center mb-2">
+<div class="d-flex min-vh-100">
+	<!-- Left Container: Google Login -->
+	<div class="bg-white login-left d-flex flex-column justify-content-center align-items-center shadow-lg p-5">
+		<div class="text-center mb-3">
 			<img src="~/assets/images/NEU_LOGO.png" alt="Logo" style="height:75px; width:auto;">
 		</div>
 
@@ -26,50 +23,31 @@
 			}
 		</div>
 
-		<form asp-action="Login" method="post">
-			<div asp-validation-summary="ModelOnly" class="form-label text-danger d-block"></div>
-			<div>
-				<div class="mb-4">
-					<input asp-for="Email" class="form-control text-start" placeholder="Email" />
-					<span asp-validation-for="Email" class="form-label text-start text-danger d-block"></span>
-				</div>
+		<h3 class="text-whitetext-center fw-bold mb-3">New Era University Care</h3>
+		<a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google"
+			class="form-control d-flex align-items-center justify-content-center text-decoration-none gap-2 bg-google fw-bold text-white w-100 p-2 my-2">
+			<i class="fab fa-google"></i> Sign-up with Google
+		</a>
 
-				<!-- Password input with toggle eye icon -->
-				<div class="mb-4">
-					<div class="input-group">
-						<input asp-for="Password" id="password" class="form-control text-start" placeholder="Password"
-							type="password" />
-						<button type="button" class="input-group-text bg-white border-start-0"
-							onclick="togglePasswordVisibility('password', this)">
-							<i class="fa-solid fa-eye-slash"></i>
-						</button>
-					</div>
-					<span asp-validation-for="Password" class="form-label text-start text-danger d-block"></span>
-				</div>
-			</div>
-
-			<button type="submit"
-				class="form-control d-flex align-items-center justify-content-center gap-2 bg-primary fw-bold text-white w-100 p-2 my-2">
-				<i class="fa-solid fa-right-to-bracket"></i> Log in
-			</button>
-
-			<a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google"
-				class="form-control d-flex align-items-center justify-content-center text-decoration-none gap-2 bg-google fw-bold text-white w-100 p-2 my-2">
-				<i class="fab fa-google"></i> Sign-up with Google
+		<div class="d-flex justify-content-between mt-2">
+			<a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#cookieModal">
+				<i class="fa-solid fa-circle-exclamation"></i> Cookies notice
 			</a>
-
-
-			<div class="d-flex justify-content-between mt-2">
-				<a asp-controller="Account" asp-action="VerifyEmail" class="text-decoration-none">Lost password?</a>
-				<a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#cookieModal">
-					<i class="fa-solid fa-circle-exclamation"></i> Cookies notice
-				</a>
-			</div>
-		</form>
+		</div>
 		<div class="text-center pt-3">
 			<a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back to Home</a>
 		</div>
 	</div>
+
+	<!-- Right Container: Welcome Message with Background -->
+	<div class="login-right d-flex flex-column justify-content-center align-items-center text-white text-center p-5">
+		<div class="overlay"></div>
+		<h1 class="fw-bold">Welcome to NEU Care</h1>
+		<p class="lead">Your gateway to a seamless healthcare experience. Sign in with your NEU account to access
+			exclusive features and services.</p>
+	</div>
+
+
 </div>
 
 <!-- Bootstrap Modal -->
@@ -99,25 +77,6 @@
 	</div>
 </div>
 
-@section Scripts {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
-	<script>
-		// Toggle Password Visibility Function
-		function togglePasswordVisibility(inputId, button) {
-			const passwordInput = document.getElementById(inputId);
-			const icon = button.querySelector('i');
 
-			if (passwordInput.type === "password") {
-				passwordInput.type = "text";
-				icon.classList.remove("fa-eye-slash");
-				icon.classList.add("fa-eye");
-			} else {
-				passwordInput.type = "password";
-				icon.classList.remove("fa-eye");
-				icon.classList.add("fa-eye-slash");
-			}
-		}
-	</script>
+@section Scripts {
 }

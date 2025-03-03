@@ -1,57 +1,38 @@
-﻿.account-container {
-    background: url('../assets/images/NEU_BG.png') no-repeat center center fixed;
+﻿.login-left {
+    width: 30%;
+    background-color: white;
+    position: relative;
+    z-index: 2;
+}
+
+/* Right Side - Background Image */
+.login-right {
+    width: 70%;
+    background: url('../assets/images/NEU_BG.png') no-repeat center center;
     background-size: cover;
+    position: relative;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding: 2rem 0;
+    padding: 50px;
+    color: white;
+    text-align: center;
 }
 
-.overlay {
-    background-color: rgba(0, 0, 0, 0.45);
-    position: relative;
+/* Dark Overlay for Right Side */
+.login-right .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
 }
 
-.account-box {
-    background-color: #ffffff;
-    padding: 50px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    max-width: 550px;
-    width: 100%;
-    opacity: 0.95;
-}
-
-.btn-primary {
-    font-weight: bold;
-}
-
-.form-control {
-    text-align: center;
-    border-radius: 8px;
-    height: 45px;
-}
-
-.file-upload-control {
-
-    border-radius: 8px;
-    height: 45px;
-    padding: 10px;
-    cursor: pointer;
-    background-color: #f8f9fa;
-    border: 1px solid #ced4da;
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.file-upload-control:hover {
-    border-color: #adaaaa;
-    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
-}
-
-.file-upload-control:focus {
-    border-color: #ffffff;
-    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+/* Ensure text and elements appear above the overlay */
+.login-right>* {
+    position: relative;
+    z-index: 2;
 }

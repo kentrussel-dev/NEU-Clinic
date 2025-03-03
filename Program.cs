@@ -16,11 +16,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
 {
     options.Password.RequireDigit = false;
-    options.Password.RequiredLength = 6;             
-    options.Password.RequireLowercase = false;       
-    options.Password.RequireUppercase = false;       
-    options.Password.RequireNonAlphanumeric = false; 
-    options.Password.RequiredUniqueChars = 0;        
+    options.Password.RequiredLength = 6;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredUniqueChars = 0;
 })
 .AddUserValidator<CustomEmailValidator<Users>>()
 .AddEntityFrameworkStores<AppDbContext>()
@@ -39,22 +39,15 @@ builder.Services.AddAuthentication(options =>
     options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
     options.SignInScheme = IdentityConstants.ExternalScheme;
 
-    // Redirect to profile creation after Google login
-    options.Events.OnCreatingTicket = async context =>
+    // Ensure Google prompts for account selection every time
+    options.Events.OnRedirectToAuthorizationEndpoint = context =>
     {
-        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<Users>>();
-        var signInManager = context.HttpContext.RequestServices.GetRequiredService<SignInManager<Users>>();
-        var userEmail = context.Principal.FindFirstValue(System.Security.Claims.ClaimTypes.Email);
-
-        var user = await userManager.FindByEmailAsync(userEmail);
-        if (user == null)
-        {
-            context.Response.Redirect("/Account/CreateProfile");
-        }
+        context.Response.Redirect(context.RedirectUri + "&prompt=select_account");
+        return Task.CompletedTask;
     };
 });
 
-// Configure application cookie
+// Configure application cookie settings
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
