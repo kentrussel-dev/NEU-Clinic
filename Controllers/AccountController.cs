@@ -70,6 +70,16 @@ namespace WebApp.Controllers
                 if (createResult.Succeeded)
                 {
                     await userManager.AddLoginAsync(user, info);
+
+                    // ✅ Assign role based on user type
+                    if (email == superAdminEmail)
+                    {
+                        await userManager.AddToRoleAsync(user, "SuperAdmin");
+                    }
+                    else
+                    {
+                        await userManager.AddToRoleAsync(user, "Student");
+                    }
                 }
                 else
                 {
@@ -80,22 +90,30 @@ namespace WebApp.Controllers
             }
             else
             {
+                // ✅ Ensure profile picture is updated
                 if (!string.IsNullOrEmpty(profilePictureUrl) && user.ProfilePictureUrl != profilePictureUrl)
                 {
                     user.ProfilePictureUrl = profilePictureUrl;
                     await userManager.UpdateAsync(user);
                 }
+
+                // ✅ Prevent duplicate role assignments
+                var userRoles = await userManager.GetRolesAsync(user);
+                if (email == superAdminEmail && !userRoles.Contains("SuperAdmin"))
+                {
+                    await userManager.AddToRoleAsync(user, "SuperAdmin");
+                }
             }
 
             var claims = new List<Claim>
-            {
-                new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/default-profile.png")
-            };
+    {
+        new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/default-profile.png")
+    };
             await signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
 
-            // Always redirect to the dashboard
             return RedirectToAction("Index", "Dashboard");
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

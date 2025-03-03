@@ -62,6 +62,13 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// ✅ Ensure role seeding is called inside an async method
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedRolesAndSuperAdminAsync(services);
+}
+
 // Middleware configuration
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -73,3 +80,33 @@ app.UseAuthorization();
 app.MapDefaultControllerRoute();
 
 app.Run();
+
+// =============================
+// ✅ ASYNC ROLE SEEDING LOGIC
+// =============================
+async Task SeedRolesAndSuperAdminAsync(IServiceProvider serviceProvider)
+{
+    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = serviceProvider.GetRequiredService<UserManager<Users>>();
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+    string[] roleNames = { "SuperAdmin", "Admin", "Student", "MedicalStaff" };
+
+    foreach (var roleName in roleNames)
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+
+    string superAdminEmail = configuration["SuperAdmin:Email"];
+    if (!string.IsNullOrEmpty(superAdminEmail))
+    {
+        var superAdmin = await userManager.FindByEmailAsync(superAdminEmail);
+        if (superAdmin != null && !await userManager.IsInRoleAsync(superAdmin, "SuperAdmin"))
+        {
+            await userManager.AddToRoleAsync(superAdmin, "SuperAdmin");
+        }
+    }
+}

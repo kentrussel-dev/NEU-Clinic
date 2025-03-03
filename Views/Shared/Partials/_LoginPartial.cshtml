@@ -1,18 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Identity;
 @inject SignInManager<Users> signInManager;
-
-<style>
-	/* 🎨 Custom hover effect for dropdown items */
-	.dropdown-item:hover {
-		background-color: rgba(255, 255, 255, 0.2) !important;
-		color: #ffffff !important;
-		transition: background-color 0.3s ease, color 0.3s ease;
-	}
-</style>
+@inject UserManager<Users> userManager;
 
 @if (signInManager.IsSignedIn(User))
 {
 	var userProfilePicture = User.FindFirst("ProfilePictureUrl")?.Value ?? "/default-profile.png";
+	var isSuperAdmin = User.IsInRole("SuperAdmin"); // ✅ Check if user is SuperAdmin
+
 	<div class="dropdown">
 		<a class="d-flex align-items-center gap-2 text-white text-decoration-none dropdown-toggle bg-primary p-2 rounded"
 			href="#" role="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false"
@@ -23,40 +17,26 @@
 		<ul class="dropdown-menu dropdown-menu-end bg-primary border-0 shadow rounded-3 p-2"
 			aria-labelledby="profileDropdown" style="min-width: 220px;">
 
-			<!-- 🌟 Settings -->
 			<li>
 				<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" href="#">
 					<i class="fas fa-cog"></i> Settings
 				</a>
 			</li>
 
-			<!-- ♿ Accessibility -->
-			<li>
-				<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" href="#">
-					<i class="fas fa-universal-access"></i> Accessibility
-				</a>
-			</li>
+			@if (isSuperAdmin)
+			{
+				<li>
+					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+						asp-controller="UserManagement" asp-action="Index">
+						<i class="fas fa-users-cog"></i> User Management
+					</a>
+				</li>
+				<li>
+					<hr class="dropdown-divider bg-white opacity-50">
+				</li>
+			}
 
-			<!-- 📅 Calendar -->
-			<li>
-				<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" href="#">
-					<i class="fas fa-calendar-alt"></i> Calendar
-				</a>
-			</li>
-
-			<!-- 🌈 Preferences -->
-			<li>
-				<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" href="#">
-					<i class="fas fa-sliders-h"></i> Preferences
-				</a>
-			</li>
-
-			<!-- 🔗 Divider -->
-			<li>
-				<hr class="dropdown-divider bg-white opacity-50">
-			</li>
-
-			<!-- 🚪 Logout at the bottom -->
+			<!-- 🚪 Logout -->
 			<li>
 				<form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
 					<button type="submit" class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2">
