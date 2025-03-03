@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using WebApp.Models;
-using WebApp.ViewModels;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Configuration;
 
 namespace WebApp.Controllers
 {
@@ -13,11 +11,13 @@ namespace WebApp.Controllers
     {
         private readonly SignInManager<Users> signInManager;
         private readonly UserManager<Users> userManager;
+        private readonly string superAdminEmail;
 
-        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager)
+        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, IConfiguration configuration)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
+            this.superAdminEmail = configuration["SuperAdmin:Email"]; // Load SuperAdmin email
         }
 
         public IActionResult Login() => View();
@@ -29,6 +29,7 @@ namespace WebApp.Controllers
             var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);
         }
+
         [HttpGet]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
         {
@@ -45,7 +46,7 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Login));
 
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-            if (email == null || !email.EndsWith("@neu.edu.ph", StringComparison.OrdinalIgnoreCase))
+            if (email == null || (!email.EndsWith("@neu.edu.ph", StringComparison.OrdinalIgnoreCase) && email != superAdminEmail))
             {
                 TempData["ErrorMessage"] = "Only @neu.edu.ph email addresses are allowed for Google login.";
                 return RedirectToAction(nameof(Login));
@@ -100,19 +101,12 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // Sign out from ASP.NET Identity
             await signInManager.SignOutAsync();
-
-            // Clear external authentication cookies
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            // Invalidate session cookie
             Response.Cookies.Delete(".AspNetCore.Identity.Application");
-
-            // Redirect to login page (forces Google to ask for account selection next time)
             return RedirectToAction("Login", "Account");
         }
-
     }
 }
