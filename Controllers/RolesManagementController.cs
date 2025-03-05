@@ -54,5 +54,29 @@ namespace WebApp.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteRole(string roleId)
+        {
+            var role = await roleManager.FindByIdAsync(roleId);
+            if (role == null)
+                return NotFound();
+
+            // Prevent deletion of SuperAdmin role
+            if (role.Name == "SuperAdmin")
+                return BadRequest("SuperAdmin role cannot be deleted.");
+
+            var result = await roleManager.DeleteAsync(role);
+            if (result.Succeeded)
+            {
+                // Remove role from temporary permissions storage
+                tempRolePermissions.Remove(role.Name);
+                return RedirectToAction("Index");
+            }
+
+            return BadRequest("Failed to delete role.");
+        }
+
     }
 }

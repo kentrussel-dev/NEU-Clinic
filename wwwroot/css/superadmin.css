@@ -18,11 +18,15 @@
     background-color: #343a40;
     color: #fff;
     padding: 12px 15px;
+    text-align: center;
+    /* Ensure headers are centered */
 }
 
 .user-table td {
     vertical-align: middle;
     padding: 10px 15px;
+    text-align: center;
+    /* Ensure data is centered */
 }
 
 .role-select {

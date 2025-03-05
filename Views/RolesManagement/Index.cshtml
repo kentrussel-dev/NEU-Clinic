@@ -12,12 +12,15 @@
 }
 
 <div class="container-fluid">
-    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
-        Roles Management
-    </h2>
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">Roles Management</h2>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Roles...">
+        <button class="btn btn-success btn-modern">Add Role</button>
+    </div>
 
     <div class="table-responsive">
-        <table class="table table-hover text-center" id="roleTable">
+        <table class="table table-hover user-table text-center" id="roleTable">
             <thead class="table-dark">
                 <tr>
                     <th>Role</th>
@@ -35,21 +38,27 @@
                     {
                         <tr id="role-@role.Id">
                             <td class="align-middle">@role.Name</td>
-                            @foreach (var permission in allPermissions)
-                            {
-                                var isChecked = rolePermissions.ContainsKey(role.Name) &&
-                                rolePermissions[role.Name].Contains(permission);
+                            <form asp-action="UpdateRolePermissions" method="post" id="updateForm-@role.Id">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="roleId" value="@role.Id" />
+                                @foreach (var permission in allPermissions)
+                                {
+                                    var isChecked = rolePermissions.ContainsKey(role.Name) &&
+                                    rolePermissions[role.Name].Contains(permission);
+                                    <td class="align-middle">
+                                        <div class="form-check form-check-inline d-flex justify-content-center">
+                                            <input type="checkbox" name="selectedPermissions" value="@permission"
+                                                class="form-check-input" @(isChecked ? "checked" : "") disabled>
+                                        </div>
+                                    </td>
+                                }
                                 <td class="align-middle">
-                                    <div class="form-check form-check-inline">
-                                        <input type="checkbox" name="selectedPermissions" value="@permission"
-                                            class="form-check-input" @(isChecked ? "checked" : "")>
-                                    </div>
+                                    <button type="button" class="btn btn-primary btn-sm edit-btn btn-modern"
+                                        onclick="toggleEdit('@role.Id')">Edit</button>
+                                    <button type="button" class="btn btn-success btn-sm update-btn btn-modern"
+                                        style="display: none;" onclick="confirmUpdate('@role.Id')">Update</button>
                                 </td>
-                            }
-                            <td class="align-middle">
-                                <button class="btn btn-success btn-sm btn-modern"
-                                    onclick="confirmUpdate('@role.Id')">Update</button>
-                            </td>
+                            </form>
                         </tr>
                     }
                 }
@@ -58,6 +67,7 @@
     </div>
 </div>
 
+<!-- Bootstrap Confirmation Modal -->
 <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
@@ -76,10 +86,33 @@
 </div>
 
 <script>
+    function toggleEdit(roleId) {
+        const row = document.getElementById(`role-${roleId}`);
+        const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+        const editBtn = row.querySelector('.edit-btn');
+        const updateBtn = row.querySelector('.update-btn');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.disabled = !checkbox.disabled;
+        });
+
+        editBtn.style.display = checkboxes[0].disabled ? 'inline-block' : 'none';
+        updateBtn.style.display = checkboxes[0].disabled ? 'none' : 'inline-block';
+    }
+
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        let search = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#roleTable tbody tr');
+        rows.forEach(row => {
+            let roleName = row.cells[0].textContent.toLowerCase();
+            row.style.display = roleName.includes(search) ? '' : 'none';
+        });
+    });
+
     function confirmUpdate(roleId) {
         const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
         document.getElementById('confirmAction').onclick = function () {
-            document.getElementById(`roleForm-${roleId}`).submit();
+            document.getElementById(`updateForm-${roleId}`).submit();
             modal.hide();
         };
         modal.show();
