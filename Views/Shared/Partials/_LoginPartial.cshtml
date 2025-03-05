@@ -5,7 +5,7 @@
 @if (signInManager.IsSignedIn(User))
 {
 	var userProfilePicture = User.FindFirst("ProfilePictureUrl")?.Value ?? "/default-profile.png";
-	var isSuperAdmin = User.IsInRole("SuperAdmin"); // ✅ Check if user is SuperAdmin
+	var isSuperAdmin = User.IsInRole("SuperAdmin");
 
 	<div class="dropdown">
 		<a class="d-flex align-items-center gap-2 text-white text-decoration-none dropdown-toggle bg-primary p-2 rounded"
@@ -27,16 +27,24 @@
 			{
 				<li>
 					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
-						asp-controller="UserManagement" asp-action="Index">
+						asp-controller="UsersManagement" asp-action="Index">
 						<i class="fas fa-users-cog"></i> User Management
 					</a>
 				</li>
 				<li>
-					<hr class="dropdown-divider bg-white opacity-50">
+					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+						asp-controller="RolesManagement" asp-action="Index">
+						<i class="fas fa-user-shield"></i> Role Management
+					</a>
 				</li>
 			}
 
+			<li>
+				<hr class="dropdown-divider bg-white opacity-50">
+			</li>
+
 			<!-- 🚪 Logout -->
+
 			<li>
 				<form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
 					<button type="submit" class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2">

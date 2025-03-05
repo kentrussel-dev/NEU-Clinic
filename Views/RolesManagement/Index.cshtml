@@ -1,0 +1,87 @@
+@using Microsoft.AspNetCore.Identity;
+@model List<IdentityRole>
+
+<link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
+
+@{
+    ViewData["Title"] = "Role Management";
+    var rolePermissions = ViewBag.RolePermissions as Dictionary<string, List<string>> ?? new Dictionary<string,
+    List<string>>();
+    var allPermissions = ViewBag.AllPermissions as List<string> ?? new List<string>();
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
+        Roles Management
+    </h2>
+
+    <div class="table-responsive">
+        <table class="table table-hover text-center" id="roleTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Role</th>
+                    @foreach (var permission in allPermissions)
+                    {
+                        <th>@permission</th>
+                    }
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var role in Model)
+                {
+                    if (role.Name != "SuperAdmin")
+                    {
+                        <tr id="role-@role.Id">
+                            <td class="align-middle">@role.Name</td>
+                            @foreach (var permission in allPermissions)
+                            {
+                                var isChecked = rolePermissions.ContainsKey(role.Name) &&
+                                rolePermissions[role.Name].Contains(permission);
+                                <td class="align-middle">
+                                    <div class="form-check form-check-inline">
+                                        <input type="checkbox" name="selectedPermissions" value="@permission"
+                                            class="form-check-input" @(isChecked ? "checked" : "")>
+                                    </div>
+                                </td>
+                            }
+                            <td class="align-middle">
+                                <button class="btn btn-success btn-sm btn-modern"
+                                    onclick="confirmUpdate('@role.Id')">Update</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">Are you sure you want to update this role's permissions?</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAction">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmUpdate(roleId) {
+        const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+        document.getElementById('confirmAction').onclick = function () {
+            document.getElementById(`roleForm-${roleId}`).submit();
+            modal.hide();
+        };
+        modal.show();
+    }
+</script>

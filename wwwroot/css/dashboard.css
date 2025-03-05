@@ -71,8 +71,22 @@
 
 /* Smooth hover effect */
 .list-group-item:hover {
+    background-color: #1c1c1c !important;
+}
+
+/* Active tab styling */
+.list-group-item.active {
     background-color: #ffffff !important;
+    /* White background for active tab */
     color: rgb(0, 0, 0) !important;
+    /* Black text for active tab */
+}
+
+.list-group-item.active:hover {
+    background-color: #ffffff !important;
+    /* Keep white background on hover */
+    color: rgb(0, 0, 0) !important;
+    /* Keep black text on hover */
 }
 
 @media (max-width: 800px) {
