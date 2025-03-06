@@ -61,6 +61,13 @@
 						<i class="fas fa-user-shield"></i> Role Management
 					</a>
 				</li>
+				<li>
+					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+						asp-controller="RolesManagement" asp-action="Index">
+						<i class="fas fa-notes-medical"></i> User Health Management
+					</a>
+				</li>
+
 			}
 
 			<li>
@@ -77,4 +84,10 @@
 			</li>
 		</ul>
 	</div>
+}
+else
+{
+	<a class="nav-link text-white" asp-controller="Account" asp-action="Login">
+		<i class="fas fa-sign-in-alt"></i> Login
+	</a>
 }

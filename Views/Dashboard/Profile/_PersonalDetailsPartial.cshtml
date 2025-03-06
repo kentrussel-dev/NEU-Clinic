@@ -1,0 +1,152 @@
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Identity
+@using WebApp.ViewModels
+@using WebApp.Data
+@inject UserManager<Users> userManager
+@inject AppDbContext _context
+
+@{
+    var user = await userManager.GetUserAsync(User);
+    var personalDetails = user != null
+    ? await _context.PersonalDetails.FirstOrDefaultAsync(p => p.UserId == user.Id)
+    : null;
+
+    var department = personalDetails?.Department ?? "N/A";
+    var course = personalDetails?.Course ?? "N/A";
+    var studentId = personalDetails?.StudentId ?? "N/A";
+    var dob = personalDetails?.DateOfBirth?.ToString("yyyy-MM-dd") ?? "N/A";
+    var address = personalDetails?.Address ?? "N/A";
+    var yearLevel = personalDetails?.YearLevel ?? "N/A";
+    var name = user?.FullName ?? user?.UserName ?? "N/A";
+}
+
+@{
+    // Define the list of departments
+    var departments = new[]
+    {
+"College of Accountancy",
+"College of Agriculture",
+"College of Arts and Science",
+"College of Business Administration",
+"College of Communication",
+"College of Informatics and Computing Studies",
+"College of Criminology",
+"College of Education",
+"College of Engineering and Architecture",
+"College of Medical Technology",
+"College of Midwifery",
+"College of Music",
+"College of Nursing",
+"College of Physical Therapy",
+"College of Respiratory Therapy",
+"School of International Relations"
+};
+
+    // Define the list of courses
+    var courses = new[]
+    {
+"Bachelor of Library and Information Science",
+"Bachelor of Science in Computer Science",
+"Bachelor of Science in Entertainment and Multimedia Computing with Specialization in Digital Animation Technology",
+"Bachelor of Science in Entertainment and Multimedia Computing with Specialization in Game Development",
+"Bachelor of Science in Information Technology",
+"Bachelor of Science in Information System"
+};
+}
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label for="fullName" class="form-label">Full Name</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="fullName" name="FullName" value="@name" readonly>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label for="dateOfBirth" class="form-label">Date of Birth</label>
+        <div class="input-group">
+            <input type="date" class="form-control" id="dateOfBirth" name="DateOfBirth" value="@dob" readonly>
+            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('dateOfBirth')">
+                <i class="fas fa-pen"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label for="department" class="form-label">Department/Program</label>
+        <div class="input-group">
+            <select class="form-select" id="department" name="Department" disabled>
+                <option value="">Select Department</option>
+                @foreach (var dept in departments)
+                {
+                    <option value="@dept" selected="@(department == dept ? "selected" : null)">@dept</option>
+                }
+            </select>
+            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('department')">
+                <i class="fas fa-pen"></i>
+            </button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label for="studentId" class="form-label">Student ID</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="studentId" name="StudentId" value="@studentId" readonly>
+            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('studentId')">
+                <i class="fas fa-pen"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label for="address" class="form-label">Address</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="address" name="Address" value="@address" readonly>
+            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('address')">
+                <i class="fas fa-pen"></i>
+            </button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label for="yearLevel" class="form-label">Year Level</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="yearLevel" name="YearLevel" value="@yearLevel" readonly>
+            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('yearLevel')">
+                <i class="fas fa-pen"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label for="course" class="form-label">Course</label>
+        <div class="input-group">
+            <select class="form-select" id="course" name="Course" disabled>
+                <option value="">Select Course</option>
+                @foreach (var crs in courses)
+                {
+                    <option value="@crs" selected="@(course == crs ? "selected" : null)">@crs</option>
+                }
+            </select>
+            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('course')">
+                <i class="fas fa-pen"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col-md-12 text-end">
+        <button type="submit" id="updateButton" class="btn btn-primary" style="display: none;">Update</button>
+    </div>
+</div>
+
+<script>
+    function makeEditable(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.removeAttribute("disabled"); // Enable the dropdown
+            field.focus(); // Focus on the dropdown
+            document.getElementById("updateButton").style.display = "block"; // Show the update button
+        }
+    }
+</script>

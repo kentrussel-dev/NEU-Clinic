@@ -6,8 +6,9 @@ namespace WebApp.Controllers
     [Authorize]
     public class DashboardController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(string activeTab = "home")
         {
+            ViewBag.ActiveTab = activeTab;
             return View("Dashboard");
         }
     }

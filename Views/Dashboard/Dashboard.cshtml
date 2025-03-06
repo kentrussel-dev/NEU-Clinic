@@ -44,25 +44,26 @@
 <div class="d-flex" id="wrapper">
     <div class="bg-dark border-end" id="sidebar-wrapper">
         <div
-            class="bg-primary text-white p-3 sidebar-header shadow-lg d-flex flex-column flex-sm-row justify-content-between align-items-center">
+            class="bg-primary text-white p-3 sidebar-header shadow-lg d-flex flex-column flex-sm-row align-items-center">
             <h4 class="m-0 sidebar-text text-nowrap">
                 <i class="fas fa-heartbeat me-2"></i>Dashboard
             </h4>
-            <button class="btn text-white border-0 toggle-btn" id="menu-toggle">
+            <button class="btn text-white border-0 toggle-btn d-flex justify-content-center align-items-center"
+                id="menu-toggle">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
 
         <div class="list-group list-group-flush mt-3 sidebar-content">
-            <a href="#home"
-                class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center active"
+            <a href="@Url.Action("Index", "Dashboard", new { activeTab = "home" })"
+                class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "home" ? "active" : "")"
                 data-tab="home">
                 <i class="fas fa-home"></i><span class="sidebar-text ms-2">Home</span>
             </a>
             @if (!isSuperAdmin)
             {
-                <a href="#profile"
-                    class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center"
+                <a href="@Url.Action("Index", "Dashboard", new { activeTab = "profile" })"
+                    class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "profile" ? "active" : "")"
                     data-tab="profile">
                     <i class="fas fa-user"></i><span class="sidebar-text ms-2">Profile</span>
                 </a>
@@ -72,7 +73,9 @@
 
     <div id="page-content-wrapper" class="w-100">
         <div class="container-fluid p-4">
-            <div id="home-content" class="tab-content @(activeTab == "home" ? "active" : "")">
+            <!-- Home Content -->
+            <div id="home-content" class="tab-content @(activeTab == "home" ? "active" : "")"
+                style="display: @(activeTab == "home" ? "block" : "none");">
                 <h2>Welcome to the Dashboard</h2>
                 <p>This is your dashboard content.</p>
                 @if (isStudent)
@@ -93,11 +96,12 @@
                 }
             </div>
 
+            <!-- Profile Content -->
             @if (!isSuperAdmin)
             {
                 <div id="profile-content" class="tab-content @(activeTab == "profile" ? "active" : "")"
-                    style="display: none;">
-                    @await Html.PartialAsync("Profile/_ProfileDashboardPartial");
+                    style="display: @(activeTab == "profile" ? "block" : "none");">
+                    @await Html.PartialAsync("Profile/_ProfileDashboardPartial")
                 </div>
             }
         </div>
@@ -113,30 +117,31 @@
             document.getElementById("wrapper").classList.toggle("toggled");
         });
 
+        // Activate the correct tab based on the activeTab value
+        const activeTab = "@activeTab";
+        const activeTabItem = document.querySelector(`.list-group-item[data-tab="${activeTab}"]`);
+        if (activeTabItem) {
+            activeTabItem.classList.add('active');
+            document.getElementById(`${activeTab}-content`).style.display = 'block';
+        }
+
+        // Handle tab clicks
         document.querySelectorAll('.list-group-item').forEach(item => {
             item.addEventListener('click', function (e) {
                 e.preventDefault();
                 const tab = this.getAttribute('data-tab');
 
-                document.querySelectorAll('.list-group-item').forEach(tabItem => {
-                    tabItem.classList.remove('active');
-                });
-
-                this.classList.add('active');
-
+                // Hide all tab contents
                 document.querySelectorAll('.tab-content').forEach(content => {
                     content.style.display = 'none';
                 });
 
+                // Show the selected tab content
                 document.getElementById(`${tab}-content`).style.display = 'block';
+
+                // Update the URL with the active tab
+                window.location.href = `@Url.Action("Index", "Dashboard")?activeTab=${tab}`;
             });
         });
-
-        const initialTab = window.location.hash.substring(1) || "home";
-        const initialTabItem = document.querySelector(`.list-group-item[data-tab="${initialTab}"]`);
-        if (initialTabItem) {
-            initialTabItem.classList.add('active');
-            document.getElementById(`${initialTab}-content`).style.display = 'block';
-        }
     </script>
 }

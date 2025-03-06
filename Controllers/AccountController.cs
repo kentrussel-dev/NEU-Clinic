@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication;
 using WebApp.Models;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using WebApp.Data;
 
 namespace WebApp.Controllers
 {
@@ -12,12 +14,14 @@ namespace WebApp.Controllers
         private readonly SignInManager<Users> signInManager;
         private readonly UserManager<Users> userManager;
         private readonly string superAdminEmail;
+        private readonly AppDbContext dbContext;
 
-        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, IConfiguration configuration)
+        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, IConfiguration configuration, AppDbContext dbContext)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
             this.superAdminEmail = configuration["SuperAdmin:Email"];
+            this.dbContext = dbContext;
         }
 
         public IActionResult Login() => View();
@@ -56,6 +60,7 @@ namespace WebApp.Controllers
             }
 
             var user = await userManager.FindByEmailAsync(email);
+            bool isNewUser = false;
 
             if (user == null)
             {
@@ -70,57 +75,51 @@ namespace WebApp.Controllers
                 };
 
                 var createResult = await userManager.CreateAsync(user);
-                if (createResult.Succeeded)
-                {
-                    await userManager.AddLoginAsync(user, info);
-
-                    // ✅ Assign role based on user type
-                    if (email == superAdminEmail)
-                        await userManager.AddToRoleAsync(user, "SuperAdmin");
-                    else
-                        await userManager.AddToRoleAsync(user, "Student");
-                }
-                else
+                if (!createResult.Succeeded)
                 {
                     foreach (var error in createResult.Errors)
                         ModelState.AddModelError(string.Empty, error.Description);
                     return View(nameof(Login));
                 }
+
+                await userManager.AddLoginAsync(user, info);
+                isNewUser = true;
+
+                // ✅ Assign role
+                string role = (email == superAdminEmail) ? "SuperAdmin" : "Student";
+                await userManager.AddToRoleAsync(user, role);
             }
-            else
+
+            // ✅ Update profile picture & full name only if changed
+            bool needsUpdate = false;
+
+            if (!string.IsNullOrEmpty(fullName) && user.FullName != fullName)
             {
-                // ✅ Ensure profile picture & full name are updated
-                bool needsUpdate = false;
+                user.FullName = fullName;
+                needsUpdate = true;
+            }
 
-                if (!string.IsNullOrEmpty(fullName) && user.FullName != fullName)
-                {
-                    user.FullName = fullName;
-                    needsUpdate = true;
-                }
+            if (!string.IsNullOrEmpty(profilePictureUrl) && user.ProfilePictureUrl != profilePictureUrl)
+            {
+                user.ProfilePictureUrl = profilePictureUrl;
+                needsUpdate = true;
+            }
 
-                if (!string.IsNullOrEmpty(profilePictureUrl) && user.ProfilePictureUrl != profilePictureUrl)
-                {
-                    user.ProfilePictureUrl = profilePictureUrl;
-                    needsUpdate = true;
-                }
+            if (needsUpdate)
+                await userManager.UpdateAsync(user);
 
-                if (needsUpdate)
-                {
-                    await userManager.UpdateAsync(user);
-                }
-
-                // ✅ Prevent duplicate role assignments
-                var userRoles = await userManager.GetRolesAsync(user);
-                if (email == superAdminEmail && !userRoles.Contains("SuperAdmin"))
-                {
-                    await userManager.AddToRoleAsync(user, "SuperAdmin");
-                }
+            // ✅ Ensure PersonalDetails & HealthDetails exist
+            if (isNewUser)
+            {
+                dbContext.PersonalDetails.Add(new PersonalDetails { UserId = user.Id });
+                dbContext.HealthDetails.Add(new HealthDetails { UserId = user.Id });
+                await dbContext.SaveChangesAsync();
             }
 
             var claims = new List<Claim>
             {
                 new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/default-profile.png"),
-                new Claim("FullName", user.FullName ?? "User") // ✅ Include Full Name in Claims
+                new Claim("FullName", user.FullName ?? "User")
             };
 
             await signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
