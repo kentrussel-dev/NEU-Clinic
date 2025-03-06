@@ -1,0 +1,193 @@
+@model List<WebApp.Models.Users>
+@using Microsoft.AspNetCore.Identity
+
+@{
+    ViewData["Title"] = "User Health Management";
+    var userRoles = ViewBag.UserRoles as Dictionary<string, List<string>>;
+    var roles = ViewBag.Roles as List<IdentityRole>;
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+
+    var userHealthDetails = ViewBag.UserHealthDetails as Dictionary<string, HealthDetails>;
+}
+
+<div class="container-fluid">
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
+        User Health Management
+    </h2>
+
+    <!-- Display TempData messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Users...">
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover user-table text-center" id="userTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Profile</th>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    var healthDetails = userHealthDetails[user.Id];
+                    if (!userRoles[user.Id].Contains("SuperAdmin"))
+                    {
+                        <tr id="user-@user.Id">
+                            <td class="align-middle">
+                                <img src="@user.ProfilePictureUrl" alt="Profile" class="profile-img rounded-circle">
+                            </td>
+                            <td class="align-middle">@user.Id</td>
+                            <td class="align-middle">
+                                <span class="email-text">@user.Email</span>
+                            </td>
+                            <td class="align-middle">
+                                <button class="btn btn-primary btn-sm edit-btn btn-modern" data-bs-toggle="modal"
+                                    data-bs-target="#editHealthModal-@user.Id">
+                                    Edit Health Details
+                                </button>
+                            </td>
+                        </tr>
+                    }
+
+                    <!-- Edit Health Details Modal -->
+                    <div class="modal fade" id="editHealthModal-@user.Id" tabindex="-1"
+                        aria-labelledby="editHealthModalLabel-@user.Id" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editHealthModalLabel-@user.Id">Edit Health Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" asp-action="UpdateHealthDetails"
+                                        asp-controller="UserHealthManagement">
+                                        <!-- Hidden field for UserId -->
+                                        <input type="hidden" name="UserId" value="@user.Id" />
+
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="bloodType-@user.Id" class="form-label">Blood Type</label>
+                                                <input type="text" class="form-control" id="bloodType-@user.Id"
+                                                    name="BloodType" value="@healthDetails.BloodType">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="allergies-@user.Id" class="form-label">Allergies</label>
+                                                <input type="text" class="form-control" id="allergies-@user.Id"
+                                                    name="Allergies" value="@healthDetails.Allergies">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-12">
+                                                <label for="medicalNotes-@user.Id" class="form-label">Medical Notes</label>
+                                                <textarea class="form-control" id="medicalNotes-@user.Id"
+                                                    name="MedicalNotes" rows="3">@healthDetails.MedicalNotes</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="emergencyContactName-@user.Id" class="form-label">Emergency
+                                                    Contact Name</label>
+                                                <input type="text" class="form-control" id="emergencyContactName-@user.Id"
+                                                    name="EmergencyContactName" value="@healthDetails.EmergencyContactName">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="emergencyContactPhone-@user.Id" class="form-label">Emergency
+                                                    Contact Phone</label>
+                                                <input type="text" class="form-control" id="emergencyContactPhone-@user.Id"
+                                                    name="EmergencyContactPhone"
+                                                    value="@healthDetails.EmergencyContactPhone">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="chronicConditions-@user.Id" class="form-label">Chronic
+                                                    Conditions</label>
+                                                <textarea class="form-control" id="chronicConditions-@user.Id"
+                                                    name="ChronicConditions"
+                                                    rows="3">@healthDetails.ChronicConditions</textarea>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="medications-@user.Id" class="form-label">Medications</label>
+                                                <textarea class="form-control" id="medications-@user.Id" name="Medications"
+                                                    rows="3">@healthDetails.Medications</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="immunizationHistory-@user.Id" class="form-label">Immunization
+                                                    History</label>
+                                                <textarea class="form-control" id="immunizationHistory-@user.Id"
+                                                    name="ImmunizationHistory"
+                                                    rows="3">@healthDetails.ImmunizationHistory</textarea>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="activityRestrictions-@user.Id" class="form-label">Activity
+                                                    Restrictions</label>
+                                                <textarea class="form-control" id="activityRestrictions-@user.Id"
+                                                    name="ActivityRestrictions"
+                                                    rows="3">@healthDetails.ActivityRestrictions</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="dietaryRestrictions-@user.Id" class="form-label">Dietary
+                                                    Restrictions</label>
+                                                <textarea class="form-control" id="dietaryRestrictions-@user.Id"
+                                                    name="DietaryRestrictions"
+                                                    rows="3">@healthDetails.DietaryRestrictions</textarea>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="mentalHealthNotes-@user.Id" class="form-label">Mental Health
+                                                    Notes</label>
+                                                <textarea class="form-control" id="mentalHealthNotes-@user.Id"
+                                                    name="MentalHealthNotes"
+                                                    rows="3">@healthDetails.MentalHealthNotes</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-12">
+                                                <label for="healthAlerts-@user.Id" class="form-label">Health Alerts</label>
+                                                <textarea class="form-control" id="healthAlerts-@user.Id"
+                                                    name="HealthAlerts" rows="3">@healthDetails.HealthAlerts</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        let search = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#userTable tbody tr');
+        rows.forEach(row => {
+            let email = row.cells[2].querySelector('.email-text').textContent.toLowerCase();
+            row.style.display = email.includes(search) ? '' : 'none';
+        });
+    });
+</script>

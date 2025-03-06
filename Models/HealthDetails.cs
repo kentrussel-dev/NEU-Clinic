@@ -9,10 +9,10 @@ namespace WebApp.Models
         public int Id { get; set; }
 
         [Required]
-        public string UserId { get; set; }
+        public string UserId { get; set; }  // Required foreign key
 
         [ForeignKey("UserId")]
-        public Users User { get; set; }  // Foreign Key Reference
+        public Users User { get; set; }
 
         public string? BloodType { get; set; }
         public string? Allergies { get; set; }
@@ -27,9 +27,7 @@ namespace WebApp.Models
         public string? ActivityRestrictions { get; set; }
         public string? DietaryRestrictions { get; set; }
         public string? MentalHealthNotes { get; set; }
-        public string? HealthAlerts { get; set; }  // JSON format if multiple alerts
-
-        // Health Document URLs
+        public string? HealthAlerts { get; set; }
         public string? XRayFileUrl { get; set; }
         public string? MedicalCertificateUrl { get; set; }
         public string? VaccinationRecordUrl { get; set; }
