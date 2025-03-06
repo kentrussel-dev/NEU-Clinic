@@ -11,8 +11,17 @@
 		<a class="d-flex align-items-center gap-2 text-white text-decoration-none dropdown-toggle bg-primary p-2 rounded"
 			href="#" role="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false"
 			style="height: 40px;">
-			<img src="@userProfilePicture" onerror="this.src='/default-profile.png';" class="rounded-circle"
-				style="height:40px;width:40px;" alt="Profile Picture">
+
+			@if (!isSuperAdmin)
+			{
+				<img src="@userProfilePicture" onerror="this.src='/default-profile.png';" class="rounded-circle"
+					style="height:40px;width:40px;" alt="Profile Picture">
+			}
+			else
+			{
+				<i class="fas fa-user-shield text-white rounded-circle bg-dark d-flex align-items-center justify-content-center"
+					style="height:40px; width:40px; font-size: 20px;"></i>
+			}
 		</a>
 		<ul class="dropdown-menu dropdown-menu-end bg-primary border-0 shadow rounded-3 p-2"
 			aria-labelledby="profileDropdown" style="min-width: 220px;">
@@ -36,11 +45,9 @@
 				<li>
 					<hr class="dropdown-divider bg-white opacity-50">
 				</li>
-
 				<li>
-					<span class="dropdown-header text-uppercase text-warning small">Admin Panel</span>
+					<span class="dropdown-header text-uppercase text-warning small">Admin</span>
 				</li>
-
 
 				<li>
 					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
@@ -61,7 +68,6 @@
 			</li>
 
 			<!-- 🚪 Logout -->
-
 			<li>
 				<form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
 					<button type="submit" class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2">
@@ -71,10 +77,4 @@
 			</li>
 		</ul>
 	</div>
-}
-else
-{
-	<a class="nav-link text-white bg-primary p-2 rounded" asp-controller="Account" asp-action="Login">
-		<i class="fas fa-sign-in-alt"></i> Login
-	</a>
 }

@@ -37,9 +37,9 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     options.Scope.Add("profile");
     options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-    options.SignInScheme = IdentityConstants.ExternalScheme;
+    options.ClaimActions.MapJsonKey("urn:google:fullname", "name");
 
-    // Ensure Google prompts for account selection every time
+    options.SignInScheme = IdentityConstants.ExternalScheme;
     options.Events.OnRedirectToAuthorizationEndpoint = context =>
     {
         context.Response.Redirect(context.RedirectUri + "&prompt=select_account");

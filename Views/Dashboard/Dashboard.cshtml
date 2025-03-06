@@ -7,8 +7,7 @@
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
 
-    // Determine the user's role
-    var userRole = "Student"; // Default role
+    var userRole = "Student";
     var isSuperAdmin = false;
     var isAdmin = false;
     var isMedicalStaff = false;
@@ -39,12 +38,10 @@
         }
     }
 
-    // Set the active tab (default to "home")
     var activeTab = ViewBag.ActiveTab ?? "home";
 }
 
 <div class="d-flex" id="wrapper">
-    <!-- Sidebar -->
     <div class="bg-dark border-end" id="sidebar-wrapper">
         <div
             class="bg-primary text-white p-3 sidebar-header shadow-lg d-flex flex-column flex-sm-row justify-content-between align-items-center">
@@ -62,18 +59,19 @@
                 data-tab="home">
                 <i class="fas fa-home"></i><span class="sidebar-text ms-2">Home</span>
             </a>
-            <a href="#profile"
-                class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center"
-                data-tab="profile">
-                <i class="fas fa-user"></i><span class="sidebar-text ms-2">Profile</span>
-            </a>
+            @if (!isSuperAdmin)
+            {
+                <a href="#profile"
+                    class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center"
+                    data-tab="profile">
+                    <i class="fas fa-user"></i><span class="sidebar-text ms-2">Profile</span>
+                </a>
+            }
         </div>
     </div>
 
-    <!-- Page Content -->
     <div id="page-content-wrapper" class="w-100">
         <div class="container-fluid p-4">
-            <!-- Home Tab Content -->
             <div id="home-content" class="tab-content @(activeTab == "home" ? "active" : "")">
                 <h2>Welcome to the Dashboard</h2>
                 <p>This is your dashboard content.</p>
@@ -95,12 +93,13 @@
                 }
             </div>
 
-            <!-- Profile Tab Content -->
-            <div id="profile-content" class="tab-content @(activeTab == "profile" ? "active" : "")"
-                style="display: none;">
-                <h2>Profile</h2>
-                <p>This is your profile content.</p>
-            </div>
+            @if (!isSuperAdmin)
+            {
+                <div id="profile-content" class="tab-content @(activeTab == "profile" ? "active" : "")"
+                    style="display: none;">
+                    @await Html.PartialAsync("Profile/_ProfileDashboardPartial");
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -114,31 +113,25 @@
             document.getElementById("wrapper").classList.toggle("toggled");
         });
 
-        // Tab functionality
         document.querySelectorAll('.list-group-item').forEach(item => {
             item.addEventListener('click', function (e) {
                 e.preventDefault();
                 const tab = this.getAttribute('data-tab');
 
-                // Remove active class from all tabs
                 document.querySelectorAll('.list-group-item').forEach(tabItem => {
                     tabItem.classList.remove('active');
                 });
 
-                // Add active class to the clicked tab
                 this.classList.add('active');
 
-                // Hide all tab content
                 document.querySelectorAll('.tab-content').forEach(content => {
                     content.style.display = 'none';
                 });
 
-                // Show the selected tab content
                 document.getElementById(`${tab}-content`).style.display = 'block';
             });
         });
 
-        // Set the initial active tab based on the URL hash or default to "home"
         const initialTab = window.location.hash.substring(1) || "home";
         const initialTabItem = document.querySelector(`.list-group-item[data-tab="${initialTab}"]`);
         if (initialTabItem) {

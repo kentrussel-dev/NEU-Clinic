@@ -1,7 +1,9 @@
-/* Sidebar width adjustments */
 #sidebar-wrapper {
     width: 300px;
     transition: width 0.3s ease;
+    overflow: hidden;
+    min-height: 100vh;
+    /* Changed from height to min-height */
 }
 
 #wrapper.toggled #sidebar-wrapper {
@@ -17,6 +19,8 @@
 #page-content-wrapper {
     width: calc(100% - 320px);
     transition: width 0.3s ease;
+    min-height: 100vh;
+    /* Added min-height */
 }
 
 #wrapper.toggled #page-content-wrapper {
@@ -63,10 +67,10 @@
 }
 
 /* Sidebar full height */
-#wrapper,
 #page-content-wrapper,
 #sidebar-wrapper {
-    height: 100vh;
+    min-height: 100vh;
+    /* Changed from height to min-height */
 }
 
 /* Smooth hover effect */

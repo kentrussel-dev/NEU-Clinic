@@ -17,7 +17,7 @@ namespace WebApp.Controllers
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
-            this.superAdminEmail = configuration["SuperAdmin:Email"]; // Load SuperAdmin email
+            this.superAdminEmail = configuration["SuperAdmin:Email"];
         }
 
         public IActionResult Login() => View();
@@ -46,13 +46,15 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Login));
 
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var fullName = info.Principal.FindFirstValue("urn:google:fullname");
+            var profilePictureUrl = info.Principal.FindFirstValue("urn:google:picture") ?? "/default-profile.png";
+
             if (email == null || (!email.EndsWith("@neu.edu.ph", StringComparison.OrdinalIgnoreCase) && email != superAdminEmail))
             {
                 TempData["ErrorMessage"] = "Only @neu.edu.ph email addresses are allowed for Google login.";
                 return RedirectToAction(nameof(Login));
             }
 
-            var profilePictureUrl = info.Principal.FindFirstValue("urn:google:picture") ?? "/default-profile.png";
             var user = await userManager.FindByEmailAsync(email);
 
             if (user == null)
@@ -61,9 +63,10 @@ namespace WebApp.Controllers
                 {
                     UserName = email,
                     Email = email,
+                    FullName = fullName,
+                    ProfilePictureUrl = profilePictureUrl,
                     PhoneNumber = string.Empty,
-                    ESignaturePath = string.Empty,
-                    ProfilePictureUrl = profilePictureUrl
+                    ESignaturePath = string.Empty
                 };
 
                 var createResult = await userManager.CreateAsync(user);
@@ -73,13 +76,9 @@ namespace WebApp.Controllers
 
                     // ✅ Assign role based on user type
                     if (email == superAdminEmail)
-                    {
                         await userManager.AddToRoleAsync(user, "SuperAdmin");
-                    }
                     else
-                    {
                         await userManager.AddToRoleAsync(user, "Student");
-                    }
                 }
                 else
                 {
@@ -90,10 +89,23 @@ namespace WebApp.Controllers
             }
             else
             {
-                // ✅ Ensure profile picture is updated
+                // ✅ Ensure profile picture & full name are updated
+                bool needsUpdate = false;
+
+                if (!string.IsNullOrEmpty(fullName) && user.FullName != fullName)
+                {
+                    user.FullName = fullName;
+                    needsUpdate = true;
+                }
+
                 if (!string.IsNullOrEmpty(profilePictureUrl) && user.ProfilePictureUrl != profilePictureUrl)
                 {
                     user.ProfilePictureUrl = profilePictureUrl;
+                    needsUpdate = true;
+                }
+
+                if (needsUpdate)
+                {
                     await userManager.UpdateAsync(user);
                 }
 
@@ -106,14 +118,15 @@ namespace WebApp.Controllers
             }
 
             var claims = new List<Claim>
-    {
-        new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/default-profile.png")
-    };
+            {
+                new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/default-profile.png"),
+                new Claim("FullName", user.FullName ?? "User") // ✅ Include Full Name in Claims
+            };
+
             await signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
 
             return RedirectToAction("Index", "Dashboard");
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]

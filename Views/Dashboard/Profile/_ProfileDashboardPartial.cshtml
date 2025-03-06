@@ -1,0 +1,283 @@
+@using Microsoft.AspNetCore.Identity
+@using WebApp.ViewModels
+@inject UserManager<Users> userManager
+@inject SignInManager<Users> signInManager
+
+@{
+    var user = await userManager.GetUserAsync(User);
+    var email = user?.Email ?? "N/A";
+    var name = user?.FullName ?? user?.UserName ?? "N/A";
+    var profilePic = user?.ProfilePictureUrl ?? "/images/default-profile.png";
+
+    // Get user roles
+    var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
+    var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
+}
+
+<!-- Custom CSS -->
+<link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
+
+<div class="container my-2">
+    <div class="row">
+        <!-- Left Column: Profile Card and QR Code -->
+        <div class="col-md-4">
+            <!-- Profile Card -->
+            <div class="card profile-card shadow-sm mb-3">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Profile Information</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="profile-picture-container mb-3">
+                        <img src="@profilePic" alt="Profile Picture" class="profile-picture rounded-circle">
+                        <div class="profile-picture-overlay">
+                            <label for="profile-picture-upload" class="upload-label btn btn-light btn-sm">Change
+                                Photo</label>
+                            <input type="file" id="profile-picture-upload" style="display: none;" />
+                        </div>
+                    </div>
+                    <h5 class="card-title">@name</h5>
+                    <p class="card-text text-muted">@email</p>
+                    <p class="card-text text-muted">@role</p>
+                    <hr>
+                    <!-- Health Metrics -->
+                    <div class="profile-stats d-flex justify-content-around">
+                        <div>
+                            <h6 class="stat-number">100%</h6>
+                            <p class="stat-label text-muted">Vaccination</p>
+                        </div>
+                        <div>
+                            <h6 class="stat-number">2</h6>
+                            <p class="stat-label text-muted">Health Alerts</p>
+                        </div>
+                        <div>
+                            <h6 class="stat-number">1</h6>
+                            <p class="stat-label text-muted">Active Cases</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-primary btn-sm">Edit Profile</a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm">Settings</a>
+                </div>
+            </div>
+
+            <!-- QR Code Card -->
+            <div class="card qr-code-card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Virtual ID</h4>
+                </div>
+                <div class="card-body text-center">
+                    <!-- QR Code Image from wwwroot/assets -->
+                    <img src="~/assets/images/NEUCARE_QR.png" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                    <p class="mt-2 text-muted">Scan this QR code for your Virtual ID.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Personal and Health Information -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Personal & Health Information</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Personal Details -->
+                    <h5 class="mb-3">Personal Details</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="fullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" placeholder="@name" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" id="dateOfBirth" placeholder="2005-01-01" readonly>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="department" class="form-label">Department/Program</label>
+                            <select class="form-select" id="department" disabled>
+                                <option selected>CICS</option>
+                                <option>Engineering</option>
+                                <option>Business</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="studentId" class="form-label">Student ID</label>
+                            <input type="text" class="form-control" id="studentId" placeholder="123456" readonly>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" placeholder="123 Main St, City"
+                                readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="yearLevel" class="form-label">Year Level</label>
+                            <input type="text" class="form-control" id="yearLevel" placeholder="2nd Year" readonly>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="course" class="form-label">Course</label>
+                            <select class="form-select" id="course" disabled>
+                                <option selected>BS Computer Science</option>
+                                <option>BS Information Technology</option>
+                                <option>BS Nursing</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Health Information -->
+                    <h5 class="mb-3 mt-4">Health Information</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="bloodType" class="form-label">Blood Type</label>
+                            <input type="text" class="form-control" id="bloodType" placeholder="O+" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="allergies" class="form-label">Allergies</label>
+                            <input type="text" class="form-control" id="allergies" placeholder="None" readonly>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="medicalNotes" class="form-label">Medical Notes</label>
+                            <textarea class="form-control" id="medicalNotes" rows="3"
+                                placeholder="No medical notes available." readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact Information -->
+                    <h5 class="mb-3 mt-4">Emergency Contact</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="emergencyContactName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="emergencyContactName" placeholder="Jane Doe"
+                                readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="emergencyContactRelationship" class="form-label">Relationship</label>
+                            <input type="text" class="form-control" id="emergencyContactRelationship"
+                                placeholder="Mother" readonly>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="emergencyContactPhone" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="emergencyContactPhone" placeholder="+1234567890"
+                                readonly>
+                        </div>
+                    </div>
+
+                    <!-- Chronic Conditions -->
+                    <h5 class="mb-3 mt-4">Chronic Conditions</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="chronicConditions" class="form-label">Conditions</label>
+                            <textarea class="form-control" id="chronicConditions" rows="3"
+                                placeholder="No chronic conditions reported." readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Medications -->
+                    <h5 class="mb-3 mt-4">Medications</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="medications" class="form-label">Current Medications</label>
+                            <textarea class="form-control" id="medications" rows="3"
+                                placeholder="No medications reported." readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Immunization History -->
+                    <h5 class="mb-3 mt-4">Immunization History</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="immunizationHistory" class="form-label">Vaccination Records</label>
+                            <textarea class="form-control" id="immunizationHistory" rows="3"
+                                placeholder="No immunization records available." readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Recent Health Checkups -->
+                    <h5 class="mb-3 mt-4">Recent Health Checkups</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="recentCheckups" class="form-label">Checkup Details</label>
+                            <textarea class="form-control" id="recentCheckups" rows="3"
+                                placeholder="No recent checkups reported." readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Physical Activity Restrictions -->
+                    <h5 class="mb-3 mt-4">Physical Activity Restrictions</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="activityRestrictions" class="form-label">Restrictions</label>
+                            <textarea class="form-control" id="activityRestrictions" rows="3"
+                                placeholder="No restrictions reported." readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Dietary Restrictions -->
+                    <h5 class="mb-3 mt-4">Dietary Restrictions</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="dietaryRestrictions" class="form-label">Restrictions</label>
+                            <textarea class="form-control" id="dietaryRestrictions" rows="3"
+                                placeholder="No dietary restrictions reported." readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Mental Health Notes -->
+                    <h5 class="mb-3 mt-4">Mental Health Notes</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="mentalHealthNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="mentalHealthNotes" rows="3"
+                                placeholder="No mental health notes available." readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Health Documents -->
+                    <h5 class="mb-3 mt-4">Health Documents</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="xrayFile" class="form-label">X-Ray Results</label>
+                            <a href="/path/to/xray.pdf" class="form-control" id="xrayFile" target="_blank">View
+                                X-Ray</a>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="medicalCertificate" class="form-label">Medical Certificate</label>
+                            <a href="/path/to/medical-certificate.pdf" class="form-control" id="medicalCertificate"
+                                target="_blank">View Certificate</a>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="vaccinationRecord" class="form-label">Vaccination Record</label>
+                            <a href="/path/to/vaccination-record.pdf" class="form-control" id="vaccinationRecord"
+                                target="_blank">View Record</a>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="otherDocuments" class="form-label">Other Documents</label>
+                            <a href="/path/to/other-documents.zip" class="form-control" id="otherDocuments"
+                                target="_blank">Download Files</a>
+                        </div>
+                    </div>
+
+                    <!-- Health Alerts -->
+                    <h5 class="mb-3 mt-4">Health Alerts</h5>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Flu vaccination due in 7 days.
+                    </div>
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i> Allergy alert: Peanuts detected in cafeteria.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
