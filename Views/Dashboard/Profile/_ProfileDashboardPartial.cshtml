@@ -1,3 +1,4 @@
+@using System.Text.Json;
 @using Microsoft.EntityFrameworkCore;
 @using Microsoft.AspNetCore.Identity
 @using WebApp.ViewModels
@@ -31,11 +32,18 @@
     var dietaryRestrictions = medicalDetails?.DietaryRestrictions ?? "No dietary restrictions reported.";
     var mentalHealthNotes = medicalDetails?.MentalHealthNotes ?? "No mental health notes available.";
 
+    // Deserialize Health Alerts
+    var healthAlerts = new List<string>();
+    if (!string.IsNullOrEmpty(medicalDetails?.HealthAlerts))
+    {
+        healthAlerts = JsonSerializer.Deserialize<List<string>>(medicalDetails.HealthAlerts);
+    }
+
+
     // Get user roles
     var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
     var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
 }
-
 
 <!-- Custom CSS -->
 <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
@@ -231,37 +239,77 @@
                     <h5 class="mb-3 mt-4">Health Documents</h5>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="xrayFile" class="form-label">X-Ray Results</label>
-                            <a href="/path/to/xray.pdf" class="form-control" id="xrayFile" target="_blank">View
-                                X-Ray</a>
+                            <label class="form-label">X-Ray Results</label>
+                            @if (!string.IsNullOrEmpty(medicalDetails.XRayFileUrl))
+                            {
+                                <a href="@medicalDetails.XRayFileUrl" class="form-control" target="_blank">View X-Ray</a>
+                            }
+                            else
+                            {
+                                <p class="form-control">No X-Ray file uploaded.</p>
+                            }
                         </div>
                         <div class="col-md-6">
-                            <label for="medicalCertificate" class="form-label">Medical Certificate</label>
-                            <a href="/path/to/medical-certificate.pdf" class="form-control" id="medicalCertificate"
-                                target="_blank">View Certificate</a>
+                            <label class="form-label">Medical Certificate</label>
+                            @if (!string.IsNullOrEmpty(medicalDetails.MedicalCertificateUrl))
+                            {
+                                <a href="@medicalDetails.MedicalCertificateUrl" class="form-control" target="_blank">View
+                                    Certificate</a>
+                            }
+                            else
+                            {
+                                <p class="form-control">No medical certificate uploaded.</p>
+                            }
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="vaccinationRecord" class="form-label">Vaccination Record</label>
-                            <a href="/path/to/vaccination-record.pdf" class="form-control" id="vaccinationRecord"
-                                target="_blank">View Record</a>
+                            <label class="form-label">Vaccination Record</label>
+                            @if (!string.IsNullOrEmpty(medicalDetails.VaccinationRecordUrl))
+                            {
+                                <a href="@medicalDetails.VaccinationRecordUrl" class="form-control" target="_blank">View
+                                    Record</a>
+                            }
+                            else
+                            {
+                                <p class="form-control">No vaccination record uploaded.</p>
+                            }
                         </div>
                         <div class="col-md-6">
-                            <label for="otherDocuments" class="form-label">Other Documents</label>
-                            <a href="/path/to/other-documents.zip" class="form-control" id="otherDocuments"
-                                target="_blank">Download Files</a>
+                            <label class="form-label">Other Documents</label>
+                            @if (!string.IsNullOrEmpty(medicalDetails.OtherDocumentsUrl))
+                            {
+                                <a href="@medicalDetails.OtherDocumentsUrl" class="form-control" target="_blank">Download
+                                    Files</a>
+                            }
+                            else
+                            {
+                                <p class="form-control">No other documents uploaded.</p>
+                            }
                         </div>
                     </div>
 
                     <!-- Health Alerts -->
                     <h5 class="mb-3 mt-4">Health Alerts</h5>
-                    <div class="alert alert-warning" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i> Flu vaccination due in 7 days.
-                    </div>
-                    <div class="alert alert-danger" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i> Allergy alert: Peanuts detected in cafeteria.
-                    </div>
+                    @if (healthAlerts.Any())
+                    {
+                        foreach (var alert in healthAlerts)
+                        {
+                            var alertParts = alert.Split('|');
+                            var alertType = alertParts[0]; // e.g., "danger", "warning", etc.
+                            var alertMessage = alertParts[1]; // e.g., "Allergy alert: Peanuts detected in cafeteria."
+
+                            <div class="alert alert-@alertType" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i> @alertMessage
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i> No health alerts available.
+                        </div>
+                    }
                 </div>
             </div>
         </div>

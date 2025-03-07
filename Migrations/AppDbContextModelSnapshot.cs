@@ -188,6 +188,7 @@ namespace WebApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HealthAlerts")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImmunizationHistory")

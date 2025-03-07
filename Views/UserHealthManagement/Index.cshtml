@@ -1,3 +1,4 @@
+@using System.Text.Json
 @model List<WebApp.Models.Users>
 @using Microsoft.AspNetCore.Identity
 
@@ -24,6 +25,7 @@
     {
         <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
     }
+    using System.Text.Json;
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Users...">
@@ -74,7 +76,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <form method="post" asp-action="UpdateHealthDetails"
-                                        asp-controller="UserHealthManagement">
+                                        asp-controller="UserHealthManagement" enctype="multipart/form-data">
                                         <!-- Hidden field for UserId -->
                                         <input type="hidden" name="UserId" value="@user.Id" />
 
@@ -165,6 +167,155 @@
                                                     name="HealthAlerts" rows="3">@healthDetails.HealthAlerts</textarea>
                                             </div>
                                         </div>
+                                        <!-- DOCUMENTS-->
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="xrayFile-@user.Id" class="form-label">X-Ray Results</label>
+                                                <input type="file" class="form-control" id="xrayFile-@user.Id"
+                                                    name="XRayFile">
+                                                <!-- Display current X-Ray file link if it exists -->
+                                                @if (!string.IsNullOrEmpty(healthDetails.XRayFileUrl))
+                                                {
+                                                    <div class="mt-2">
+                                                        <span class="text-muted">Current File:</span>
+                                                        <a href="@healthDetails.XRayFileUrl" target="_blank">View X-Ray</a>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="mt-2">
+                                                        <span class="text-muted">No X-Ray file uploaded.</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="medicalCertificate-@user.Id" class="form-label">Medical
+                                                    Certificate</label>
+                                                <input type="file" class="form-control" id="medicalCertificate-@user.Id"
+                                                    name="MedicalCertificate">
+                                                <!-- Display current Medical Certificate file link if it exists -->
+                                                @if (!string.IsNullOrEmpty(healthDetails.MedicalCertificateUrl))
+                                                {
+                                                    <div class="mt-2">
+                                                        <span class="text-muted">Current File:</span>
+                                                        <a href="@healthDetails.MedicalCertificateUrl" target="_blank">View
+                                                            Certificate</a>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="mt-2">
+                                                        <span class="text-muted">No medical certificate uploaded.</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="vaccinationRecord-@user.Id" class="form-label">Vaccination
+                                                    Record</label>
+                                                <input type="file" class="form-control" id="vaccinationRecord-@user.Id"
+                                                    name="VaccinationRecord">
+                                                <!-- Display current Vaccination Record file link if it exists -->
+                                                @if (!string.IsNullOrEmpty(healthDetails.VaccinationRecordUrl))
+                                                {
+                                                    <div class="mt-2">
+                                                        <span class="text-muted">Current File:</span>
+                                                        <a href="@healthDetails.VaccinationRecordUrl" target="_blank">View
+                                                            Record</a>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="mt-2">
+                                                        <span class="text-muted">No vaccination record uploaded.</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="otherDocuments-@user.Id" class="form-label">Other
+                                                    Documents</label>
+                                                <input type="file" class="form-control" id="otherDocuments-@user.Id"
+                                                    name="OtherDocuments">
+                                                <!-- Display current Other Documents file link if it exists -->
+                                                @if (!string.IsNullOrEmpty(healthDetails.OtherDocumentsUrl))
+                                                {
+                                                    <div class="mt-2">
+                                                        <span class="text-muted">Current File:</span>
+                                                        <a href="@healthDetails.OtherDocumentsUrl" target="_blank">Download
+                                                            Files</a>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="mt-2">
+                                                        <span class="text-muted">No other documents uploaded.</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- Health Alerts Section -->
+                                        <div class="row mb-3">
+                                            <div class="col-md-12">
+                                                <label for="healthAlerts-@user.Id" class="form-label">Health Alerts</label>
+                                                <div class="mb-3">
+                                                    <select id="alertType-@user.Id" class="form-select">
+                                                        <option value="primary">Primary</option>
+                                                        <option value="secondary">Secondary</option>
+                                                        <option value="success">Success</option>
+                                                        <option value="danger">Danger</option>
+                                                        <option value="warning">Warning</option>
+                                                        <option value="info">Info</option>
+                                                        <option value="light">Light</option>
+                                                        <option value="dark">Dark</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <textarea id="alertMessage-@user.Id" class="form-control"
+                                                        placeholder="Enter alert message"></textarea>
+                                                </div>
+                                                <button type="button" class="btn btn-primary btn-sm"
+                                                    onclick="addAlert('@user.Id')">Add Alert</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Display Added Alerts -->
+                                        <div id="alertsContainer-@user.Id" class="mb-3">
+                                            @if (!string.IsNullOrEmpty(healthDetails.HealthAlerts))
+                                            {
+                                                var alerts = JsonSerializer.Deserialize<List<string>>(healthDetails.HealthAlerts);
+                                                foreach (var alert in alerts)
+                                                {
+                                                    var alertParts = alert.Split('|');
+                                                    var alertType = alertParts[0]; // e.g., "danger", "warning", etc.
+                                                    var alertMessage = alertParts[1]; // e.g., "Allergy alert: Peanuts detected in cafeteria."
+
+                                                    // Map alert type to Font Awesome icon
+                                                    var alertIcon = alertType switch
+                                                    {
+                                                        "primary" => "fa-circle-info",
+                                                        "secondary" => "fa-circle",
+                                                        "success" => "fa-circle-check",
+                                                        "danger" => "fa-circle-exclamation",
+                                                        "warning" => "fa-triangle-exclamation",
+                                                        "info" => "fa-circle-info",
+                                                        "light" => "fa-circle",
+                                                        "dark" => "fa-circle",
+                                                        _ => "fa-circle-info" // Default icon
+                                                    };
+
+                                                    <div class="alert alert-@alertType mt-2" role="alert">
+                                                        <i class="fas @alertIcon me-2"></i> @alertMessage
+                                                        <button type="button" class="btn-close float-end" onclick="removeAlert('@user.Id', '@alert.Replace("'", "\\'")')"></button>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        <!-- Hidden field to store the final list of alerts -->
+                                        <input type="hidden" id="healthAlerts-@user.Id" name="HealthAlerts"
+                                            value="@healthDetails.HealthAlerts" />
+
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
                                                 data-bs-dismiss="modal">Close</button>
@@ -190,4 +341,60 @@
             row.style.display = email.includes(search) ? '' : 'none';
         });
     });
+
+    function addAlert(userId) {
+        const alertType = document.getElementById(`alertType-${userId}`).value;
+        const alertMessage = document.getElementById(`alertMessage-${userId}`).value;
+
+        if (!alertMessage) {
+            alert("Please enter an alert message.");
+            return;
+        }
+
+        // Create the alert object
+        const alert = `${alertType}|${alertMessage}`;
+
+        // Add the alert to the container
+        const alertsContainer = document.getElementById(`alertsContainer-${userId}`);
+        const alertDiv = document.createElement("div");
+        alertDiv.className = `alert alert-${alertType} mt-2`;
+        alertDiv.setAttribute("role", "alert");
+        alertDiv.innerHTML = `
+            ${alertMessage}
+            <button type="button" class="btn-close float-end" onclick="removeAlert('${userId}', '${alert.replace(/'/g, "\\'")}')"></button>
+        `;
+        alertsContainer.appendChild(alertDiv);
+
+        // Update the hidden input field
+        updateAlertsInput(userId);
+    }
+
+    function removeAlert(userId, alert) {
+        const alertsContainer = document.getElementById(`alertsContainer-${userId}`);
+        const alertDivs = alertsContainer.querySelectorAll(".alert");
+
+        alertDivs.forEach(div => {
+            if (div.textContent.trim() === alert.split('|')[1]) {
+                div.remove();
+            }
+        });
+
+        // Update the hidden input field
+        updateAlertsInput(userId);
+    }
+
+    function updateAlertsInput(userId) {
+        const alertsContainer = document.getElementById(`alertsContainer-${userId}`);
+        const alertDivs = alertsContainer.querySelectorAll(".alert");
+        const alerts = [];
+
+        alertDivs.forEach(div => {
+            const alertType = div.className.match(/alert-(primary|secondary|success|danger|warning|info|light|dark)/)[1];
+            const alertMessage = div.textContent.trim();
+            alerts.push(`${alertType}|${alertMessage}`);
+        });
+
+        // Update the hidden input field
+        document.getElementById(`healthAlerts-${userId}`).value = JSON.stringify(alerts);
+    }
 </script>

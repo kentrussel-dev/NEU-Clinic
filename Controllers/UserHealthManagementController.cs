@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using System;
 
 namespace WebApp.Controllers
 {
@@ -18,17 +21,20 @@ namespace WebApp.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly AppDbContext _context;
         private readonly ILogger<UserHealthManagementController> _logger;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
         public UserHealthManagementController(
             UserManager<Users> userManager,
             RoleManager<IdentityRole> roleManager,
             AppDbContext context,
-            ILogger<UserHealthManagementController> logger)
+            ILogger<UserHealthManagementController> logger,
+            IWebHostEnvironment hostingEnvironment)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
             _logger = logger;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task<IActionResult> Index()
@@ -54,52 +60,77 @@ namespace WebApp.Controllers
             return View(users);
         }
 
-        public async Task<IActionResult> UpdateHealthDetails(HealthDetails model)
+        [HttpPost]
+        public async Task<IActionResult> UpdateHealthDetails(
+            string userId,
+            string bloodType,
+            string allergies,
+            string medicalNotes,
+            string emergencyContactName,
+            string emergencyContactRelationship,
+            string emergencyContactPhone,
+            string chronicConditions,
+            string medications,
+            string immunizationHistory,
+            string recentCheckups,
+            string activityRestrictions,
+            string dietaryRestrictions,
+            string mentalHealthNotes,
+            string healthAlerts, // JSON-serialized list of alerts
+            IFormFile xrayFile,
+            IFormFile medicalCertificate,
+            IFormFile vaccinationRecord,
+            IFormFile otherDocuments)
         {
-            if (model == null)
-            {
-                TempData["ErrorMessage"] = "Invalid data.";
-                return RedirectToAction("Index");
-            }
-
-            // Ensure the UserId is present
-            if (string.IsNullOrEmpty(model.UserId))
+            if (string.IsNullOrEmpty(userId))
             {
                 TempData["ErrorMessage"] = "User selection is required.";
                 return RedirectToAction("Index");
             }
 
             var existingHealthDetails = await _context.HealthDetails
-                .FirstOrDefaultAsync(h => h.UserId == model.UserId);
+                .FirstOrDefaultAsync(h => h.UserId == userId);
 
             if (existingHealthDetails == null)
             {
-                // If no existing record, create a new entry
-                _context.HealthDetails.Add(model);
+                existingHealthDetails = new HealthDetails { UserId = userId };
+                _context.HealthDetails.Add(existingHealthDetails);
             }
-            else
-            {
-                // Update fields while keeping the same UserId
-                existingHealthDetails.BloodType = model.BloodType;
-                existingHealthDetails.Allergies = model.Allergies;
-                existingHealthDetails.MedicalNotes = model.MedicalNotes;
-                existingHealthDetails.EmergencyContactName = model.EmergencyContactName;
-                existingHealthDetails.EmergencyContactRelationship = model.EmergencyContactRelationship;
-                existingHealthDetails.EmergencyContactPhone = model.EmergencyContactPhone;
-                existingHealthDetails.ChronicConditions = model.ChronicConditions;
-                existingHealthDetails.Medications = model.Medications;
-                existingHealthDetails.ImmunizationHistory = model.ImmunizationHistory;
-                existingHealthDetails.RecentCheckups = model.RecentCheckups;
-                existingHealthDetails.ActivityRestrictions = model.ActivityRestrictions;
-                existingHealthDetails.DietaryRestrictions = model.DietaryRestrictions;
-                existingHealthDetails.MentalHealthNotes = model.MentalHealthNotes;
-                existingHealthDetails.HealthAlerts = model.HealthAlerts;
-                existingHealthDetails.XRayFileUrl = model.XRayFileUrl;
-                existingHealthDetails.MedicalCertificateUrl = model.MedicalCertificateUrl;
-                existingHealthDetails.VaccinationRecordUrl = model.VaccinationRecordUrl;
-                existingHealthDetails.OtherDocumentsUrl = model.OtherDocumentsUrl;
 
-                _context.HealthDetails.Update(existingHealthDetails);
+            // Update health details
+            existingHealthDetails.BloodType = bloodType;
+            existingHealthDetails.Allergies = allergies;
+            existingHealthDetails.MedicalNotes = medicalNotes;
+            existingHealthDetails.EmergencyContactName = emergencyContactName;
+            existingHealthDetails.EmergencyContactRelationship = emergencyContactRelationship;
+            existingHealthDetails.EmergencyContactPhone = emergencyContactPhone;
+            existingHealthDetails.ChronicConditions = chronicConditions;
+            existingHealthDetails.Medications = medications;
+            existingHealthDetails.ImmunizationHistory = immunizationHistory;
+            existingHealthDetails.RecentCheckups = recentCheckups;
+            existingHealthDetails.ActivityRestrictions = activityRestrictions;
+            existingHealthDetails.DietaryRestrictions = dietaryRestrictions;
+            existingHealthDetails.MentalHealthNotes = mentalHealthNotes;
+
+            // Update Health Alerts
+            existingHealthDetails.HealthAlerts = healthAlerts;
+
+            // Handle file uploads (if any)
+            if (xrayFile != null && xrayFile.Length > 0)
+            {
+                existingHealthDetails.XRayFileUrl = await SaveFile(xrayFile);
+            }
+            if (medicalCertificate != null && medicalCertificate.Length > 0)
+            {
+                existingHealthDetails.MedicalCertificateUrl = await SaveFile(medicalCertificate);
+            }
+            if (vaccinationRecord != null && vaccinationRecord.Length > 0)
+            {
+                existingHealthDetails.VaccinationRecordUrl = await SaveFile(vaccinationRecord);
+            }
+            if (otherDocuments != null && otherDocuments.Length > 0)
+            {
+                existingHealthDetails.OtherDocumentsUrl = await SaveFile(otherDocuments);
             }
 
             try
@@ -116,5 +147,23 @@ namespace WebApp.Controllers
             return RedirectToAction("Index");
         }
 
+        private async Task<string> SaveFile(IFormFile file)
+        {
+            var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            return "/uploads/" + uniqueFileName;
+        }
     }
 }
