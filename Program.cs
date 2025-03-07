@@ -8,11 +8,14 @@ using WebApp.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add DB Context
+// ✅ Add Database Context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure Identity with Google Authentication
+// ✅ Register QRCodeService for Dependency Injection
+builder.Services.AddScoped<QRCodeService>();
+
+// ✅ Configure Identity with Google Authentication
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
 {
     options.Password.RequireDigit = false;
@@ -47,7 +50,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Configure application cookie settings
+// ✅ Configure Application Cookie Settings
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -69,7 +72,7 @@ using (var scope = app.Services.CreateScope())
     await SeedRolesAndSuperAdminAsync(services);
 }
 
-// Middleware configuration
+// ✅ Middleware Configuration
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

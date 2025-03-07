@@ -13,33 +13,6 @@
     var name = user?.FullName ?? user?.UserName ?? "N/A";
     var profilePic = user?.ProfilePictureUrl ?? "/images/default-profile.png";
 
-    // Fetch Medical Details using UserId
-    var medicalDetails = user != null
-    ? await _context.HealthDetails.FirstOrDefaultAsync(m => m.UserId == user.Id)
-    : null;
-
-    var bloodType = medicalDetails?.BloodType ?? "N/A";
-    var allergies = medicalDetails?.Allergies ?? "None";
-    var medicalNotes = medicalDetails?.MedicalNotes ?? "No medical notes available.";
-    var emergencyContactName = medicalDetails?.EmergencyContactName ?? "N/A";
-    var emergencyContactRelationship = medicalDetails?.EmergencyContactRelationship ?? "N/A";
-    var emergencyContactPhone = medicalDetails?.EmergencyContactPhone ?? "N/A";
-    var chronicConditions = medicalDetails?.ChronicConditions ?? "No chronic conditions reported.";
-    var medications = medicalDetails?.Medications ?? "No medications reported.";
-    var immunizationHistory = medicalDetails?.ImmunizationHistory ?? "No immunization records available.";
-    var recentCheckups = medicalDetails?.RecentCheckups ?? "No recent checkups reported.";
-    var activityRestrictions = medicalDetails?.ActivityRestrictions ?? "No restrictions reported.";
-    var dietaryRestrictions = medicalDetails?.DietaryRestrictions ?? "No dietary restrictions reported.";
-    var mentalHealthNotes = medicalDetails?.MentalHealthNotes ?? "No mental health notes available.";
-
-    // Deserialize Health Alerts
-    var healthAlerts = new List<string>();
-    if (!string.IsNullOrEmpty(medicalDetails?.HealthAlerts))
-    {
-        healthAlerts = JsonSerializer.Deserialize<List<string>>(medicalDetails.HealthAlerts);
-    }
-
-
     // Get user roles
     var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
     var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
@@ -91,11 +64,18 @@
             <!-- QR Code Card -->
             <div class="card qr-code-card shadow-sm">
                 <div class="card-header bg-primary text-white text-center">
-                    <h4 class="mb-0">Virtual ID</h4>
+                    <h4 class="mb-0">Virtual QR Code ID</h4>
                 </div>
                 <div class="card-body text-center">
-                    <!-- QR Code Image from wwwroot/assets -->
-                    <img src="~/assets/images/NEUCARE_QR.png" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                    <!-- Dynamic QR Code Image from user.QRCodePath -->
+                    @if (!string.IsNullOrEmpty(user?.QRCodePath))
+                    {
+                        <img src="@user.QRCodePath" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                    }
+                    else
+                    {
+                        <p class="text-muted">No QR Code available.</p>
+                    }
                     <p class="mt-2 text-muted">Scan this QR code for your Virtual ID.</p>
                 </div>
             </div>
@@ -122,194 +102,8 @@
                         method="post">
                         @await Html.PartialAsync("Profile/_PersonalDetailsPartial")
                     </form>
-
                     <!-- Health Information -->
-                    <h5 class="mb-3 mt-4">Health Information</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="bloodType" class="form-label">Blood Type</label>
-                            <input type="text" class="form-control" id="bloodType" placeholder="@bloodType" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="allergies" class="form-label">Allergies</label>
-                            <input type="text" class="form-control" id="allergies" placeholder="@allergies" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="medicalNotes" class="form-label">Medical Notes</label>
-                            <textarea class="form-control" id="medicalNotes" rows="3" placeholder="@medicalNotes"
-                                readonly></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Emergency Contact Information -->
-                    <h5 class="mb-3 mt-4">Emergency Contact</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="emergencyContactName" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="emergencyContactName"
-                                placeholder="@emergencyContactName" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="emergencyContactRelationship" class="form-label">Relationship</label>
-                            <input type="text" class="form-control" id="emergencyContactRelationship"
-                                placeholder="@emergencyContactRelationship" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="emergencyContactPhone" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" id="emergencyContactPhone"
-                                placeholder="@emergencyContactPhone" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Chronic Conditions -->
-                    <h5 class="mb-3 mt-4">Chronic Conditions</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="chronicConditions" class="form-label">Conditions</label>
-                            <textarea class="form-control" id="chronicConditions" rows="3"
-                                placeholder="@chronicConditions" readonly></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Medications -->
-                    <h5 class="mb-3 mt-4">Medications</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="medications" class="form-label">Current Medications</label>
-                            <textarea class="form-control" id="medications" rows="3" placeholder="@medications"
-                                readonly></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Immunization History -->
-                    <h5 class="mb-3 mt-4">Immunization History</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="immunizationHistory" class="form-label">Vaccination Records</label>
-                            <textarea class="form-control" id="immunizationHistory" rows="3"
-                                placeholder="@immunizationHistory" readonly></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Recent Health Checkups -->
-                    <h5 class="mb-3 mt-4">Recent Health Checkups</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="recentCheckups" class="form-label">Checkup Details</label>
-                            <textarea class="form-control" id="recentCheckups" rows="3" placeholder="@recentCheckups"
-                                readonly></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Physical Activity Restrictions -->
-                    <h5 class="mb-3 mt-4">Physical Activity Restrictions</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="activityRestrictions" class="form-label">Restrictions</label>
-                            <textarea class="form-control" id="activityRestrictions" rows="3"
-                                placeholder="@activityRestrictions" readonly></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Dietary Restrictions -->
-                    <h5 class="mb-3 mt-4">Dietary Restrictions</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="dietaryRestrictions" class="form-label">Restrictions</label>
-                            <textarea class="form-control" id="dietaryRestrictions" rows="3"
-                                placeholder="@dietaryRestrictions" readonly></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Mental Health Notes -->
-                    <h5 class="mb-3 mt-4">Mental Health Notes</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="mentalHealthNotes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="mentalHealthNotes" rows="3"
-                                placeholder="@mentalHealthNotes" readonly></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Health Documents -->
-                    <h5 class="mb-3 mt-4">Health Documents</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">X-Ray Results</label>
-                            @if (!string.IsNullOrEmpty(medicalDetails.XRayFileUrl))
-                            {
-                                <a href="@medicalDetails.XRayFileUrl" class="form-control" target="_blank">View X-Ray</a>
-                            }
-                            else
-                            {
-                                <p class="form-control">No X-Ray file uploaded.</p>
-                            }
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Medical Certificate</label>
-                            @if (!string.IsNullOrEmpty(medicalDetails.MedicalCertificateUrl))
-                            {
-                                <a href="@medicalDetails.MedicalCertificateUrl" class="form-control" target="_blank">View
-                                    Certificate</a>
-                            }
-                            else
-                            {
-                                <p class="form-control">No medical certificate uploaded.</p>
-                            }
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Vaccination Record</label>
-                            @if (!string.IsNullOrEmpty(medicalDetails.VaccinationRecordUrl))
-                            {
-                                <a href="@medicalDetails.VaccinationRecordUrl" class="form-control" target="_blank">View
-                                    Record</a>
-                            }
-                            else
-                            {
-                                <p class="form-control">No vaccination record uploaded.</p>
-                            }
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Other Documents</label>
-                            @if (!string.IsNullOrEmpty(medicalDetails.OtherDocumentsUrl))
-                            {
-                                <a href="@medicalDetails.OtherDocumentsUrl" class="form-control" target="_blank">Download
-                                    Files</a>
-                            }
-                            else
-                            {
-                                <p class="form-control">No other documents uploaded.</p>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- Health Alerts -->
-                    <h5 class="mb-3 mt-4">Health Alerts</h5>
-                    @if (healthAlerts.Any())
-                    {
-                        foreach (var alert in healthAlerts)
-                        {
-                            var alertParts = alert.Split('|');
-                            var alertType = alertParts[0]; // e.g., "danger", "warning", etc.
-                            var alertMessage = alertParts[1]; // e.g., "Allergy alert: Peanuts detected in cafeteria."
-
-                            <div class="alert alert-@alertType" role="alert">
-                                <i class="fas fa-exclamation-circle me-2"></i> @alertMessage
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle me-2"></i> No health alerts available.
-                        </div>
-                    }
+                    @await Html.PartialAsync("Profile/_MedicalDetailsPartial")
                 </div>
             </div>
         </div>

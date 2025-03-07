@@ -315,6 +315,9 @@ namespace WebApp.Migrations
                     b.Property<string>("ProfilePictureUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("QRCodePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 

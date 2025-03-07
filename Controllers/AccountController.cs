@@ -6,6 +6,8 @@ using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace WebApp.Controllers
 {
@@ -15,13 +17,15 @@ namespace WebApp.Controllers
         private readonly UserManager<Users> userManager;
         private readonly string superAdminEmail;
         private readonly AppDbContext dbContext;
+        private readonly QRCodeService qrCodeService; // ✅ Inject QR Code Service
 
-        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, IConfiguration configuration, AppDbContext dbContext)
+        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, IConfiguration configuration, AppDbContext dbContext, QRCodeService qrCodeService)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
             this.superAdminEmail = configuration["SuperAdmin:Email"];
             this.dbContext = dbContext;
+            this.qrCodeService = qrCodeService;
         }
 
         public IActionResult Login() => View();
@@ -88,9 +92,20 @@ namespace WebApp.Controllers
                 // ✅ Assign role
                 string role = (email == superAdminEmail) ? "SuperAdmin" : "Student";
                 await userManager.AddToRoleAsync(user, role);
+
+                // ✅ Ensure PersonalDetails & HealthDetails exist
+                dbContext.PersonalDetails.Add(new PersonalDetails { UserId = user.Id });
+                dbContext.HealthDetails.Add(new HealthDetails { UserId = user.Id });
+                await dbContext.SaveChangesAsync();
             }
 
-            // ✅ Update profile picture & full name only if changed
+            // ✅ Generate QR Code if it doesn't exist
+            if (string.IsNullOrEmpty(user.QRCodePath))
+            {
+                user.QRCodePath = qrCodeService.GenerateQRCode(user.Id, user.FullName, user.Email);
+                await userManager.UpdateAsync(user);
+            }
+
             bool needsUpdate = false;
 
             if (!string.IsNullOrEmpty(fullName) && user.FullName != fullName)
@@ -107,14 +122,6 @@ namespace WebApp.Controllers
 
             if (needsUpdate)
                 await userManager.UpdateAsync(user);
-
-            // ✅ Ensure PersonalDetails & HealthDetails exist
-            if (isNewUser)
-            {
-                dbContext.PersonalDetails.Add(new PersonalDetails { UserId = user.Id });
-                dbContext.HealthDetails.Add(new HealthDetails { UserId = user.Id });
-                await dbContext.SaveChangesAsync();
-            }
 
             var claims = new List<Claim>
             {
