@@ -18,6 +18,18 @@
         User Management
     </h2>
 
+
+    <!-- Display TempData messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Users...">
         <button class="btn btn-success btn-modern">Add User</button>

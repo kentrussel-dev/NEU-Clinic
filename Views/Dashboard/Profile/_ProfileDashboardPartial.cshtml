@@ -102,6 +102,14 @@
                 <div class="card-body">
                     <!-- Personal Details -->
                     <h5 class="mb-3">Personal Details</h5>
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
                     <form id="personalDetailsForm" asp-controller="Profile" asp-action="UpdatePersonalDetails"
                         method="post">
                         @await Html.PartialAsync("Profile/_PersonalDetailsPartial")
