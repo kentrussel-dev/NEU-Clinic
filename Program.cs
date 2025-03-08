@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WebApp.Data;
@@ -38,14 +39,18 @@ builder.Services.AddAuthentication(options =>
 {
     options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.CallbackPath = new PathString("/signin-google");
     options.Scope.Add("profile");
     options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
     options.ClaimActions.MapJsonKey("urn:google:fullname", "name");
 
     options.SignInScheme = IdentityConstants.ExternalScheme;
+
+    // ✅ Fix redirect issue (force HTTPS)
     options.Events.OnRedirectToAuthorizationEndpoint = context =>
     {
-        context.Response.Redirect(context.RedirectUri + "&prompt=select_account");
+        string httpsRedirectUri = context.RedirectUri.Replace("http://", "https://");
+        context.Response.Redirect(httpsRedirectUri + "&prompt=select_account");
         return Task.CompletedTask;
     };
 });
@@ -65,6 +70,17 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// ✅ Force HTTPS handling when behind a reverse proxy (like Ngrok)
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto
+});
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection(); // Ensure HTTPS is enforced
+}
+
 // ✅ Ensure role seeding is called inside an async method
 using (var scope = app.Services.CreateScope())
 {
@@ -73,9 +89,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ✅ Middleware Configuration
-app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

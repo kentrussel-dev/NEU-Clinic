@@ -68,6 +68,12 @@
                     <i class="fas fa-user"></i><span class="sidebar-text ms-2">Profile</span>
                 </a>
             }
+            <!-- Add QR Scanner Tab -->
+            <a href="@Url.Action("Index", "Dashboard", new { activeTab = "qrscanner" })"
+                class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "qrscanner" ? "active" : "")"
+                data-tab="qrscanner">
+                <i class="fas fa-qrcode"></i><span class="sidebar-text ms-2">QR Scanner</span>
+            </a>
         </div>
     </div>
 
@@ -104,6 +110,12 @@
                     @await Html.PartialAsync("Profile/_ProfileDashboardPartial")
                 </div>
             }
+
+            <!-- QR Scanner Content -->
+            <div id="qrscanner-content" class="tab-content @(activeTab == "qrscanner" ? "active" : "")"
+                style="display: @(activeTab == "qrscanner" ? "block" : "none");">
+                @await Html.PartialAsync("QRScanner/_QRScannerPartial")
+            </div>
         </div>
     </div>
 </div>

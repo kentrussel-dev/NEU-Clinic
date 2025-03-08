@@ -1,9 +1,5 @@
 ﻿using SkiaSharp;
-using SkiaSharp.QrCode;
-using System;
-using System.IO;
-using static QRCoder.PayloadGenerator;
-using WebApp.Models;
+using ZXing.SkiaSharp;
 
 public class QRCodeService
 {
@@ -11,14 +7,11 @@ public class QRCodeService
 
     public QRCodeService()
     {
-        // Ensure QR Code directory exists
         if (!Directory.Exists(_qrCodeDirectory))
         {
             Directory.CreateDirectory(_qrCodeDirectory);
         }
     }
-    
-
 
     public string GenerateQRCode(string userId, string fullName, string email)
     {
@@ -26,36 +19,25 @@ public class QRCodeService
         string filePath = Path.Combine(_qrCodeDirectory, fileName);
         string relativePath = $"/qrcodes/{fileName}";
 
-        string qrData = 
-            $"UserID: {userId}" +
-            $"\nFull Name: {fullName}" +
-            $"\nEmail: {email}";
+        string qrData = $"UserID: {userId}\nFull Name: {fullName}\nEmail: {email}";
+
         if (File.Exists(filePath))
         {
             return relativePath;
         }
 
-        // Generate QR Code
-        var qrCodeGenerator = new QRCodeGenerator();
-        var qrCodeData = qrCodeGenerator.CreateQrCode(qrData, ECCLevel.Q);
-
-        int qrSize = 256;
-        var qrCodeImage = new SKBitmap(qrSize, qrSize);
-        using (var canvas = new SKCanvas(qrCodeImage))
+        var qrCodeGenerator = new ZXing.BarcodeWriter<SKBitmap>
         {
-            canvas.Clear(SKColors.White);
+            Format = ZXing.BarcodeFormat.QR_CODE,
+            Options = new ZXing.Common.EncodingOptions
+            {
+                Height = 256,
+                Width = 256
+            },
+            Renderer = new ZXing.SkiaSharp.Rendering.SKBitmapRenderer()
+        };
 
-            var renderer = new QRCodeRenderer();
-            renderer.Render(
-                canvas,
-                new SKRect(0, 0, qrSize, qrSize),
-                qrCodeData,
-                SKColors.Black,
-                SKColors.White
-            );
-        }
-
-        // Save QR Code as PNG
+        using (var qrCodeImage = qrCodeGenerator.Write(qrData))
         using (var image = SKImage.FromBitmap(qrCodeImage))
         using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
         using (var stream = File.OpenWrite(filePath))
@@ -63,7 +45,6 @@ public class QRCodeService
             data.SaveTo(stream);
         }
 
-        return relativePath; // Return file path for DB storage
+        return relativePath;
     }
-
 }

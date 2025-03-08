@@ -5,7 +5,7 @@
 	Layout = "~/Views/Shared/Layouts/_AccountLayout.cshtml";
 }
 
-<div class="d-flex min-vh-100">
+<div class="d-flex min-vh-100 flex-column flex-md-row">
 	<!-- Left Container: Google Login -->
 	<div class="bg-white login-left d-flex flex-column justify-content-center align-items-center shadow-lg p-5">
 		<div class="text-center mb-3">
@@ -25,9 +25,13 @@
 
 		<h3 class="text-whitetext-center fw-bold mb-3">New Era University Care</h3>
 		<a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google"
-			class="form-control d-flex align-items-center justify-content-center text-decoration-none gap-2 bg-google fw-bold text-white w-100 p-2 my-2">
-			<i class="fab fa-google"></i> Sign-in with Google
+			class="form-control d-flex align-items-center justify-content-center text-decoration-none gap-2 bg-google fw-bold text-white w-100 p-2 my-2 ">
+			<div class="flex-nowrap">
+				<i class="fab fa-google"></i> <span class="text-nowrap">Sign-in with Google</span>
+			</div>
+
 		</a>
+
 
 		<div class="d-flex justify-content-between mt-2">
 			<a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#cookieModal">
@@ -46,8 +50,6 @@
 		<p class="lead">Your gateway to a seamless healthcare experience. Sign in with your NEU account to access
 			exclusive features and services.</p>
 	</div>
-
-
 </div>
 
 <!-- Bootstrap Modal -->
@@ -76,7 +78,6 @@
 		</div>
 	</div>
 </div>
-
 
 @section Scripts {
 }

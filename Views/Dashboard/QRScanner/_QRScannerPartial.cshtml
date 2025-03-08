@@ -1,0 +1,174 @@
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
+
+<!-- Include Required JavaScript -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <!-- Card for QR Scanner -->
+                <div class="card profile-card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h4 class="m-0">QR Code Scanner</h4>
+                    </div>
+                    <div class="card-body text-center">
+                        <!-- Confirmation Step -->
+                        <div id="confirmationStep" class="d-flex flex-column align-items-center text-center">
+                            <p>Click the button below to open your camera and scan a QR code.</p>
+                            <img src="~/assets/images/QR_ICON.png" alt="QR Code" class="img-fluid"
+                                style="max-width: 200px;">
+                            <button id="openCameraBtn" class="btn btn-primary mt-3" data-bs-toggle="modal"
+                                data-bs-target="#cameraModal">
+                                Open Camera
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <small class="text-muted">Powered by jsQR</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Camera -->
+    <div class="modal fade" id="cameraModal" tabindex="-1" aria-labelledby="cameraModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cameraModalLabel">Scan QR Code</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <!-- Camera Stream with Overlay -->
+                    <div class="video-container">
+                        <div class="camera-overlay"></div>
+                        <div class="scanner-overlay"></div>
+                        <video id="qr-video" width="100%" height="auto" autoplay muted></video>
+                    </div>
+                    <div id="scanResult" class="mt-4">
+                        <p class="text-warning">No QR code detected.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for QR Scanner -->
+    <script>
+        console.log("[DEBUG] Script loaded.");
+
+        const video = document.getElementById('qr-video');
+        const scanResult = document.getElementById('scanResult');
+        const openCameraBtn = document.getElementById('openCameraBtn');
+        let stream = null; // To store the camera stream
+
+        // Handle "Open Camera" button click
+        openCameraBtn.addEventListener('click', function () {
+            console.log("[DEBUG] Open Camera button clicked.");
+
+            // Request camera access
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                console.log("[DEBUG] getUserMedia is supported.");
+
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                    .then(function (cameraStream) {
+                        console.log("[DEBUG] Camera access granted.");
+                        stream = cameraStream; // Store the stream
+                        video.srcObject = stream;
+                        video.play();
+                        console.log("[DEBUG] Video stream started.");
+                        startScanning();
+                    })
+                    .catch(function (error) {
+                        console.error("[DEBUG] Error accessing camera:", error);
+                        if (error.name === "NotAllowedError") {
+                            console.error("[DEBUG] Camera access denied by the user.");
+                            scanResult.innerHTML = `<p class="text-danger">Camera access denied. Please allow camera access in your browser settings.</p>`;
+                        } else if (error.name === "NotFoundError") {
+                            console.error("[DEBUG] No camera device found.");
+                            scanResult.innerHTML = `<p class="text-danger">No camera device found.</p>`;
+                        } else if (error.name === "NotReadableError") {
+                            console.error("[DEBUG] Camera is already in use by another application.");
+                            scanResult.innerHTML = `<p class="text-danger">Camera is already in use by another application.</p>`;
+                        } else {
+                            console.error("[DEBUG] Unknown error accessing camera:", error);
+                            scanResult.innerHTML = `<p class="text-danger">Error accessing camera: ${error.message}</p>`;
+                        }
+                    });
+            } else {
+                console.error("[DEBUG] getUserMedia is not supported.");
+                scanResult.innerHTML = `<p class="text-danger">Your browser does not support camera access.</p>`;
+            }
+        });
+
+        // Function to start scanning
+        function startScanning() {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            function scanFrame() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    // Get image data from the canvas
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+                    // Use jsQR to decode the QR code
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+
+                    if (code) {
+                        console.log("[DEBUG] QR code detected:", code.data);
+                        scanResult.innerHTML = `<p class="text-success"><strong>Decoded Text:</strong> ${code.data}</p>`;
+
+                        // Check if the decoded text is a valid URL
+                        if (isValidUrl(code.data)) {
+                            console.log("[DEBUG] Opening URL in a new tab:", code.data);
+                            window.open(code.data, '_blank'); // Open in a new tab
+                        }
+                    } else {
+                        console.log("[DEBUG] No QR code detected.");
+                        scanResult.innerHTML = `<p class="text-warning">No QR code detected.</p>`;
+                    }
+                }
+
+                requestAnimationFrame(scanFrame);
+            }
+
+            scanFrame();
+        }
+
+        // Function to check if a string is a valid URL
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Stop the camera stream when the modal is closed
+        const cameraModal = document.getElementById('cameraModal');
+        cameraModal.addEventListener('hidden.bs.modal', function () {
+            console.log("[DEBUG] Modal closed. Stopping camera stream.");
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop()); // Stop all tracks
+                video.srcObject = null; // Clear the video element
+            }
+        });
+    </script>
+</body>
+
+</html>

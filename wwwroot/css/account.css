@@ -1,11 +1,17 @@
-﻿.login-left {
+﻿/* Default styles for larger screens (above 1000px) */
+.login-left {
     width: 30%;
     background-color: white;
     position: relative;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Center content horizontally */
+    text-align: center;
+    /* Center text */
 }
 
-/* Right Side - Background Image */
 .login-right {
     width: 70%;
     background: url('../assets/images/NEU_BG.png') no-repeat center center;
@@ -20,7 +26,6 @@
     text-align: center;
 }
 
-/* Dark Overlay for Right Side */
 .login-right .overlay {
     position: absolute;
     top: 0;
@@ -31,8 +36,87 @@
     z-index: 1;
 }
 
-/* Ensure text and elements appear above the overlay */
 .login-right>* {
     position: relative;
     z-index: 2;
+}
+
+/* Styles for screens less than 1000px wide */
+@media (max-width: 1000px) {
+    .d-flex {
+        flex-direction: column;
+    }
+
+    /* Right container becomes the full-screen background */
+    .login-right {
+        width: 100%;
+        height: 100vh;
+        /* Full height */
+        position: fixed;
+        /* Fixed to cover the entire screen */
+        top: 0;
+        left: 0;
+        z-index: 1;
+        /* Behind the card */
+        padding: 0;
+        /* Remove padding */
+    }
+
+    /* Hide the welcome note (h1 and p inside .login-right) */
+    .login-right h1,
+    .login-right p {
+        display: none;
+        /* Hide the welcome note */
+    }
+
+    /* Left container becomes a centered card */
+    .login-left {
+        width: 90%;
+        /* Adjust width for smaller screens */
+        max-width: 400px;
+        /* Maximum width for the card */
+        position: absolute;
+        /* Absolute positioning */
+        top: 50%;
+        /* Center vertically */
+        left: 50%;
+        /* Center horizontally */
+        transform: translate(-50%, -50%);
+        /* Perfect centering */
+        z-index: 2;
+        /* Above the background */
+        border-radius: 10px;
+        /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        /* Card shadow */
+        padding: 20px;
+        /* Inner padding */
+        background-color: white;
+        /* Card background */
+        margin: 0;
+        /* Remove default margin */
+        text-align: center;
+        /* Center text in the card */
+    }
+
+    /* Ensure the Google Sign-In button doesn't break the icon and text */
+    .bg-google {
+        white-space: nowrap;
+        /* Prevent text and icon from breaking into new lines */
+        display: flex;
+        align-items: center;
+        /* Center icon and text vertically */
+        justify-content: center;
+        /* Center icon and text horizontally */
+        gap: 8px;
+        /* Add spacing between icon and text */
+    }
+
+    /* Center "New Era University Care" text */
+    .login-left h3 {
+        text-align: center;
+        /* Center the text */
+        width: 100%;
+        /* Ensure it takes full width */
+    }
 }

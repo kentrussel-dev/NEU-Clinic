@@ -17,7 +17,7 @@ namespace WebApp.Controllers
         private readonly UserManager<Users> userManager;
         private readonly string superAdminEmail;
         private readonly AppDbContext dbContext;
-        private readonly QRCodeService qrCodeService; // ✅ Inject QR Code Service
+        private readonly QRCodeService qrCodeService;
 
         public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, IConfiguration configuration, AppDbContext dbContext, QRCodeService qrCodeService)
         {
@@ -50,63 +50,89 @@ namespace WebApp.Controllers
             }
 
             var info = await signInManager.GetExternalLoginInfoAsync();
-            if (info == null)
-                return RedirectToAction(nameof(Login));
+            if (info == null) return RedirectToAction(nameof(Login));
 
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-            var fullName = info.Principal.FindFirstValue("urn:google:fullname");
-            var profilePictureUrl = info.Principal.FindFirstValue("urn:google:picture") ?? "/default-profile.png";
-
-            if (email == null || (!email.EndsWith("@neu.edu.ph", StringComparison.OrdinalIgnoreCase) && email != superAdminEmail))
+            if (!IsValidEmail(email))
             {
-                TempData["ErrorMessage"] = "Only @neu.edu.ph email addresses are allowed for Google login.";
+                TempData["ErrorMessage"] = "Only @neu.edu.ph emails are allowed.";
                 return RedirectToAction(nameof(Login));
             }
 
             var user = await userManager.FindByEmailAsync(email);
-            bool isNewUser = false;
+            bool isNewUser = user == null;
 
-            if (user == null)
+            if (isNewUser)
+                user = await CreateUserAsync(info, email);
+
+            await EnsureQRCodeExists(user);
+            await UpdateUserInfoIfChanged(user, info);
+
+            await SignInUser(user);
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            return email != null && (email.EndsWith("@neu.edu.ph", System.StringComparison.OrdinalIgnoreCase) || email == superAdminEmail);
+        }
+
+        private async Task<Users> CreateUserAsync(ExternalLoginInfo info, string email)
+        {
+            var user = new Users
             {
-                user = new Users
-                {
-                    UserName = email,
-                    Email = email,
-                    FullName = fullName,
-                    ProfilePictureUrl = profilePictureUrl,
-                    PhoneNumber = string.Empty,
-                    ESignaturePath = string.Empty
-                };
+                UserName = email,
+                Email = email,
+                FullName = info.Principal.FindFirstValue("urn:google:fullname"),
+                ProfilePictureUrl = info.Principal.FindFirstValue("urn:google:picture") ?? "/default-profile.png",
+                PhoneNumber = string.Empty,
+                ESignaturePath = string.Empty
+            };
 
-                var createResult = await userManager.CreateAsync(user);
-                if (!createResult.Succeeded)
-                {
-                    foreach (var error in createResult.Errors)
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    return View(nameof(Login));
-                }
-
-                await userManager.AddLoginAsync(user, info);
-                isNewUser = true;
-
-                // ✅ Assign role
-                string role = (email == superAdminEmail) ? "SuperAdmin" : "Student";
-                await userManager.AddToRoleAsync(user, role);
-
-                // ✅ Ensure PersonalDetails & HealthDetails exist
-                dbContext.PersonalDetails.Add(new PersonalDetails { UserId = user.Id });
-                dbContext.HealthDetails.Add(new HealthDetails { UserId = user.Id });
-                await dbContext.SaveChangesAsync();
+            var createResult = await userManager.CreateAsync(user);
+            if (!createResult.Succeeded)
+            {
+                foreach (var error in createResult.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+                return null;
             }
 
-            // ✅ Generate QR Code if it doesn't exist
+            await userManager.AddLoginAsync(user, info);
+            await AssignUserRole(user, email);
+            await EnsureUserDetails(user.Id);
+
+            return user;
+        }
+
+        private async Task AssignUserRole(Users user, string email)
+        {
+            string role = (email == superAdminEmail) ? "SuperAdmin" : "Student";
+            await userManager.AddToRoleAsync(user, role);
+        }
+
+        private async Task EnsureUserDetails(string userId)
+        {
+            dbContext.PersonalDetails.Add(new PersonalDetails { UserId = userId });
+            dbContext.HealthDetails.Add(new HealthDetails { UserId = userId });
+            await dbContext.SaveChangesAsync();
+        }
+
+        private async Task EnsureQRCodeExists(Users user)
+        {
             if (string.IsNullOrEmpty(user.QRCodePath))
             {
                 user.QRCodePath = qrCodeService.GenerateQRCode(user.Id, user.FullName, user.Email);
                 await userManager.UpdateAsync(user);
             }
+        }
 
+        private async Task UpdateUserInfoIfChanged(Users user, ExternalLoginInfo info)
+        {
             bool needsUpdate = false;
+
+            var fullName = info.Principal.FindFirstValue("urn:google:fullname");
+            var profilePictureUrl = info.Principal.FindFirstValue("urn:google:picture") ?? "/default-profile.png";
 
             if (!string.IsNullOrEmpty(fullName) && user.FullName != fullName)
             {
@@ -122,7 +148,10 @@ namespace WebApp.Controllers
 
             if (needsUpdate)
                 await userManager.UpdateAsync(user);
+        }
 
+        private async Task SignInUser(Users user)
+        {
             var claims = new List<Claim>
             {
                 new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/default-profile.png"),
@@ -130,8 +159,6 @@ namespace WebApp.Controllers
             };
 
             await signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
-
-            return RedirectToAction("Index", "Dashboard");
         }
 
         [HttpPost]
