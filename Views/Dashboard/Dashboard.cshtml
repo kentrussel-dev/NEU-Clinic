@@ -7,6 +7,9 @@
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
 
+    var user = await userManager.GetUserAsync(User);
+    var name = user?.FullName ?? user?.UserName ?? "Guest";
+
     var userRole = "Student";
     var isSuperAdmin = false;
     var isAdmin = false;
@@ -40,6 +43,8 @@
 
     var activeTab = ViewBag.ActiveTab ?? "home";
 }
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="d-flex" id="wrapper">
     <div class="bg-dark border-end" id="sidebar-wrapper">
@@ -82,23 +87,62 @@
             <!-- Home Content -->
             <div id="home-content" class="tab-content @(activeTab == "home" ? "active" : "")"
                 style="display: @(activeTab == "home" ? "block" : "none");">
-                <h2>Welcome to the Dashboard</h2>
-                <p>This is your dashboard content.</p>
+                <!-- Welcome Section -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card welcome-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h1 class="card-title mb-0 text-white">
+                                            Welcome, @name! 👋
+                                        </h1>
+                                        <p class="card-text lead text-white">
+                                            You are logged in as a <span class="text-warning">@userRole</span>.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        @if (isStudent)
+                                        {
+                                            <i class="fas fa-user-graduate fa-4x text-white"></i> @* Student Icon *@
+                                        }
+                                        else if (isSuperAdmin)
+                                        {
+                                            <i class="fas fa-user-shield fa-4x text-white"></i> @* Super Admin Icon *@
+                                        }
+                                        else if (isAdmin)
+                                        {
+                                            <i class="fas fa-user-tie fa-4x text-white"></i> @* Admin Icon *@
+                                        }
+                                        else if (isMedicalStaff)
+                                        {
+                                            <i class="fas fa-user-md fa-4x text-white"></i> @* Medical Staff Icon *@
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Cards -->
                 @if (isStudent)
                 {
-                    <p>Welcome, Student!</p>
+                    @await Html.PartialAsync("Partials/_StudentDashboardPartial")
                 }
                 else if (isSuperAdmin)
                 {
-                    <p>Welcome, Super Admin!</p>
+                    @await Html.PartialAsync("Partials/_AdminDashboardPartial")
                 }
                 else if (isAdmin)
                 {
-                    <p>Welcome, Admin!</p>
+                    @await Html.PartialAsync("Partials/_AdminDashboardPartial")
                 }
                 else if (isMedicalStaff)
                 {
-                    <p>Welcome, Medical Staff!</p>
+                    @await Html.PartialAsync("Partials/_MedicalStaffDashboardPartial")
                 }
             </div>
 

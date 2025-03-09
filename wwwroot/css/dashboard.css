@@ -86,6 +86,58 @@
     color: rgb(0, 0, 0) !important;
 }
 
+/* Welcome Card Styling */
+.welcome-card {
+    background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.welcome-card:hover {
+    transform: translateY(-5px);
+}
+
+.welcome-card .card-title {
+    font-size: 1.5rem;
+}
+
+.welcome-card .card-text {
+    font-size: 1.25rem;
+    font-weight: 300;
+}
+
+.welcome-card .fa-user-circle {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.welcome-card:hover .fa-user-circle {
+    opacity: 1;
+}
+
+.card {
+    border-radius: 1rem !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+
 /* Media query for screens less than 1000px */
 @media (max-width: 1000px) {
 
