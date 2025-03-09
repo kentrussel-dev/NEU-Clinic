@@ -1,12 +1,16 @@
 ﻿using SkiaSharp;
 using ZXing.SkiaSharp;
+using Microsoft.Extensions.Configuration;
 
 public class QRCodeService
 {
     private readonly string _qrCodeDirectory = "wwwroot/qrcodes/";
+    private readonly IConfiguration _configuration;
 
-    public QRCodeService()
+    public QRCodeService(IConfiguration configuration)
     {
+        _configuration = configuration;
+
         if (!Directory.Exists(_qrCodeDirectory))
         {
             Directory.CreateDirectory(_qrCodeDirectory);
@@ -19,7 +23,15 @@ public class QRCodeService
         string filePath = Path.Combine(_qrCodeDirectory, fileName);
         string relativePath = $"/qrcodes/{fileName}";
 
-        string qrData = $"UserID: {userId}\nFull Name: {fullName}\nEmail: {email}";
+        // Get the base URL from configuration
+        string baseUrl = _configuration["BaseUrl"];
+        if (string.IsNullOrEmpty(baseUrl))
+        {
+            throw new InvalidOperationException("Base URL is not configured in appsettings.json.");
+        }
+
+        // Generate the profile URL for the user
+        string profileUrl = $"{baseUrl}/profile/{userId}";
 
         if (File.Exists(filePath))
         {
@@ -37,7 +49,8 @@ public class QRCodeService
             Renderer = new ZXing.SkiaSharp.Rendering.SKBitmapRenderer()
         };
 
-        using (var qrCodeImage = qrCodeGenerator.Write(qrData))
+        // Use the profile URL as the QR code data
+        using (var qrCodeImage = qrCodeGenerator.Write(profileUrl))
         using (var image = SKImage.FromBitmap(qrCodeImage))
         using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
         using (var stream = File.OpenWrite(filePath))

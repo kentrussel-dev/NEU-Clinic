@@ -69,6 +69,7 @@
         const scanResult = document.getElementById('scanResult');
         const openCameraBtn = document.getElementById('openCameraBtn');
         let stream = null; // To store the camera stream
+        let isScanning = false; // To track if scanning is active
 
         // Handle "Open Camera" button click
         openCameraBtn.addEventListener('click', function () {
@@ -85,6 +86,7 @@
                         video.srcObject = stream;
                         video.play();
                         console.log("[DEBUG] Video stream started.");
+                        isScanning = true; // Start scanning
                         startScanning();
                     })
                     .catch(function (error) {
@@ -115,6 +117,8 @@
             const context = canvas.getContext('2d');
 
             function scanFrame() {
+                if (!isScanning) return; // Stop scanning if not active
+
                 if (video.readyState === video.HAVE_ENOUGH_DATA) {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
@@ -137,6 +141,9 @@
                             console.log("[DEBUG] Opening URL in a new tab:", code.data);
                             window.open(code.data, '_blank'); // Open in a new tab
                         }
+
+                        // Stop scanning and close the camera
+                        stopCamera();
                     } else {
                         console.log("[DEBUG] No QR code detected.");
                         scanResult.innerHTML = `<p class="text-warning">No QR code detected.</p>`;
@@ -159,14 +166,21 @@
             }
         }
 
-        // Stop the camera stream when the modal is closed
-        const cameraModal = document.getElementById('cameraModal');
-        cameraModal.addEventListener('hidden.bs.modal', function () {
-            console.log("[DEBUG] Modal closed. Stopping camera stream.");
+        // Function to stop the camera stream
+        function stopCamera() {
+            console.log("[DEBUG] Stopping camera stream.");
+            isScanning = false; // Stop scanning
             if (stream) {
                 stream.getTracks().forEach(track => track.stop()); // Stop all tracks
                 video.srcObject = null; // Clear the video element
             }
+        }
+
+        // Stop the camera stream when the modal is closed
+        const cameraModal = document.getElementById('cameraModal');
+        cameraModal.addEventListener('hidden.bs.modal', function () {
+            console.log("[DEBUG] Modal closed. Stopping camera stream.");
+            stopCamera();
         });
     </script>
 </body>

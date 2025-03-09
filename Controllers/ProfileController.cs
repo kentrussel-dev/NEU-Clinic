@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging; // Added for logging
+using Microsoft.Extensions.Logging;
 using WebApp.Models;
 using WebApp.Data;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using WebApp.ViewModels;
 
 public class ProfileController : Controller
 {
@@ -17,6 +18,54 @@ public class ProfileController : Controller
         _userManager = userManager;
         _context = context;
         _logger = logger;
+    }
+
+    // New action to display the profile view for a specific user
+    [HttpGet("profile/{userId}")]
+    public async Task<IActionResult> Index(string userId)
+    {
+        if (string.IsNullOrEmpty(userId))
+        {
+            TempData["ErrorMessage"] = "User ID is required.";
+            _logger.LogWarning("Profile view failed: User ID is missing.");
+            return NotFound("User ID is required.");
+        }
+
+        // Fetch the user details
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = "User not found.";
+            _logger.LogWarning($"Profile view failed: User with ID {userId} not found.");
+            return NotFound("User not found.");
+        }
+
+        // Fetch the personal details
+        var personalDetails = await _context.PersonalDetails.FirstOrDefaultAsync(p => p.UserId == userId);
+        if (personalDetails == null)
+        {
+            TempData["ErrorMessage"] = "Personal details not found.";
+            _logger.LogWarning($"Profile view failed: Personal details for user with ID {userId} not found.");
+            return NotFound("Personal details not found.");
+        }
+
+        // Fetch the Health Details
+        var healthDetails = await _context.HealthDetails.FirstOrDefaultAsync(p => p.UserId == userId);
+        if (healthDetails == null)
+        {
+            TempData["ErrorMessage"] = "Health Details not found.";
+            _logger.LogWarning($"Profile view failed: Health Details for user with ID {userId} not found.");
+            return NotFound("Health Details not found.");
+        }
+
+        var profileViewModel = new ProfileViewModel
+        {
+            User = user,
+            PersonalDetails = personalDetails,
+            HealthDetails = healthDetails
+        };
+
+        return View(profileViewModel);
     }
 
     [HttpPost]

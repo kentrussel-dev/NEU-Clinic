@@ -1,38 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using WebApp.Models;
 
 namespace WebApp.ViewModels
 {
     public class ProfileViewModel
     {
-        [Required]
-        public string StudentId { get; set; }
-
-        [Required]
-        public string FirstName { get; set; }
-
-        [Required]
-        public string LastName { get; set; }
-
-        [Required]
-        public string Username { get; set; }
-
-        [Required]
-        [DataType(DataType.Password)]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
-        public string Password { get; set; }
-
-        [Required]
-        [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
-
-        [Required]
-        public string Address { get; set; }
-
-        [Required]
-        public string PhoneNumber { get; set; }
-
-        public IFormFile ESignature { get; set; }
+        public Users User { get; set; } // Represents the user's basic information
+        public PersonalDetails PersonalDetails { get; set; } // Represents the user's personal details
+        public HealthDetails HealthDetails { get; set; } // Represents the user's health details
     }
 }
+

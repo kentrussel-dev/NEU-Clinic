@@ -3,7 +3,6 @@
     transition: width 0.3s ease;
     overflow: hidden;
     min-height: 100vh;
-    /* Changed from height to min-height */
 }
 
 #wrapper.toggled #sidebar-wrapper {
@@ -20,7 +19,6 @@
     width: calc(100% - 320px);
     transition: width 0.3s ease;
     min-height: 100vh;
-    /* Added min-height */
 }
 
 #wrapper.toggled #page-content-wrapper {
@@ -70,7 +68,6 @@
 #page-content-wrapper,
 #sidebar-wrapper {
     min-height: 100vh;
-    /* Changed from height to min-height */
 }
 
 /* Smooth hover effect */
@@ -81,18 +78,61 @@
 /* Active tab styling */
 .list-group-item.active {
     background-color: #ffffff !important;
-    /* White background for active tab */
     color: rgb(0, 0, 0) !important;
-    /* Black text for active tab */
 }
 
 .list-group-item.active:hover {
     background-color: #ffffff !important;
-    /* Keep white background on hover */
     color: rgb(0, 0, 0) !important;
-    /* Keep black text on hover */
 }
 
+/* Media query for screens less than 1000px */
+@media (max-width: 1000px) {
+
+    /* Shrink the sidebar */
+    #sidebar-wrapper {
+        width: 60px !important;
+        /* Force the sidebar to stay small */
+    }
+
+    /* Hide the sidebar text */
+    .sidebar-text {
+        display: none !important;
+    }
+
+    /* Hide the sidebar header text */
+    .sidebar-header h4 {
+        display: none !important;
+    }
+
+    /* Center the toggle button */
+    .sidebar-header {
+        justify-content: center;
+    }
+
+    /* Prevent the sidebar from expanding */
+    #wrapper.toggled #sidebar-wrapper {
+        width: 60px !important;
+        /* Force the sidebar to stay small */
+    }
+
+    /* Adjust page content width */
+    #page-content-wrapper {
+        width: calc(100% - 60px) !important;
+    }
+
+    /* Center icons in the sidebar */
+    .list-group-item {
+        justify-content: center;
+        padding: 12px 0;
+    }
+
+    .list-group-item i {
+        margin: 0 auto;
+    }
+}
+
+/* Media query for screens less than 800px */
 @media (max-width: 800px) {
     .sidebar-header {
         flex-direction: column;

@@ -67,47 +67,43 @@
     border-top: 1px solid #eee;
 }
 
-/* scanner */
-
-/* White square overlay for the camera feed */
-.scanner-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 250px;
-    height: 250px;
-    border: 4px solid white;
-    z-index: 1;
-    pointer-events: none;
-    /* Ensure the overlay doesn't block interactions */
+/* QR Code Container */
+.qr-code-container {
+    position: relative;
+    display: inline-block;
 }
 
-/* Dark overlay for the camera feed only */
-.camera-overlay {
+/* Hover effect for the QR code container */
+.qr-code-container:hover .qr-code-overlay {
+    opacity: 1;
+}
+
+/* QR Code Overlay */
+.qr-code-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    /* Semi-transparent black */
-    z-index: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* Video container */
-.video-container {
-    position: relative;
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-    /* Ensure the overlay doesn't overflow */
+/* Style for the download button */
+#downloadQrCodeBtn {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+    cursor: pointer;
 }
 
-/* Video element */
-#qr-video {
-    width: 100%;
-    height: auto;
-    position: relative;
-    z-index: 0;
+#downloadQrCodeBtn:hover {
+    background-color: rgba(255, 255, 255, 1);
 }

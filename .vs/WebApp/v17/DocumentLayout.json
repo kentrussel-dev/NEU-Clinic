@@ -3,16 +3,20 @@
   "WorkspaceRootPath": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307153810_qr-code.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250307153810_qr-code.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\profileviewmodel.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\profileviewmodel.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\services\\qrcodeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:services\\qrcodeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\qrscannercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\qrscannercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -21,6 +25,22 @@
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307153810_qr-code.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250307153810_qr-code.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\users.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -51,20 +71,12 @@
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\rolesmanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\usersmanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\usersmanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\viewmodels\\registerviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -90,17 +102,30 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "ProfileViewModel.razor",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\ProfileViewModel.razor",
+              "RelativeDocumentMoniker": "Models\\ProfileViewModel.razor",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\ProfileViewModel.razor",
+              "RelativeToolTip": "Models\\ProfileViewModel.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-08T21:17:42.601Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "AccountController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
               "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\AccountController.cs",
               "RelativeToolTip": "Controllers\\AccountController.cs",
-              "ViewState": "AgIAAHoAAAAAAAAAAAAuwJYAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACsAAAAAAAAAAAAwwLAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-02T19:18:29.312Z",
               "IsPinned": true,
@@ -108,15 +133,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "20250307153810_qr-code.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307153810_qr-code.cs",
-              "RelativeDocumentMoniker": "Migrations\\20250307153810_qr-code.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307153810_qr-code.cs",
-              "RelativeToolTip": "Migrations\\20250307153810_qr-code.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 3,
+              "Title": "QRScannerController.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\QRScannerController.cs",
+              "RelativeDocumentMoniker": "Controllers\\QRScannerController.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\QRScannerController.cs",
+              "RelativeToolTip": "Controllers\\QRScannerController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-07T15:38:10.252Z",
+              "WhenOpened": "2025-03-08T13:08:02.832Z",
               "EditorCaption": ""
             },
             {
@@ -127,40 +152,79 @@
               "RelativeDocumentMoniker": "Services\\QRCodeService.cs",
               "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\QRCodeService.cs",
               "RelativeToolTip": "Services\\QRCodeService.cs",
-              "ViewState": "AgIAABkAAAAAAAAAAAAuwDgAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAcwBoAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-07T15:24:42.085Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "20250307094740_init.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307094740_init.cs",
-              "RelativeDocumentMoniker": "Migrations\\20250307094740_init.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307094740_init.cs",
-              "RelativeToolTip": "Migrations\\20250307094740_init.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAmwHYAAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-07T09:47:40.463Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "UserHealthManagementController.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\UserHealthManagementController.cs",
-              "RelativeDocumentMoniker": "Controllers\\UserHealthManagementController.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\UserHealthManagementController.cs",
-              "RelativeToolTip": "Controllers\\UserHealthManagementController.cs",
-              "ViewState": "AgIAAFUAAAAAAAAAAAAqwEkAAAAnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-06T20:18:02.521Z",
+              "WhenOpened": "2025-03-03T01:14:43.229Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAABOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-02-27T17:25:30.548Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ProfileController.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\ProfileController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ProfileController.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\ProfileController.cs",
+              "RelativeToolTip": "Controllers\\ProfileController.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAmwCEAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T08:42:54.98Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-03-08T18:17:56.132Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "20250307153810_qr-code.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307153810_qr-code.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250307153810_qr-code.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307153810_qr-code.cs",
+              "RelativeToolTip": "Migrations\\20250307153810_qr-code.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-07T15:38:10.252Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "Users.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\Users.cs",
               "RelativeDocumentMoniker": "Models\\Users.cs",
@@ -173,33 +237,46 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-02-27T17:25:30.548Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAFgAAAAAAAAAAAAqwHMAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-03T01:14:43.229Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 8,
+              "Title": "DashboardController.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\DashboardController.cs",
+              "RelativeDocumentMoniker": "Controllers\\DashboardController.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\DashboardController.cs",
+              "RelativeToolTip": "Controllers\\DashboardController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA0AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-03T06:27:03.128Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "UserHealthManagementController.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\UserHealthManagementController.cs",
+              "RelativeDocumentMoniker": "Controllers\\UserHealthManagementController.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\UserHealthManagementController.cs",
+              "RelativeToolTip": "Controllers\\UserHealthManagementController.cs",
+              "ViewState": "AgIAAFUAAAAAAAAAAAAqwEkAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T20:18:02.521Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "20250307094740_init.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307094740_init.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250307094740_init.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250307094740_init.cs",
+              "RelativeToolTip": "Migrations\\20250307094740_init.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-07T09:47:40.463Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
               "Title": "HealthDetails.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\HealthDetails.cs",
               "RelativeDocumentMoniker": "Models\\HealthDetails.cs",
@@ -212,7 +289,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 15,
               "Title": "HomeController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
@@ -225,7 +302,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 16,
               "Title": "RolesManagementController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\RolesManagementController.cs",
               "RelativeDocumentMoniker": "Controllers\\RolesManagementController.cs",
@@ -238,7 +315,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 14,
               "Title": "PersonalDetails.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\PersonalDetails.cs",
               "RelativeDocumentMoniker": "Models\\PersonalDetails.cs",
@@ -251,20 +328,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "ProfileController.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\ProfileController.cs",
-              "RelativeDocumentMoniker": "Controllers\\ProfileController.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\ProfileController.cs",
-              "RelativeToolTip": "Controllers\\ProfileController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAA4AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-06T08:42:54.98Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 17,
               "Title": "UsersManagementController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\UsersManagementController.cs",
               "RelativeDocumentMoniker": "Controllers\\UsersManagementController.cs",
@@ -277,7 +341,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 18,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Data\\AppDbContext.cs",
               "RelativeDocumentMoniker": "Data\\AppDbContext.cs",
@@ -290,20 +354,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "DashboardController.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\DashboardController.cs",
-              "RelativeDocumentMoniker": "Controllers\\DashboardController.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\DashboardController.cs",
-              "RelativeToolTip": "Controllers\\DashboardController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-03T06:27:03.128Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 19,
               "Title": "RegisterViewModel.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\ViewModels\\RegisterViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\RegisterViewModel.cs",
@@ -316,7 +367,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 20,
               "Title": "VerifyEmailViewModel.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\ViewModels\\VerifyEmailViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\VerifyEmailViewModel.cs",
@@ -329,7 +380,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 21,
               "Title": "ProfileVIewModel.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\ViewModels\\ProfileVIewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\ProfileVIewModel.cs",
@@ -342,13 +393,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 22,
               "Title": "account.css",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\wwwroot\\css\\account.css",
               "RelativeDocumentMoniker": "wwwroot\\css\\account.css",
               "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\wwwroot\\css\\account.css",
               "RelativeToolTip": "wwwroot\\css\\account.css",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAAPAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
               "WhenOpened": "2025-03-02T13:19:43.982Z",
               "EditorCaption": ""

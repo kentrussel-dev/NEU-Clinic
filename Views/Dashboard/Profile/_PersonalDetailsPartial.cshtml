@@ -144,8 +144,13 @@
     function makeEditable(fieldId) {
         const field = document.getElementById(fieldId);
         if (field) {
-            field.removeAttribute("disabled"); // Enable the dropdown
-            field.focus(); // Focus on the dropdown
+            // Check if the field is a select element (dropdown)
+            if (field.tagName === "SELECT") {
+                field.removeAttribute("disabled"); // Enable the dropdown
+            } else {
+                field.removeAttribute("readonly"); // Remove readonly for text inputs
+            }
+            field.focus(); // Focus on the field
             document.getElementById("updateButton").style.display = "block"; // Show the update button
         }
     }

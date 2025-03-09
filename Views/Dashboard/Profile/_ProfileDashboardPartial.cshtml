@@ -70,7 +70,16 @@
                     <!-- Dynamic QR Code Image from user.QRCodePath -->
                     @if (!string.IsNullOrEmpty(user?.QRCodePath))
                     {
-                        <img src="@user.QRCodePath" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                        <div class="qr-code-container">
+                            <img src="@user.QRCodePath" alt="QR Code" class="img-fluid" style="max-width: 200px;"
+                                id="qrCodeImage">
+                            <!-- Download Button (Hidden by default, shown on hover) -->
+                            <div class="qr-code-overlay">
+                                <button id="downloadQrCodeBtn">
+                                    <i class="fas fa-download"></i> <!-- Font Awesome download icon -->
+                                </button>
+                            </div>
+                        </div>
                     }
                     else
                     {
@@ -110,14 +119,29 @@
     </div>
 </div>
 
-<script>
-    function makeEditable(fieldId) {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.removeAttribute("readonly");
-            field.removeAttribute("disabled");
-            field.focus();
-            document.getElementById("updateButton").style.display = "block";
+@section Scripts {
+    <script>
+        function makeEditable(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.removeAttribute("readonly");
+                field.removeAttribute("disabled");
+                field.focus();
+                document.getElementById("updateButton").style.display = "block";
+            }
         }
-    }
-</script>
+
+        document.getElementById("downloadQrCodeBtn")?.addEventListener("click", function () {
+            const qrCodeImage = document.getElementById("qrCodeImage");
+            if (qrCodeImage) {
+                // Create a temporary anchor element
+                const link = document.createElement("a");
+                link.href = qrCodeImage.src; // Set the href to the QR code image URL
+                link.download = "qr-code.png"; // Set the download filename
+                document.body.appendChild(link); // Append the anchor to the document
+                link.click(); // Trigger the download
+                document.body.removeChild(link); // Remove the anchor from the document
+            }
+        });
+    </script>
+}
