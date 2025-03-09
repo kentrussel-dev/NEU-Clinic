@@ -18,6 +18,34 @@
     var address = personalDetails?.Address ?? "N/A";
     var yearLevel = personalDetails?.YearLevel ?? "N/A";
     var name = user?.FullName ?? user?.UserName ?? "N/A";
+
+    var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
+    var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
+
+    // Initialize role flags
+    var isSuperAdmin = roles.Contains("SuperAdmin");
+    var isAdmin = roles.Contains("Admin");
+    var isMedicalStaff = roles.Contains("MedicalStaff");
+    var isStudent = roles.Contains("Student");
+
+    // Set userRole based on the highest priority role
+    var userRole = "Student";
+    if (isSuperAdmin)
+    {
+        userRole = "SuperAdmin";
+    }
+    else if (isAdmin)
+    {
+        userRole = "Admin";
+    }
+    else if (isMedicalStaff)
+    {
+        userRole = "MedicalStaff";
+    }
+    else if (isStudent)
+    {
+        userRole = "Student";
+    }
 }
 
 @{
@@ -71,75 +99,79 @@
         </div>
     </div>
 </div>
-<div class="row mb-3">
-    <div class="col-md-6">
-        <label for="department" class="form-label">Department/Program</label>
-        <div class="input-group">
-            <select class="form-select" id="department" name="Department" disabled>
-                <option value="">Select Department</option>
-                @foreach (var dept in departments)
-                {
-                    <option value="@dept" selected="@(department == dept ? "selected" : null)">@dept</option>
-                }
-            </select>
-            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('department')">
-                <i class="fas fa-pen"></i>
-            </button>
+@if (isStudent)
+{
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="department" class="form-label">Department/Program</label>
+            <div class="input-group">
+                <select class="form-select" id="department" name="Department" disabled>
+                    <option value="">Select Department</option>
+                    @foreach (var dept in departments)
+                    {
+                        <option value="@dept" selected="@(department == dept ? "selected" : null)">@dept</option>
+                    }
+                </select>
+                <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('department')">
+                    <i class="fas fa-pen"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="studentId" class="form-label">Student ID</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="studentId" name="StudentId" value="@studentId" readonly>
+                <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('studentId')">
+                    <i class="fas fa-pen"></i>
+                </button>
+            </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <label for="studentId" class="form-label">Student ID</label>
-        <div class="input-group">
-            <input type="text" class="form-control" id="studentId" name="StudentId" value="@studentId" readonly>
-            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('studentId')">
-                <i class="fas fa-pen"></i>
-            </button>
-        </div>
-    </div>
-</div>
-<div class="row mb-3">
-    <div class="col-md-6">
-        <label for="address" class="form-label">Address</label>
-        <div class="input-group">
-            <input type="text" class="form-control" id="address" name="Address" value="@address" readonly>
-            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('address')">
-                <i class="fas fa-pen"></i>
-            </button>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <label for="yearLevel" class="form-label">Year Level</label>
-        <div class="input-group">
-            <input type="text" class="form-control" id="yearLevel" name="YearLevel" value="@yearLevel" readonly>
-            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('yearLevel')">
-                <i class="fas fa-pen"></i>
-            </button>
-        </div>
-    </div>
-</div>
-<div class="row mb-3">
-    <div class="col-md-6">
-        <label for="course" class="form-label">Course</label>
-        <div class="input-group">
-            <select class="form-select" id="course" name="Course" disabled>
-                <option value="">Select Course</option>
-                @foreach (var crs in courses)
-                {
-                    <option value="@crs" selected="@(course == crs ? "selected" : null)">@crs</option>
-                }
-            </select>
-            <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('course')">
-                <i class="fas fa-pen"></i>
-            </button>
-        </div>
-    </div>
-</div>
-<div class="row mb-3">
-    <div class="col-md-12 text-end">
-        <button type="submit" id="updateButton" class="btn btn-primary" style="display: none;">Update</button>
-    </div>
-</div>
 
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="address" class="form-label">Address</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="address" name="Address" value="@address" readonly>
+                <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('address')">
+                    <i class="fas fa-pen"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="yearLevel" class="form-label">Year Level</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="yearLevel" name="YearLevel" value="@yearLevel" readonly>
+                <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('yearLevel')">
+                    <i class="fas fa-pen"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="course" class="form-label">Course</label>
+            <div class="input-group">
+                <select class="form-select" id="course" name="Course" disabled>
+                    <option value="">Select Course</option>
+                    @foreach (var crs in courses)
+                    {
+                        <option value="@crs" selected="@(course == crs ? "selected" : null)">@crs</option>
+                    }
+                </select>
+                <button type="button" class="btn btn-outline-secondary" onclick="makeEditable('course')">
+                    <i class="fas fa-pen"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-12 text-end">
+            <button type="submit" id="updateButton" class="btn btn-primary" style="display: none;">Update</button>
+        </div>
+    </div>
+}
 <script>
     function makeEditable(fieldId) {
         const field = document.getElementById(fieldId);

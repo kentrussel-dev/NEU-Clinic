@@ -13,7 +13,7 @@
 
 <div class="container-fluid">
     <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
-        User Health Management
+        Student Health Management
     </h2>
 
     <!-- Display TempData messages -->
@@ -25,7 +25,6 @@
     {
         <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
     }
-    using System.Text.Json;
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Users...">
@@ -45,7 +44,7 @@
                 @foreach (var user in Model)
                 {
                     var healthDetails = userHealthDetails[user.Id];
-                    if (!userRoles[user.Id].Contains("SuperAdmin"))
+                    if (userRoles[user.Id].Contains("Student"))
                     {
                         <tr id="user-@user.Id">
                             <td class="align-middle">

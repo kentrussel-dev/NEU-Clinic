@@ -10,35 +10,33 @@
     var user = await userManager.GetUserAsync(User);
     var name = user?.FullName ?? user?.UserName ?? "Guest";
 
+    // Fetch roles for the current user
+    var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
+    var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
+
+    // Initialize role flags
+    var isSuperAdmin = roles.Contains("SuperAdmin");
+    var isAdmin = roles.Contains("Admin");
+    var isMedicalStaff = roles.Contains("MedicalStaff");
+    var isStudent = roles.Contains("Student");
+
+    // Set userRole based on the highest priority role
     var userRole = "Student";
-    var isSuperAdmin = false;
-    var isAdmin = false;
-    var isMedicalStaff = false;
-    var isStudent = false;
-
-    if (signInManager.IsSignedIn(User))
+    if (isSuperAdmin)
     {
-        isSuperAdmin = User.IsInRole("SuperAdmin");
-        isAdmin = User.IsInRole("Admin");
-        isMedicalStaff = User.IsInRole("MedicalStaff");
-        isStudent = User.IsInRole("Student");
-
-        if (isSuperAdmin)
-        {
-            userRole = "SuperAdmin";
-        }
-        else if (isAdmin)
-        {
-            userRole = "Admin";
-        }
-        else if (isMedicalStaff)
-        {
-            userRole = "MedicalStaff";
-        }
-        else if (isStudent)
-        {
-            userRole = "Student";
-        }
+        userRole = "SuperAdmin";
+    }
+    else if (isAdmin)
+    {
+        userRole = "Admin";
+    }
+    else if (isMedicalStaff)
+    {
+        userRole = "MedicalStaff";
+    }
+    else if (isStudent)
+    {
+        userRole = "Student";
     }
 
     var activeTab = ViewBag.ActiveTab ?? "home";
@@ -98,7 +96,7 @@
                                             Welcome, @name! 👋
                                         </h1>
                                         <p class="card-text lead text-white">
-                                            You are logged in as a <span class="text-warning">@userRole</span>.
+                                            You are logged in as a <span class="text-warning">@role</span>.
                                         </p>
                                     </div>
 
@@ -119,7 +117,6 @@
                                         {
                                             <i class="fas fa-user-md fa-4x text-white"></i> @* Medical Staff Icon *@
                                         }
-
                                     </div>
                                 </div>
                             </div>

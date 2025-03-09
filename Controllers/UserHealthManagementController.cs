@@ -14,7 +14,7 @@ using System;
 
 namespace WebApp.Controllers
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin,Admin,MedicalStaff")]
     public class UserHealthManagementController : Controller
     {
         private readonly UserManager<Users> _userManager;

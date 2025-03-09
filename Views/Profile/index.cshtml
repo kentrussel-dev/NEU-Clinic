@@ -14,9 +14,34 @@
     var name = user?.FullName ?? user?.UserName ?? "N/A";
     var profilePic = user?.ProfilePictureUrl ?? "/images/default-profile.png";
 
-    // Get user roles
+    // Fetch roles for the current user
     var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
     var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
+
+    // Initialize role flags
+    var isSuperAdmin = roles.Contains("SuperAdmin");
+    var isAdmin = roles.Contains("Admin");
+    var isMedicalStaff = roles.Contains("MedicalStaff");
+    var isStudent = roles.Contains("Student");
+
+    // Set userRole based on the highest priority role
+    var userRole = "Student";
+    if (isSuperAdmin)
+    {
+        userRole = "SuperAdmin";
+    }
+    else if (isAdmin)
+    {
+        userRole = "Admin";
+    }
+    else if (isMedicalStaff)
+    {
+        userRole = "MedicalStaff";
+    }
+    else if (isStudent)
+    {
+        userRole = "Student";
+    }
 }
 
 <!-- Custom CSS -->
@@ -85,14 +110,14 @@
                 <div class="card-body">
                     <!-- Personal Details -->
                     <h5 class="mb-3">Personal Details</h5>
-                    @if (TempData["SuccessMessage"] != null)
-                    {
+@if (TempData["SuccessMessage"] != null)
+{
                         <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-                    }
-                    @if (TempData["ErrorMessage"] != null)
-                    {
+}
+@if (TempData["ErrorMessage"] != null)
+{
                         <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-                    }
+}
                     <form id="personalDetailsForm" asp-controller="Profile" asp-action="UpdatePersonalDetails"
                         method="post">
                         <div class="row mb-3">
@@ -107,37 +132,41 @@
                                     value="@(Model.PersonalDetails?.DateOfBirth?.ToString("yyyy-MM-dd"))" readonly>
                             </div>
                         </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="department" class="form-label">Department/Program</label>
-                                <input type="text" class="form-control" id="department" name="Department"
-                                    value="@Model.PersonalDetails?.Department" readonly>
+                        @if (isStudent)
+                        {
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="department" class="form-label">Department/Program</label>
+                                    <input type="text" class="form-control" id="department" name="Department"
+                                        value="@Model.PersonalDetails?.Department" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="studentId" class="form-label">Student ID</label>
+                                    <input type="text" class="form-control" id="studentId" name="StudentId"
+                                        value="@Model.PersonalDetails?.StudentId" readonly>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="studentId" class="form-label">Student ID</label>
-                                <input type="text" class="form-control" id="studentId" name="StudentId"
-                                    value="@Model.PersonalDetails?.StudentId" readonly>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address" name="Address"
+                                        value="@Model.PersonalDetails?.Address" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="yearLevel" class="form-label">Year Level</label>
+                                    <input type="text" class="form-control" id="yearLevel" name="YearLevel"
+                                        value="@Model.PersonalDetails?.YearLevel" readonly>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="address" name="Address"
-                                    value="@Model.PersonalDetails?.Address" readonly>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="course" class="form-label">Course</label>
+                                    <input type="text" class="form-control" id="course" name="Course"
+                                        value="@Model.PersonalDetails?.Course" readonly>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="yearLevel" class="form-label">Year Level</label>
-                                <input type="text" class="form-control" id="yearLevel" name="YearLevel"
-                                    value="@Model.PersonalDetails?.YearLevel" readonly>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="course" class="form-label">Course</label>
-                                <input type="text" class="form-control" id="course" name="Course"
-                                    value="@Model.PersonalDetails?.Course" readonly>
-                            </div>
-                        </div>
+                        }
+
                         <div class="row mb-3">
                             <div class="col-md-12 text-end">
                                 <button type="submit" id="updateButton" class="btn btn-primary"
@@ -145,105 +174,106 @@
                             </div>
                         </div>
                     </form>
-
-                    <!-- Health Information -->
-                    <h5 class="mb-3">Health Details</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="bloodType" class="form-label">Blood Type</label>
-                            <input type="text" class="form-control" id="bloodType" name="BloodType"
-                                value="@Model.HealthDetails?.BloodType" readonly>
+                    @if (isStudent){
+                        <!-- Health Information -->
+                        <h5 class="mb-3">Health Details</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="bloodType" class="form-label">Blood Type</label>
+                                <input type="text" class="form-control" id="bloodType" name="BloodType"
+                                    value="@Model.HealthDetails?.BloodType" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="allergies" class="form-label">Allergies</label>
+                                <input type="text" class="form-control" id="allergies" name="Allergies"
+                                    value="@Model.HealthDetails?.Allergies" readonly>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="allergies" class="form-label">Allergies</label>
-                            <input type="text" class="form-control" id="allergies" name="Allergies"
-                                value="@Model.HealthDetails?.Allergies" readonly>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="medicalNotes" class="form-label">Medical Notes</label>
+                                <input type="text" class="form-control" id="medicalNotes" name="MedicalNotes"
+                                    value="@Model.HealthDetails?.MedicalNotes" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emergencyContactName" class="form-label">Emergency Contact Name</label>
+                                <input type="text" class="form-control" id="emergencyContactName"
+                                    name="EmergencyContactName" value="@Model.HealthDetails?.EmergencyContactName" readonly>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="medicalNotes" class="form-label">Medical Notes</label>
-                            <input type="text" class="form-control" id="medicalNotes" name="MedicalNotes"
-                                value="@Model.HealthDetails?.MedicalNotes" readonly>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="emergencyContactRelationship" class="form-label">Emergency Contact
+                                    Relationship</label>
+                                <input type="text" class="form-control" id="emergencyContactRelationship"
+                                    name="EmergencyContactRelationship"
+                                    value="@Model.HealthDetails?.EmergencyContactRelationship" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emergencyContactPhone" class="form-label">Emergency Contact Phone</label>
+                                <input type="text" class="form-control" id="emergencyContactPhone"
+                                    name="EmergencyContactPhone" value="@Model.HealthDetails?.EmergencyContactPhone"
+                                    readonly>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="emergencyContactName" class="form-label">Emergency Contact Name</label>
-                            <input type="text" class="form-control" id="emergencyContactName"
-                                name="EmergencyContactName" value="@Model.HealthDetails?.EmergencyContactName" readonly>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="chronicConditions" class="form-label">Chronic Conditions</label>
+                                <input type="text" class="form-control" id="chronicConditions" name="ChronicConditions"
+                                    value="@Model.HealthDetails?.ChronicConditions" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="medications" class="form-label">Medications</label>
+                                <input type="text" class="form-control" id="medications" name="Medications"
+                                    value="@Model.HealthDetails?.Medications" readonly>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="emergencyContactRelationship" class="form-label">Emergency Contact
-                                Relationship</label>
-                            <input type="text" class="form-control" id="emergencyContactRelationship"
-                                name="EmergencyContactRelationship"
-                                value="@Model.HealthDetails?.EmergencyContactRelationship" readonly>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="immunizationHistory" class="form-label">Immunization History</label>
+                                <input type="text" class="form-control" id="immunizationHistory" name="ImmunizationHistory"
+                                    value="@Model.HealthDetails?.ImmunizationHistory" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="recentCheckups" class="form-label">Recent Checkups</label>
+                                <input type="text" class="form-control" id="recentCheckups" name="RecentCheckups"
+                                    value="@Model.HealthDetails?.RecentCheckups" readonly>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="emergencyContactPhone" class="form-label">Emergency Contact Phone</label>
-                            <input type="text" class="form-control" id="emergencyContactPhone"
-                                name="EmergencyContactPhone" value="@Model.HealthDetails?.EmergencyContactPhone"
-                                readonly>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="activityRestrictions" class="form-label">Activity Restrictions</label>
+                                <input type="text" class="form-control" id="activityRestrictions"
+                                    name="ActivityRestrictions" value="@Model.HealthDetails?.ActivityRestrictions" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="dietaryRestrictions" class="form-label">Dietary Restrictions</label>
+                                <input type="text" class="form-control" id="dietaryRestrictions" name="DietaryRestrictions"
+                                    value="@Model.HealthDetails?.DietaryRestrictions" readonly>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="chronicConditions" class="form-label">Chronic Conditions</label>
-                            <input type="text" class="form-control" id="chronicConditions" name="ChronicConditions"
-                                value="@Model.HealthDetails?.ChronicConditions" readonly>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="mentalHealthNotes" class="form-label">Mental Health Notes</label>
+                                <input type="text" class="form-control" id="mentalHealthNotes" name="MentalHealthNotes"
+                                    value="@Model.HealthDetails?.MentalHealthNotes" readonly>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="medications" class="form-label">Medications</label>
-                            <input type="text" class="form-control" id="medications" name="Medications"
-                                value="@Model.HealthDetails?.Medications" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="immunizationHistory" class="form-label">Immunization History</label>
-                            <input type="text" class="form-control" id="immunizationHistory" name="ImmunizationHistory"
-                                value="@Model.HealthDetails?.ImmunizationHistory" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="recentCheckups" class="form-label">Recent Checkups</label>
-                            <input type="text" class="form-control" id="recentCheckups" name="RecentCheckups"
-                                value="@Model.HealthDetails?.RecentCheckups" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="activityRestrictions" class="form-label">Activity Restrictions</label>
-                            <input type="text" class="form-control" id="activityRestrictions"
-                                name="ActivityRestrictions" value="@Model.HealthDetails?.ActivityRestrictions" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="dietaryRestrictions" class="form-label">Dietary Restrictions</label>
-                            <input type="text" class="form-control" id="dietaryRestrictions" name="DietaryRestrictions"
-                                value="@Model.HealthDetails?.DietaryRestrictions" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="mentalHealthNotes" class="form-label">Mental Health Notes</label>
-                            <input type="text" class="form-control" id="mentalHealthNotes" name="MentalHealthNotes"
-                                value="@Model.HealthDetails?.MentalHealthNotes" readonly>
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    function makeEditable(fieldId) {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.removeAttribute("readonly");
-            field.removeAttribute("disabled");
-            field.focus();
-            document.getElementById("updateButton").style.display = "block";
+    <script>
+        function makeEditable(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.removeAttribute("readonly");
+                field.removeAttribute("disabled");
+                field.focus();
+                document.getElementById("updateButton").style.display = "block";
+            }
         }
-    }
-</script>
+    </script>

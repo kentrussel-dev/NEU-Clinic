@@ -16,6 +16,31 @@
     // Get user roles
     var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
     var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
+
+    // Initialize role flags
+    var isSuperAdmin = roles.Contains("SuperAdmin");
+    var isAdmin = roles.Contains("Admin");
+    var isMedicalStaff = roles.Contains("MedicalStaff");
+    var isStudent = roles.Contains("Student");
+
+    // Set userRole based on the highest priority role
+    var userRole = "Student";
+    if (isSuperAdmin)
+    {
+        userRole = "SuperAdmin";
+    }
+    else if (isAdmin)
+    {
+        userRole = "Admin";
+    }
+    else if (isMedicalStaff)
+    {
+        userRole = "MedicalStaff";
+    }
+    else if (isStudent)
+    {
+        userRole = "Student";
+    }
 }
 
 <!-- Custom CSS -->
@@ -111,8 +136,10 @@
                         method="post">
                         @await Html.PartialAsync("Profile/_PersonalDetailsPartial")
                     </form>
-                    <!-- Health Information -->
-                    @await Html.PartialAsync("Profile/_MedicalDetailsPartial")
+                    @if (isStudent)
+                    {
+                        @await Html.PartialAsync("Profile/_MedicalDetailsPartial")
+                    }
                 </div>
             </div>
         </div>
