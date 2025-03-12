@@ -1,0 +1,173 @@
+@using Microsoft.AspNetCore.Identity
+@using WebApp.Models
+@model List<WebApp.Models.SubmittedHealthDetails>
+@inject UserManager<Users> UserManager
+@inject SignInManager<Users> SignInManager
+
+@{
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+    ViewData["Title"] = "Submitted Health Records";
+    var activeTab = ViewBag.ActiveTab ?? "home";
+    var user = await UserManager.GetUserAsync(User);
+
+    var allUsers = UserManager.Users.ToList();
+    var userDictionary = allUsers.ToDictionary(u => u.Id, u => u);
+
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+    var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
+
+    var isSuperAdmin = roles.Contains("SuperAdmin");
+    var isAdmin = roles.Contains("Admin");
+    var isMedicalStaff = roles.Contains("MedicalStaff");
+    var isStudent = roles.Contains("Student");
+}
+
+<link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
+@if (isAdmin || isMedicalStaff || isSuperAdmin)
+{
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">Submitted Health Records</h2>
+    <div id="viewrecords-content">
+        @if (Model != null && Model.Any())
+        {
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Records...">
+                    <button class="btn btn-success btn-modern">Add Record</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover user-table text-center" id="recordTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Profile</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Submission Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in Model)
+                            {
+                                var recordUser = userDictionary.ContainsKey(record.UserId) ? userDictionary[record.UserId] : null;
+
+                                <tr id="record-@record.Id">
+                                    <td class="align-middle">
+                                        <img src="@(recordUser?.ProfilePictureUrl ?? "/images/default-profile.png")" alt="Profile"
+                                            class="profile-img rounded-circle">
+                                    </td>
+                                    <td class="align-middle">@(recordUser?.FullName ?? "N/A")</td>
+                                    <td class="align-middle">@(recordUser?.Email ?? "N/A")</td>
+                                    <td class="align-middle">@record.SubmissionDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td class="align-middle">
+                                        <button type="button" class="btn btn-primary btn-sm btn-modern" data-bs-toggle="modal"
+                                            data-bs-target="#viewRecordModal-@record.Id">View</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>No records found.</p>
+        }
+    </div>
+}
+
+<!-- Modals for Viewing Records -->
+@foreach (var record in Model)
+{
+    var recordUser = userDictionary.ContainsKey(record.UserId) ? userDictionary[record.UserId] : null;
+
+    <div class="modal fade" id="viewRecordModal-@record.Id" tabindex="-1" aria-labelledby="viewRecordModalLabel-@record.Id"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <!-- Modal Header with bg-primary -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="viewRecordModalLabel-@record.Id">Submitted Health Records</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <!-- User Profile Section -->
+                    <div id="userProfileSection-@record.Id" class="mb-4 p-3 bg-light rounded">
+                        <div class="d-flex align-items-center">
+                            <!-- Profile Picture -->
+                            <img id="userProfilePic-@record.Id"
+                                src="@(recordUser?.ProfilePictureUrl ?? "/images/default-profile.png")" alt="Profile"
+                                class="profile-img rounded-circle me-3"
+                                style="width: 80px; height: 80px; object-fit: cover;">
+
+                            <!-- Name and Email -->
+                            <div>
+                                <h4 class="mb-1">
+                                    <span class="badge bg-dark me-2">Name</span>
+                                    <span id="userFullName-@record.Id">@(recordUser?.FullName ?? "N/A")</span>
+                                </h4>
+                                <p class="mb-0">
+                                    <span class="badge bg-dark me-2">Email</span>
+                                    <span id="userEmail-@record.Id">@(recordUser?.Email ?? "N/A")</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submitted Records Section (Form-like Structure) -->
+                    <div id="submittedRecordsSection-@record.Id">
+                        <h4>Submitted Records</h4>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Blood Type:</strong></label>
+                            <input type="text" class="form-control" value="@record.BloodType" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Allergies:</strong></label>
+                            <input type="text" class="form-control" value="@record.Allergies" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Emergency Contact Name:</strong></label>
+                            <input type="text" class="form-control" value="@record.EmergencyContactName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Emergency Contact Relationship:</strong></label>
+                            <input type="text" class="form-control" value="@record.EmergencyContactRelationship" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Emergency Contact Phone:</strong></label>
+                            <input type="text" class="form-control" value="@record.EmergencyContactPhone" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Submission Date:</strong></label>
+                            <input type="text" class="form-control"
+                                value="@record.SubmissionDate.ToString("yyyy-MM-dd HH:mm")" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function () {
+            let search = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#recordTable tbody tr');
+            rows.forEach(row => {
+                let userName = row.cells[1].textContent.toLowerCase(); // Search by user name (2nd column)
+                row.style.display = userName.includes(search) ? '' : 'none';
+            });
+        });
+    </script>
+}

@@ -252,16 +252,66 @@ namespace WebApp.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("YearLevel")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("PersonalDetails");
+                });
+
+            modelBuilder.Entity("WebApp.Models.SubmittedHealthDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Allergies")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BloodType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContactPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContactRelationship")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MedicalCertificateUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OtherDocumentsUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SubmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("VaccinationRecordUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("XRayFileUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("SubmittedHealthDetails");
                 });
 
             modelBuilder.Entity("WebApp.Models.Users", b =>
@@ -392,15 +442,16 @@ namespace WebApp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WebApp.Models.PersonalDetails", b =>
+            modelBuilder.Entity("WebApp.Models.SubmittedHealthDetails", b =>
                 {
-                    b.HasOne("WebApp.Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("WebApp.Models.Users", null)
+                        .WithMany("SubmittedHealthDetails")
+                        .HasForeignKey("UsersId");
+                });
 
-                    b.Navigation("User");
+            modelBuilder.Entity("WebApp.Models.Users", b =>
+                {
+                    b.Navigation("SubmittedHealthDetails");
                 });
 #pragma warning restore 612, 618
         }

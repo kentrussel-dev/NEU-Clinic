@@ -1,0 +1,86 @@
+@using WebApp.ViewModels
+@model SubmittedHealthDetailsViewModel
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-@TempData["MessageType"]">
+        @TempData["Message"]
+    </div>
+}
+
+@if (Model == null)
+{
+    <p>Model is null.</p>
+}
+else
+{
+    <!-- Form for Submitting Health Records -->
+    <form method="post" asp-action="Create" asp-controller="SubmittedHealthDetails" enctype="multipart/form-data">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <!-- Health Information -->
+        <h5 class="mb-3">Health Information</h5>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="bloodType" class="form-label">Blood Type</label>
+                <input type="text" class="form-control" id="bloodType" name="BloodType" value="@Model.BloodType">
+            </div>
+            <div class="col-md-6">
+                <label for="allergies" class="form-label">Allergies</label>
+                <input type="text" class="form-control" id="allergies" name="Allergies" value="@Model.Allergies">
+            </div>
+        </div>
+
+        <!-- Emergency Contact Information -->
+        <h5 class="mb-3 mt-4">Emergency Contact</h5>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="emergencyContactName" class="form-label">Name</label>
+                <input type="text" class="form-control" id="emergencyContactName" name="EmergencyContactName"
+                    value="@Model.EmergencyContactName">
+            </div>
+            <div class="col-md-6">
+                <label for="emergencyContactRelationship" class="form-label">Relationship</label>
+                <input type="text" class="form-control" id="emergencyContactRelationship"
+                    name="EmergencyContactRelationship" value="@Model.EmergencyContactRelationship">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="emergencyContactPhone" class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="emergencyContactPhone" name="EmergencyContactPhone"
+                    value="@Model.EmergencyContactPhone">
+            </div>
+        </div>
+
+        <!-- Health Documents -->
+        <h5 class="mb-3 mt-4">Health Documents</h5>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="xRayFile" class="form-label">X-Ray Results</label>
+                <input type="file" class="form-control" id="xRayFile" name="XRayFile">
+            </div>
+            <div class="col-md-6">
+                <label for="medicalCertificate" class="form-label">Medical Certificate</label>
+                <input type="file" class="form-control" id="medicalCertificate" name="MedicalCertificate">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="vaccinationRecord" class="form-label">Vaccination Record</label>
+                <input type="file" class="form-control" id="vaccinationRecord" name="VaccinationRecord">
+            </div>
+            <div class="col-md-6">
+                <label for="otherDocuments" class="form-label">Other Documents</label>
+                <input type="file" class="form-control" id="otherDocuments" name="OtherDocuments">
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+}

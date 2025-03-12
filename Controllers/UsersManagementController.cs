@@ -14,13 +14,13 @@ namespace WebApp.Controllers
     {
         private readonly UserManager<Users> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly ILogger<UsersManagementController> _logger; // Added logger
+        private readonly ILogger<UsersManagementController> _logger;
 
         public UsersManagementController(UserManager<Users> userManager, RoleManager<IdentityRole> roleManager, ILogger<UsersManagementController> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _logger = logger; // Inject logger
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()

@@ -77,6 +77,24 @@
                 data-tab="qrscanner">
                 <i class="fas fa-qrcode"></i><span class="sidebar-text ms-2">QR Scanner</span>
             </a>
+            <!-- Add Submit Health Records Tab (Only for Students) -->
+            @if (isStudent)
+            {
+                <a href="@Url.Action("Index", "Dashboard", new { activeTab = "healthrecords" })"
+                    class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "healthrecords" ? "active" : "")"
+                    data-tab="healthrecords">
+                    <i class="fas fa-file-medical"></i><span class="sidebar-text ms-2">Submit Health Records</span>
+                </a>
+            }
+            @* <!-- Add View Submitted Records Tab (Only for Admin, MedicalStaff, and SuperAdmin) -->
+            @if (isAdmin || isMedicalStaff || isSuperAdmin)
+            {
+                <a href="@Url.Action("Index", "Dashboard", new { activeTab = "viewrecords" })"
+                    class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "viewrecords" ? "active" : "")"
+                    data-tab="viewrecords">
+                    <i class="fas fa-list"></i><span class="sidebar-text ms-2">View Submitted Records</span>
+                </a>    
+            } *@
         </div>
     </div>
 
@@ -157,6 +175,27 @@
                 style="display: @(activeTab == "qrscanner" ? "block" : "none");">
                 @await Html.PartialAsync("QRScanner/_QRScannerPartial")
             </div>
+
+            @if (isStudent)
+            {
+                <div id="healthrecords-content" class="tab-content @(activeTab == "healthrecords" ? "active" : "")"
+                    style="display: @(activeTab == "healthrecords" ? "block" : "none");">
+                    @await Html.PartialAsync("SubmittedHealthDetails/_SubmitHealthRecordsPartial", new
+                    SubmittedHealthDetailsViewModel())
+            </div>
+                        }
+            @{
+                var records = ViewBag.Records as List<WebApp.Models.SubmittedHealthDetails>;
+            }
+
+            <!-- View Submitted Records Content -->
+            @* @if (isAdmin || isMedicalStaff || isSuperAdmin)
+            {
+                <div id="viewrecords-content" class="tab-content @(activeTab == "viewrecords" ? "active" : "")"
+                    style="display: @(activeTab == "viewrecords" ? "block" : "none");">
+                    @await Html.PartialAsync("SubmittedHealthDetails/_ViewRecordsPartial")
+                </div>
+            } *@
         </div>
     </div>
 </div>
