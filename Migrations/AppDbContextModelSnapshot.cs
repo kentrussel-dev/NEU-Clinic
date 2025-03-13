@@ -214,7 +214,7 @@ namespace WebApp.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("VaccinationRecordUrl")
                         .HasColumnType("nvarchar(max)");
@@ -223,6 +223,9 @@ namespace WebApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("HealthDetails");
                 });
@@ -252,12 +255,15 @@ namespace WebApp.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("YearLevel")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("PersonalDetails");
                 });
@@ -296,9 +302,6 @@ namespace WebApp.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UsersId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("VaccinationRecordUrl")
@@ -309,7 +312,7 @@ namespace WebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsersId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("SubmittedHealthDetails");
                 });
@@ -442,15 +445,47 @@ namespace WebApp.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WebApp.Models.HealthDetails", b =>
+                {
+                    b.HasOne("WebApp.Models.Users", "User")
+                        .WithOne("HealthDetails")
+                        .HasForeignKey("WebApp.Models.HealthDetails", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApp.Models.PersonalDetails", b =>
+                {
+                    b.HasOne("WebApp.Models.Users", "User")
+                        .WithOne("PersonalDetails")
+                        .HasForeignKey("WebApp.Models.PersonalDetails", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApp.Models.SubmittedHealthDetails", b =>
                 {
-                    b.HasOne("WebApp.Models.Users", null)
+                    b.HasOne("WebApp.Models.Users", "User")
                         .WithMany("SubmittedHealthDetails")
-                        .HasForeignKey("UsersId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WebApp.Models.Users", b =>
                 {
+                    b.Navigation("HealthDetails")
+                        .IsRequired();
+
+                    b.Navigation("PersonalDetails")
+                        .IsRequired();
+
                     b.Navigation("SubmittedHealthDetails");
                 });
 #pragma warning restore 612, 618

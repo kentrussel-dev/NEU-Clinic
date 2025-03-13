@@ -1,3 +1,4 @@
+@using Microsoft.EntityFrameworkCore;
 @using Microsoft.AspNetCore.Identity
 @using WebApp.Models
 @model List<WebApp.Models.SubmittedHealthDetails>
@@ -5,36 +6,85 @@
 @inject SignInManager<Users> SignInManager
 
 @{
+    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
+}
+
+@{
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
     ViewData["Title"] = "Submitted Health Records";
     var activeTab = ViewBag.ActiveTab ?? "home";
     var user = await UserManager.GetUserAsync(User);
 
-    var allUsers = UserManager.Users.ToList();
-    var userDictionary = allUsers.ToDictionary(u => u.Id, u => u);
+    // Fetch all users with their PersonalDetails
+    var allUsers = await UserManager.Users
+        .Include(u => u.PersonalDetails)
+        .ToListAsync();
 
-    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
-    var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
+    // Create a dictionary to store users and their roles
+    var userDictionary = new Dictionary<string, (Users User, List<string> Roles)>();
 
-    var isSuperAdmin = roles.Contains("SuperAdmin");
-    var isAdmin = roles.Contains("Admin");
-    var isMedicalStaff = roles.Contains("MedicalStaff");
-    var isStudent = roles.Contains("Student");
+    // Fetch roles for each user
+    foreach (var userItem in allUsers)
+    {
+        var userRoles = await UserManager.GetRolesAsync(userItem); // Renamed to userRoles
+        userDictionary[userItem.Id] = (userItem, userRoles.ToList());
+    }
+
+    var currentUserRoles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>(); // Renamed to currentUserRoles
+    var role = currentUserRoles.Any() ? string.Join(", ", currentUserRoles) : "No Role Assigned";
+
+    var isSuperAdmin = currentUserRoles.Contains("SuperAdmin");
+    var isAdmin = currentUserRoles.Contains("Admin");
+    var isMedicalStaff = currentUserRoles.Contains("MedicalStaff");
+    var isStudent = currentUserRoles.Contains("Student");
 }
 
 <link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
 @if (isAdmin || isMedicalStaff || isSuperAdmin)
 {
-    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">Submitted Health Records</h2>
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
+        <i class="fa-solid fa-file-medical"></i> Submitted Health Records
+    </h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-@TempData["MessageType"] alert-dismissible fade show" role="alert">
+            @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div id="viewrecords-content">
         @if (Model != null && Model.Any())
         {
             <div class="container-fluid">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Records...">
-                    <button class="btn btn-success btn-modern">Add Record</button>
+                    <input type="text" id="searchInput" class="form-control w-25" placeholder="Search by Name or Email...">
+
+                    <!-- Sorting Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="fas fa-sort"></i> Sort By
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="sortTable(1, true)"><i
+                                        class="fas fa-sort-alpha-down"></i> Name (A-Z)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="sortTable(1, false)"><i class="fas fa-sort-alpha-up"></i>
+                                    Name (Z-A)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="sortTable(2, true)"><i
+                                        class="fas fa-sort-numeric-down"></i> Email (A-Z)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="sortTable(2, false)"><i
+                                        class="fas fa-sort-numeric-up"></i> Email (Z-A)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="sortTable(5, true)"><i
+                                        class="fas fa-sort-numeric-down"></i> Submission Date (Oldest First)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="sortTable(5, false)"><i
+                                        class="fas fa-sort-numeric-up"></i> Submission Date (Newest First)</a></li>
+                        </ul>
+                    </div>
                 </div>
 
+               
                 <div class="table-responsive">
                     <table class="table table-hover user-table text-center" id="recordTable">
                         <thead class="table-dark">
@@ -42,6 +92,8 @@
                                 <th>Profile</th>
                                 <th>Full Name</th>
                                 <th>Email</th>
+                                <th>Student ID</th>
+                                <th>Role</th>
                                 <th>Submission Date</th>
                                 <th>Action</th>
                             </tr>
@@ -49,19 +101,39 @@
                         <tbody>
                             @foreach (var record in Model)
                             {
-                                var recordUser = userDictionary.ContainsKey(record.UserId) ? userDictionary[record.UserId] : null;
+                                var recordUser = userDictionary.ContainsKey(record.UserId) ? userDictionary[record.UserId].User : null;
+                                var personalDetails = recordUser?.PersonalDetails;
+                                var userRoles = userDictionary.ContainsKey(record.UserId) ? userDictionary[record.UserId].Roles : new List<string>();
 
                                 <tr id="record-@record.Id">
                                     <td class="align-middle">
-                                        <img src="@(recordUser?.ProfilePictureUrl ?? "/images/default-profile.png")" alt="Profile"
-                                            class="profile-img rounded-circle">
+                                        <a href="@baseUrl/profile/@record.UserId" target="_blank">
+                                            <img src="@(recordUser?.ProfilePictureUrl ?? "/images/default-profile.png")" alt="Profile"
+                                                class="profile-img rounded-circle">
+                                        </a>
                                     </td>
                                     <td class="align-middle">@(recordUser?.FullName ?? "N/A")</td>
                                     <td class="align-middle">@(recordUser?.Email ?? "N/A")</td>
+                                    <td class="align-middle">@(personalDetails?.StudentId ?? "N/A")</td>
+                                    <td class="align-middle">@string.Join(", ", userRoles)</td>
                                     <td class="align-middle">@record.SubmissionDate.ToString("yyyy-MM-dd HH:mm")</td>
                                     <td class="align-middle">
-                                        <button type="button" class="btn btn-primary btn-sm btn-modern" data-bs-toggle="modal"
-                                            data-bs-target="#viewRecordModal-@record.Id">View</button>
+                                        <!-- Profile Button -->
+                                        <a href="@baseUrl/profile/@record.UserId" class="btn btn-primary btn-sm btn-modern" target="_blank">
+                                            <i class="fas fa-user"></i> Profile
+                                        </a>
+                                        
+                                        <!-- View Button -->
+                                        <button type="button" class="btn btn-success btn-sm btn-modern" data-bs-toggle="modal"
+                                            data-bs-target="#viewRecordModal-@record.Id">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        
+                                        <!-- Delete Button -->
+                                        <button type="button" class="btn btn-danger btn-sm btn-modern" data-bs-toggle="modal"
+                                            data-bs-target="#deleteRecordModal-@record.Id">
+                                            <i class="fas fa-trash-alt"></i> Delete
+                                        </button>
                                     </td>
                                 </tr>
                             }
@@ -80,8 +152,11 @@
 <!-- Modals for Viewing Records -->
 @foreach (var record in Model)
 {
-    var recordUser = userDictionary.ContainsKey(record.UserId) ? userDictionary[record.UserId] : null;
+    var recordUser = userDictionary.ContainsKey(record.UserId) ? userDictionary[record.UserId].User : null;
+    var personalDetails = recordUser?.PersonalDetails;
+    var userRoles = userDictionary.ContainsKey(record.UserId) ? userDictionary[record.UserId].Roles : new List<string>();
 
+    <!-- View Record Modal -->
     <div class="modal fade" id="viewRecordModal-@record.Id" tabindex="-1" aria-labelledby="viewRecordModalLabel-@record.Id"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -96,29 +171,36 @@
                 <!-- Modal Body -->
                 <div class="modal-body">
                     <!-- User Profile Section -->
-                    <div id="userProfileSection-@record.Id" class="mb-4 p-3 bg-light rounded">
+                    <div id="userProfileSection-@record.Id" class="mb-4 p-4 bg-white shadow-sm rounded">
                         <div class="d-flex align-items-center">
                             <!-- Profile Picture -->
-                            <img id="userProfilePic-@record.Id"
-                                src="@(recordUser?.ProfilePictureUrl ?? "/images/default-profile.png")" alt="Profile"
-                                class="profile-img rounded-circle me-3"
-                                style="width: 80px; height: 80px; object-fit: cover;">
+                            <div class="flex-shrink-0">
+                                <img id="userProfilePic-@record.Id"
+                                    src="@(recordUser?.ProfilePictureUrl ?? "/images/default-profile.png")" 
+                                    alt="Profile Picture"
+                                    class="rounded-circle border"
+                                    style="width: 90px; height: 90px; object-fit: cover;">
+                            </div>
 
-                            <!-- Name and Email -->
-                            <div>
-                                <h4 class="mb-1">
-                                    <span class="badge bg-dark me-2">Name</span>
-                                    <span id="userFullName-@record.Id">@(recordUser?.FullName ?? "N/A")</span>
-                                </h4>
-                                <p class="mb-0">
-                                    <span class="badge bg-dark me-2">Email</span>
-                                    <span id="userEmail-@record.Id">@(recordUser?.Email ?? "N/A")</span>
+                            <!-- User Info -->
+                            <div class="ms-3 flex-grow-1">
+                                <h5 class="fw-bold mb-1" id="userFullName-@record.Id">
+                                    @(recordUser?.FullName ?? "N/A")
+                                </h5>
+                                <p class="text-muted small mb-1" id="userEmail-@record.Id">
+                                    <i class="bi bi-envelope-fill me-1"></i> @(recordUser?.Email ?? "N/A")
+                                </p>
+                                <p class="text-muted small mb-1" id="userStudentId-@record.Id">
+                                    <i class="bi bi-person-badge-fill me-1"></i> @(personalDetails?.StudentId ?? "N/A")
+                                </p>
+                                <p class="text-muted small mb-0" id="userRole-@record.Id">
+                                    <i class="bi bi-person-fill-gear me-1"></i> @string.Join(", ", userRoles)
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Submitted Records Section (Form-like Structure) -->
+                    <!-- Submitted Records Section -->
                     <div id="submittedRecordsSection-@record.Id">
                         <h4>Submitted Records</h4>
                         <div class="mb-3">
@@ -146,6 +228,67 @@
                             <input type="text" class="form-control"
                                 value="@record.SubmissionDate.ToString("yyyy-MM-dd HH:mm")" readonly>
                         </div>
+
+                        <!-- Health Documents Section -->
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Health Documents:</strong></label>
+
+                            <div class="mb-2">
+                                <label class="form-label"><i class="bi bi-file-earmark-medical me-2"></i> X-Ray Results</label>
+                                @if (!string.IsNullOrEmpty(record.XRayFileUrl))
+                                {
+                                    <a href="@record.XRayFileUrl" target="_blank" class="form-control text-decoration-none">
+                                       X-Ray Result
+                                    </a>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control text-muted" value="No X-Ray Results submitted" disabled>
+                                }
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label"><i class="bi bi-file-earmark-text me-2"></i> Medical Certificate</label>
+                                @if (!string.IsNullOrEmpty(record.MedicalCertificateUrl))
+                                {
+                                    <a href="@record.MedicalCertificateUrl" target="_blank" class="form-control text-decoration-none">
+                                        Medical Certificate
+                                    </a>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control text-muted" value="No Medical Certificate submitted" disabled>
+                                }
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label"><i class="bi bi-file-earmark-medical me-2"></i> Vaccination Record</label>
+                                @if (!string.IsNullOrEmpty(record.VaccinationRecordUrl))
+                                {
+                                    <a href="@record.VaccinationRecordUrl" target="_blank" class="form-control text-decoration-none">
+                                        Vaccination Record
+                                    </a>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control text-muted" value="No Vaccination Record submitted" disabled>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="form-label"><i class="bi bi-file-earmark me-2"></i> Other Documents</label>
+                                @if (!string.IsNullOrEmpty(record.OtherDocumentsUrl))
+                                {
+                                    <a href="@record.OtherDocumentsUrl" target="_blank" class="form-control text-decoration-none">
+                                        Other Documents
+                                    </a>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control text-muted" value="No Other Documents submitted" disabled>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -156,18 +299,72 @@
             </div>
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteRecordModal-@record.Id" tabindex="-1" aria-labelledby="deleteRecordModalLabel-@record.Id"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header with bg-primary -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="deleteRecordModalLabel-@record.Id">Confirm Deletion</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the record for <strong>@(recordUser?.FullName ?? "N/A")</strong>?</p>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Cancel</button>
+                    <form asp-action="Delete" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@record.Id" />
+                        <button type="submit" class="btn btn-danger btn-modern">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @section Scripts {
     <script>
-        // Search functionality
+        // Function to handle search
         document.getElementById('searchInput').addEventListener('keyup', function () {
             let search = this.value.toLowerCase();
-            let rows = document.querySelectorAll('#recordTable tbody tr');
+            let rows = document.querySelectorAll('#recordTable tbody tr'); // Corrected table ID
             rows.forEach(row => {
-                let userName = row.cells[1].textContent.toLowerCase(); // Search by user name (2nd column)
-                row.style.display = userName.includes(search) ? '' : 'none';
+                let name = row.cells[1].textContent.toLowerCase(); // Search by name (2nd column)
+                let email = row.cells[2].textContent.toLowerCase(); // Search by email (3rd column)
+                let student_id = row.cells[3].textContent.toLowerCase(); // Search by student ID (4th column)
+                row.style.display = (name.includes(search) || email.includes(search) || student_id.includes(search)) ? '' : 'none';
             });
         });
+
+        // Sorting functionality
+        function sortTable(columnIndex, ascending) {
+            let rows = Array.from(document.querySelectorAll('#recordTable tbody tr'));
+            rows.sort((a, b) => {
+                let aValue = a.cells[columnIndex].textContent.toLowerCase();
+                let bValue = b.cells[columnIndex].textContent.toLowerCase();
+
+                // Handle date sorting for columnIndex 5 (Submission Date)
+                if (columnIndex === 5) {
+                    let aDate = new Date(aValue);
+                    let bDate = new Date(bValue);
+                    return ascending ? aDate - bDate : bDate - aDate;
+                }
+
+                // Default sorting for other columns
+                return ascending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            });
+
+            let tbody = document.querySelector('#recordTable tbody');
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
     </script>
 }

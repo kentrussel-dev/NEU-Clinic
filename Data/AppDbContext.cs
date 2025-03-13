@@ -17,39 +17,28 @@ namespace WebApp.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder); // Call this once at the beginning
 
-            // Configure the PersonalDetails entity
-            modelBuilder.Entity<PersonalDetails>()
-                .HasOne(p => p.User)
-                .WithMany()
-                .HasForeignKey(p => p.UserId)
+            // Configure the one-to-one relationship between Users and PersonalDetails
+            modelBuilder.Entity<Users>()
+                .HasOne(u => u.PersonalDetails)
+                .WithOne(p => p.User)
+                .HasForeignKey<PersonalDetails>(p => p.UserId) // Foreign key in PersonalDetails
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure the HealthDetails entity
-            modelBuilder.Entity<HealthDetails>()
-                .HasOne(h => h.User)
-                .WithMany()
-                .HasForeignKey(h => h.UserId)
+            // Configure the one-to-one relationship between Users and HealthDetails
+            modelBuilder.Entity<Users>()
+                .HasOne(u => u.HealthDetails)
+                .WithOne(h => h.User)
+                .HasForeignKey<HealthDetails>(h => h.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure the SubmittedHealthDetails entity
+            // Configure the one-to-many relationship between Users and SubmittedHealthDetails
             modelBuilder.Entity<SubmittedHealthDetails>()
                 .HasOne(s => s.User)
                 .WithMany(u => u.SubmittedHealthDetails)
-                .HasForeignKey(s => s.UserId);
-
-            base.OnModelCreating(modelBuilder);
-
-            // Ignore the User property during validation (if needed)
-            modelBuilder.Entity<PersonalDetails>()
-                .Ignore(p => p.User);
-
-            modelBuilder.Entity<HealthDetails>()
-                .Ignore(h => h.User);
-
-            modelBuilder.Entity<SubmittedHealthDetails>()
-                .Ignore(shd => shd.User);
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

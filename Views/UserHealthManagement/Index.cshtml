@@ -2,18 +2,30 @@
 @model List<WebApp.Models.Users>
 @using Microsoft.AspNetCore.Identity
 
+@using Microsoft.EntityFrameworkCore;
+@inject UserManager<Users> UserManager
+@inject SignInManager<Users> SignInManager
+
 @{
     ViewData["Title"] = "User Health Management";
+
+    var allUsers = await UserManager.Users
+    .Include(u => u.PersonalDetails)
+    .ToListAsync();
+
     var userRoles = ViewBag.UserRoles as Dictionary<string, List<string>>;
     var roles = ViewBag.Roles as List<IdentityRole>;
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
 
     var userHealthDetails = ViewBag.UserHealthDetails as Dictionary<string, HealthDetails>;
+    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
 }
+
+<link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
 
 <div class="container-fluid">
     <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
-        Student Health Management
+        <i class="fa-solid fa-user-nurse"></i> Student Health Management
     </h2>
 
     <!-- Display TempData messages -->
@@ -27,7 +39,25 @@
     }
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Users...">
+        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search by Name or Email...">
+
+        <!-- Sorting Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <i class="fas fa-sort"></i> Sort By
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                <li><a class="dropdown-item" href="#" onclick="sortTable(1, true)"><i
+                            class="fas fa-sort-alpha-down"></i> Name (A-Z)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="sortTable(1, false)"><i class="fas fa-sort-alpha-up"></i>
+                        Name (Z-A)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="sortTable(2, true)"><i
+                            class="fas fa-sort-numeric-down"></i> Email (A-Z)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="sortTable(2, false)"><i
+                            class="fas fa-sort-numeric-up"></i> Email (Z-A)</a></li>
+            </ul>
+        </div>
     </div>
 
     <div class="table-responsive">
@@ -35,8 +65,9 @@
             <thead class="table-dark">
                 <tr>
                     <th>Profile</th>
-                    <th>ID</th>
+                    <th>Full Name</th>
                     <th>Email</th>
+                    <th>Student ID</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -44,20 +75,29 @@
                 @foreach (var user in Model)
                 {
                     var healthDetails = userHealthDetails[user.Id];
+                    var personalDetails = user?.PersonalDetails;
+
+
                     if (userRoles[user.Id].Contains("Student"))
                     {
                         <tr id="user-@user.Id">
                             <td class="align-middle">
-                                <img src="@user.ProfilePictureUrl" alt="Profile" class="profile-img rounded-circle">
+                                <a href="@baseUrl/profile/@user.Id" target="_blank">
+                                    <img src="@user.ProfilePictureUrl" alt="Profile" class="profile-img rounded-circle">
+                                </a>
                             </td>
-                            <td class="align-middle">@user.Id</td>
+                            <td class="align-middle">@(user?.FullName ?? "N/A")</td>
+                            <td class="align-middle">@(user?.Email ?? "N/A")</td>
+                            <td class="align-middle">@(personalDetails?.StudentId ?? "N/A")</td>
                             <td class="align-middle">
-                                <span class="email-text">@user.Email</span>
-                            </td>
-                            <td class="align-middle">
-                                <button class="btn btn-primary btn-sm edit-btn btn-modern" data-bs-toggle="modal"
+                                <!-- Profile Button -->
+                                <a href="@baseUrl/profile/@user.Id" class="btn btn-primary btn-sm btn-modern" target="_blank">
+                                    <i class="fas fa-user"></i> Profile
+                                </a>
+                                <!-- Edit Health Details Button -->
+                                <button class="btn btn-success btn-sm btn-modern" data-bs-toggle="modal"
                                     data-bs-target="#editHealthModal-@user.Id">
-                                    Edit Health Details
+                                    <i class="fas fa-edit"></i> Edit Health
                                 </button>
                             </td>
                         </tr>
@@ -68,271 +108,297 @@
                         aria-labelledby="editHealthModalLabel-@user.Id" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <div class="modal-header">
+                                <div class="modal-header bg-primary text-white">
                                     <h5 class="modal-title" id="editHealthModalLabel-@user.Id">Edit Health Details</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
-                                    <form method="post" asp-action="UpdateHealthDetails"
-                                        asp-controller="UserHealthManagement" enctype="multipart/form-data">
-                                        <!-- Hidden field for UserId -->
-                                        <input type="hidden" name="UserId" value="@user.Id" />
+                            <div class="modal-body">
+                                <form method="post" asp-action="UpdateHealthDetails"
+                                    asp-controller="UserHealthManagement" enctype="multipart/form-data">
+                                    <!-- Hidden field for UserId -->
+                                    <input type="hidden" name="UserId" value="@user.Id" />
 
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="bloodType-@user.Id" class="form-label">Blood Type</label>
-                                                <input type="text" class="form-control" id="bloodType-@user.Id"
-                                                    name="BloodType" value="@healthDetails.BloodType">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="allergies-@user.Id" class="form-label">Allergies</label>
-                                                <input type="text" class="form-control" id="allergies-@user.Id"
-                                                    name="Allergies" value="@healthDetails.Allergies">
-                                            </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="bloodType-@user.Id" class="form-label">Blood Type</label>
+                                            <input type="text" class="form-control" id="bloodType-@user.Id"
+                                                name="BloodType" value="@healthDetails.BloodType">
                                         </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-12">
-                                                <label for="medicalNotes-@user.Id" class="form-label">Medical Notes</label>
-                                                <textarea class="form-control" id="medicalNotes-@user.Id"
-                                                    name="MedicalNotes" rows="3">@healthDetails.MedicalNotes</textarea>
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label for="allergies-@user.Id" class="form-label">Allergies</label>
+                                            <input type="text" class="form-control" id="allergies-@user.Id"
+                                                name="Allergies" value="@healthDetails.Allergies">
                                         </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="emergencyContactName-@user.Id" class="form-label">Emergency
-                                                    Contact Name</label>
-                                                <input type="text" class="form-control" id="emergencyContactName-@user.Id"
-                                                    name="EmergencyContactName" value="@healthDetails.EmergencyContactName">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="emergencyContactPhone-@user.Id" class="form-label">Emergency
-                                                    Contact Phone</label>
-                                                <input type="text" class="form-control" id="emergencyContactPhone-@user.Id"
-                                                    name="EmergencyContactPhone"
-                                                    value="@healthDetails.EmergencyContactPhone">
-                                            </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <label for="medicalNotes-@user.Id" class="form-label">Medical Notes</label>
+                                            <textarea class="form-control" id="medicalNotes-@user.Id"
+                                                name="MedicalNotes" rows="3">@healthDetails.MedicalNotes</textarea>
                                         </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="chronicConditions-@user.Id" class="form-label">Chronic
-                                                    Conditions</label>
-                                                <textarea class="form-control" id="chronicConditions-@user.Id"
-                                                    name="ChronicConditions"
-                                                    rows="3">@healthDetails.ChronicConditions</textarea>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="medications-@user.Id" class="form-label">Medications</label>
-                                                <textarea class="form-control" id="medications-@user.Id" name="Medications"
-                                                    rows="3">@healthDetails.Medications</textarea>
-                                            </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="emergencyContactName-@user.Id" class="form-label">Emergency
+                                                Contact Name</label>
+                                            <input type="text" class="form-control" id="emergencyContactName-@user.Id"
+                                                name="EmergencyContactName" value="@healthDetails.EmergencyContactName">
                                         </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="immunizationHistory-@user.Id" class="form-label">Immunization
-                                                    History</label>
-                                                <textarea class="form-control" id="immunizationHistory-@user.Id"
-                                                    name="ImmunizationHistory"
-                                                    rows="3">@healthDetails.ImmunizationHistory</textarea>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="activityRestrictions-@user.Id" class="form-label">Activity
-                                                    Restrictions</label>
-                                                <textarea class="form-control" id="activityRestrictions-@user.Id"
-                                                    name="ActivityRestrictions"
-                                                    rows="3">@healthDetails.ActivityRestrictions</textarea>
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label for="emergencyContactPhone-@user.Id" class="form-label">Emergency
+                                                Contact Phone</label>
+                                            <input type="text" class="form-control" id="emergencyContactPhone-@user.Id"
+                                                name="EmergencyContactPhone"
+                                                value="@healthDetails.EmergencyContactPhone">
                                         </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="dietaryRestrictions-@user.Id" class="form-label">Dietary
-                                                    Restrictions</label>
-                                                <textarea class="form-control" id="dietaryRestrictions-@user.Id"
-                                                    name="DietaryRestrictions"
-                                                    rows="3">@healthDetails.DietaryRestrictions</textarea>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="mentalHealthNotes-@user.Id" class="form-label">Mental Health
-                                                    Notes</label>
-                                                <textarea class="form-control" id="mentalHealthNotes-@user.Id"
-                                                    name="MentalHealthNotes"
-                                                    rows="3">@healthDetails.MentalHealthNotes</textarea>
-                                            </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="chronicConditions-@user.Id" class="form-label">Chronic
+                                                Conditions</label>
+                                            <textarea class="form-control" id="chronicConditions-@user.Id"
+                                                name="ChronicConditions"
+                                                rows="3">@healthDetails.ChronicConditions</textarea>
                                         </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-12">
-                                                <label for="healthAlerts-@user.Id" class="form-label">Health Alerts</label>
-                                                <textarea class="form-control" id="healthAlerts-@user.Id"
-                                                    name="HealthAlerts" rows="3">@healthDetails.HealthAlerts</textarea>
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label for="medications-@user.Id" class="form-label">Medications</label>
+                                            <textarea class="form-control" id="medications-@user.Id" name="Medications"
+                                                rows="3">@healthDetails.Medications</textarea>
                                         </div>
-                                        <!-- DOCUMENTS-->
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="xrayFile-@user.Id" class="form-label">X-Ray Results</label>
-                                                <input type="file" class="form-control" id="xrayFile-@user.Id"
-                                                    name="XRayFile">
-                                                <!-- Display current X-Ray file link if it exists -->
-                                                @if (!string.IsNullOrEmpty(healthDetails.XRayFileUrl))
-                                                {
-                                                    <div class="mt-2">
-                                                        <span class="text-muted">Current File:</span>
-                                                        <a href="@healthDetails.XRayFileUrl" target="_blank">View X-Ray</a>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="mt-2">
-                                                        <span class="text-muted">No X-Ray file uploaded.</span>
-                                                    </div>
-                                                }
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="medicalCertificate-@user.Id" class="form-label">Medical
-                                                    Certificate</label>
-                                                <input type="file" class="form-control" id="medicalCertificate-@user.Id"
-                                                    name="MedicalCertificate">
-                                                <!-- Display current Medical Certificate file link if it exists -->
-                                                @if (!string.IsNullOrEmpty(healthDetails.MedicalCertificateUrl))
-                                                {
-                                                    <div class="mt-2">
-                                                        <span class="text-muted">Current File:</span>
-                                                        <a href="@healthDetails.MedicalCertificateUrl" target="_blank">View
-                                                            Certificate</a>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="mt-2">
-                                                        <span class="text-muted">No medical certificate uploaded.</span>
-                                                    </div>
-                                                }
-                                            </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="immunizationHistory-@user.Id" class="form-label">Immunization
+                                                History</label>
+                                            <textarea class="form-control" id="immunizationHistory-@user.Id"
+                                                name="ImmunizationHistory"
+                                                rows="3">@healthDetails.ImmunizationHistory</textarea>
                                         </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="vaccinationRecord-@user.Id" class="form-label">Vaccination
-                                                    Record</label>
-                                                <input type="file" class="form-control" id="vaccinationRecord-@user.Id"
-                                                    name="VaccinationRecord">
-                                                <!-- Display current Vaccination Record file link if it exists -->
-                                                @if (!string.IsNullOrEmpty(healthDetails.VaccinationRecordUrl))
-                                                {
-                                                    <div class="mt-2">
-                                                        <span class="text-muted">Current File:</span>
-                                                        <a href="@healthDetails.VaccinationRecordUrl" target="_blank">View
-                                                            Record</a>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="mt-2">
-                                                        <span class="text-muted">No vaccination record uploaded.</span>
-                                                    </div>
-                                                }
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="otherDocuments-@user.Id" class="form-label">Other
-                                                    Documents</label>
-                                                <input type="file" class="form-control" id="otherDocuments-@user.Id"
-                                                    name="OtherDocuments">
-                                                <!-- Display current Other Documents file link if it exists -->
-                                                @if (!string.IsNullOrEmpty(healthDetails.OtherDocumentsUrl))
-                                                {
-                                                    <div class="mt-2">
-                                                        <span class="text-muted">Current File:</span>
-                                                        <a href="@healthDetails.OtherDocumentsUrl" target="_blank">Download
-                                                            Files</a>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="mt-2">
-                                                        <span class="text-muted">No other documents uploaded.</span>
-                                                    </div>
-                                                }
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label for="activityRestrictions-@user.Id" class="form-label">Activity
+                                                Restrictions</label>
+                                            <textarea class="form-control" id="activityRestrictions-@user.Id"
+                                                name="ActivityRestrictions"
+                                                rows="3">@healthDetails.ActivityRestrictions</textarea>
                                         </div>
-
-                                        <!-- Health Alerts Section -->
-                                        <div class="row mb-3">
-                                            <div class="col-md-12">
-                                                <label for="healthAlerts-@user.Id" class="form-label">Health Alerts</label>
-                                                <div class="mb-3">
-                                                    <select id="alertType-@user.Id" class="form-select">
-                                                        <option value="primary">Primary</option>
-                                                        <option value="secondary">Secondary</option>
-                                                        <option value="success">Success</option>
-                                                        <option value="danger">Danger</option>
-                                                        <option value="warning">Warning</option>
-                                                        <option value="info">Info</option>
-                                                        <option value="light">Light</option>
-                                                        <option value="dark">Dark</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <textarea id="alertMessage-@user.Id" class="form-control"
-                                                        placeholder="Enter alert message"></textarea>
-                                                </div>
-                                                <button type="button" class="btn btn-primary btn-sm"
-                                                    onclick="addAlert('@user.Id')">Add Alert</button>
-                                            </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="dietaryRestrictions-@user.Id" class="form-label">Dietary
+                                                Restrictions</label>
+                                            <textarea class="form-control" id="dietaryRestrictions-@user.Id"
+                                                name="DietaryRestrictions"
+                                                rows="3">@healthDetails.DietaryRestrictions</textarea>
                                         </div>
-
-                                        <!-- Display Added Alerts -->
-                                        <div id="alertsContainer-@user.Id" class="mb-3">
-                                            @if (!string.IsNullOrEmpty(healthDetails.HealthAlerts))
+                                        <div class="col-md-6">
+                                            <label for="mentalHealthNotes-@user.Id" class="form-label">Mental Health
+                                                Notes</label>
+                                            <textarea class="form-control" id="mentalHealthNotes-@user.Id"
+                                                name="MentalHealthNotes"
+                                                rows="3">@healthDetails.MentalHealthNotes</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <label for="healthAlerts-@user.Id" class="form-label">Health Alerts</label>
+                                            <textarea class="form-control" id="healthAlerts-@user.Id"
+                                                name="HealthAlerts" rows="3">@healthDetails.HealthAlerts</textarea>
+                                        </div>
+                                    </div>
+                                    <!-- DOCUMENTS-->
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="xrayFile-@user.Id" class="form-label">X-Ray Results</label>
+                                            <input type="file" class="form-control" id="xrayFile-@user.Id"
+                                                name="XRayFile">
+                                            <!-- Display current X-Ray file link if it exists -->
+                                            @if (!string.IsNullOrEmpty(healthDetails.XRayFileUrl))
                                             {
-                                                var alerts = JsonSerializer.Deserialize<List<string>>(healthDetails.HealthAlerts);
-                                                foreach (var alert in alerts)
-                                                {
-                                                    var alertParts = alert.Split('|');
-                                                    var alertType = alertParts[0]; // e.g., "danger", "warning", etc.
-                                                    var alertMessage = alertParts[1]; // e.g., "Allergy alert: Peanuts detected in cafeteria."
-
-                                                    // Map alert type to Font Awesome icon
-                                                    var alertIcon = alertType switch
-                                                    {
-                                                        "primary" => "fa-circle-info",
-                                                        "secondary" => "fa-circle",
-                                                        "success" => "fa-circle-check",
-                                                        "danger" => "fa-circle-exclamation",
-                                                        "warning" => "fa-triangle-exclamation",
-                                                        "info" => "fa-circle-info",
-                                                        "light" => "fa-circle",
-                                                        "dark" => "fa-circle",
-                                                        _ => "fa-circle-info" // Default icon
-                                                    };
-
-                                                    <div class="alert alert-@alertType mt-2" role="alert">
-                                                        <i class="fas @alertIcon me-2"></i> @alertMessage
-                                                        <button type="button" class="btn-close float-end" onclick="removeAlert('@user.Id', '@alert.Replace("'", "\\'")')"></button>
-                                                    </div>
-                                                }
+                                                <div class="mt-2">
+                                                    <span class="text-muted">Current File:</span>
+                                                    <a href="@healthDetails.XRayFileUrl" target="_blank">View X-Ray</a>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="text-muted">No X-Ray file uploaded.</span>
+                                                </div>
                                             }
                                         </div>
-                                        <!-- Hidden field to store the final list of alerts -->
-                                        <input type="hidden" id="healthAlerts-@user.Id" name="HealthAlerts"
-                                            value="@healthDetails.HealthAlerts" />
-
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        <div class="col-md-6">
+                                            <label for="medicalCertificate-@user.Id" class="form-label">Medical
+                                                Certificate</label>
+                                            <input type="file" class="form-control" id="medicalCertificate-@user.Id"
+                                                name="MedicalCertificate">
+                                            <!-- Display current Medical Certificate file link if it exists -->
+                                            @if (!string.IsNullOrEmpty(healthDetails.MedicalCertificateUrl))
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="text-muted">Current File:</span>
+                                                    <a href="@healthDetails.MedicalCertificateUrl" target="_blank">View
+                                                        Certificate</a>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="text-muted">No medical certificate uploaded.</span>
+                                                </div>
+                                            }
                                         </div>
-                                    </form>
-                                </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="vaccinationRecord-@user.Id" class="form-label">Vaccination
+                                                Record</label>
+                                            <input type="file" class="form-control" id="vaccinationRecord-@user.Id"
+                                                name="VaccinationRecord">
+                                            <!-- Display current Vaccination Record file link if it exists -->
+                                            @if (!string.IsNullOrEmpty(healthDetails.VaccinationRecordUrl))
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="text-muted">Current File:</span>
+                                                    <a href="@healthDetails.VaccinationRecordUrl" target="_blank">View
+                                                        Record</a>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="text-muted">No vaccination record uploaded.</span>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="otherDocuments-@user.Id" class="form-label">Other
+                                                Documents</label>
+                                            <input type="file" class="form-control" id="otherDocuments-@user.Id"
+                                                name="OtherDocuments">
+                                            <!-- Display current Other Documents file link if it exists -->
+                                            @if (!string.IsNullOrEmpty(healthDetails.OtherDocumentsUrl))
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="text-muted">Current File:</span>
+                                                    <a href="@healthDetails.OtherDocumentsUrl" target="_blank">Download
+                                                        Files</a>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="text-muted">No other documents uploaded.</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Health Alerts Section -->
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <label for="healthAlerts-@user.Id" class="form-label">Health Alerts</label>
+                                            <div class="mb-3">
+                                                <select id="alertType-@user.Id" class="form-select">
+                                                    <option value="primary">Primary</option>
+                                                    <option value="secondary">Secondary</option>
+                                                    <option value="success">Success</option>
+                                                    <option value="danger">Danger</option>
+                                                    <option value="warning">Warning</option>
+                                                    <option value="info">Info</option>
+                                                    <option value="light">Light</option>
+                                                    <option value="dark">Dark</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <textarea id="alertMessage-@user.Id" class="form-control"
+                                                    placeholder="Enter alert message"></textarea>
+                                            </div>
+                                            <button type="button" class="btn btn-primary btn-sm"
+                                                onclick="addAlert('@user.Id')">Add Alert</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Display Added Alerts -->
+                                    <div id="alertsContainer-@user.Id" class="mb-3">
+                                        @if (!string.IsNullOrEmpty(healthDetails.HealthAlerts))
+                                        {
+                                            var alerts = JsonSerializer.Deserialize<List<string>>(healthDetails.HealthAlerts);
+                                            foreach (var alert in alerts)
+                                            {
+                                                var alertParts = alert.Split('|');
+                                                var alertType = alertParts[0]; // e.g., "danger", "warning", etc.
+                                                var alertMessage = alertParts[1]; // e.g., "Allergy alert: Peanuts detected in cafeteria."
+
+                                                // Map alert type to Font Awesome icon
+                                                var alertIcon = alertType switch
+                                                {
+                                                    "primary" => "fa-circle-info",
+                                                    "secondary" => "fa-circle",
+                                                    "success" => "fa-circle-check",
+                                                    "danger" => "fa-circle-exclamation",
+                                                    "warning" => "fa-triangle-exclamation",
+                                                    "info" => "fa-circle-info",
+                                                    "light" => "fa-circle",
+                                                    "dark" => "fa-circle",
+                                                    _ => "fa-circle-info" // Default icon
+                                                };
+
+                                                <div class="alert alert-@alertType mt-2" role="alert">
+                                                    <i class="fas @alertIcon me-2"></i> @alertMessage
+                                                    <button type="button" class="btn-close float-end" onclick="removeAlert('@user.Id', '@alert.Replace("'", "\\'")')"></button>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                    <!-- Hidden field to store the final list of alerts -->
+                                    <input type="hidden" id="healthAlerts-@user.Id" name="HealthAlerts"
+                                        value="@healthDetails.HealthAlerts" />
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger"
+                                            data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
+                </div>
                 }
             </tbody>
         </table>
     </div>
 </div>
 
-<script>
-    document.getElementById('searchInput').addEventListener('keyup', function () {
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function () {
+            let search = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#userTable tbody tr');
+            rows.forEach(row => {
+                let name = row.cells[1].textContent.toLowerCase(); // Search by name (2nd column)
+                let email = row.cells[2].textContent.toLowerCase(); // Search by email (3rd column)
+                let student_id = row.cells[3].textContent.toLowerCase(); // Search by email (4th column)
+                row.style.display = (name.includes(search) || email.includes(search) || student_id.includes(search)) ? '' : 'none';
+            });
+        });
+
+        // Sorting functionality
+        function sortTable(columnIndex, ascending) {
+            let rows = Array.from(document.querySelectorAll('#userTable tbody tr'));
+            rows.sort((a, b) => {
+                let aValue = a.cells[columnIndex].textContent.toLowerCase();
+                let bValue = b.cells[columnIndex].textContent.toLowerCase();
+                return ascending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            });
+            let tbody = document.querySelector('#userTable tbody');
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', function () {
         let search = this.value.toLowerCase();
         let rows = document.querySelectorAll('#userTable tbody tr');
         rows.forEach(row => {
@@ -396,4 +462,5 @@
         // Update the hidden input field
         document.getElementById(`healthAlerts-${userId}`).value = JSON.stringify(alerts);
     }
-</script>
+    </script>
+}

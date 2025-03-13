@@ -209,6 +209,155 @@ a {
   font-family: var(--font-family-base);
 }
 
+
+/* 🎨 Button Classes */
+.btn-primary {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  color: var(--bs-light) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--bs-secondary) !important;
+  border-color: var(--bs-secondary) !important;
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: var(--bs-secondary) !important;
+  border-color: var(--bs-secondary) !important;
+  color: var(--bs-light) !important;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  opacity: 0.9;
+}
+
+.btn-tertiary {
+  background-color: var(--bs-tertiary) !important;
+  border-color: var(--bs-tertiary) !important;
+  color: var(--bs-dark) !important;
+}
+
+.btn-tertiary:hover {
+  background-color: var(--bs-secondary) !important;
+  border-color: var(--bs-secondary) !important;
+  opacity: 0.9;
+}
+
+.btn-success {
+  background-color: var(--bs-success) !important;
+  border-color: var(--bs-success) !important;
+  color: var(--bs-light) !important;
+}
+
+.btn-success:hover {
+  background-color: #157347 !important;
+  /* Darker shade of success */
+  border-color: #157347 !important;
+  opacity: 0.9;
+}
+
+.btn-danger {
+  background-color: var(--bs-danger) !important;
+  border-color: var(--bs-danger) !important;
+  color: var(--bs-light) !important;
+}
+
+.btn-danger:hover {
+  background-color: #bb2d3b !important;
+  /* Darker shade of danger */
+  border-color: #bb2d3b !important;
+  opacity: 0.9;
+}
+
+.btn-warning {
+  background-color: var(--bs-warning) !important;
+  border-color: var(--bs-warning) !important;
+  color: var(--bs-dark) !important;
+}
+
+.btn-warning:hover {
+  background-color: #ffca2c !important;
+  /* Darker shade of warning */
+  border-color: #ffca2c !important;
+  opacity: 0.9;
+}
+
+.btn-info {
+  background-color: var(--bs-info) !important;
+  border-color: var(--bs-info) !important;
+  color: var(--bs-light) !important;
+}
+
+.btn-info:hover {
+  background-color: #0aa2c0 !important;
+  /* Darker shade of info */
+  border-color: #0aa2c0 !important;
+  opacity: 0.9;
+}
+
+.btn-light {
+  background-color: var(--bs-light) !important;
+  border-color: var(--bs-light) !important;
+  color: var(--bs-dark) !important;
+}
+
+.btn-light:hover {
+  background-color: #d3d4d5 !important;
+  /* Darker shade of light */
+  border-color: #d3d4d5 !important;
+  opacity: 0.9;
+}
+
+.btn-dark {
+  background-color: var(--bs-dark) !important;
+  border-color: var(--bs-dark) !important;
+  color: var(--bs-light) !important;
+}
+
+.btn-dark:hover {
+  background-color: #1a1e21 !important;
+  /* Darker shade of dark */
+  border-color: #1a1e21 !important;
+  opacity: 0.9;
+}
+
+.btn-google {
+  background-color: var(--bs-google) !important;
+  border-color: var(--bs-google) !important;
+  color: var(--bs-light) !important;
+}
+
+.btn-google:hover {
+  background-color: #0056b3 !important;
+  /* Darker shade of Google blue */
+  border-color: #0056b3 !important;
+  opacity: 0.9;
+}
+
+/* 🟦 General Button Spacing & Look */
+.btn {
+  border-radius: 0.5rem;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-align: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* ✨ Button Hover Effect */
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  /* Slight lift on hover */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 /* 📱 Responsive Adjustments */
 @media (max-width: 768px) {
   .btn {
