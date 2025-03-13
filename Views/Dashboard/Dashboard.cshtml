@@ -86,15 +86,6 @@
                     <i class="fas fa-file-medical"></i><span class="sidebar-text ms-2">Submit Health Records</span>
                 </a>
             }
-            @* <!-- Add View Submitted Records Tab (Only for Admin, MedicalStaff, and SuperAdmin) -->
-            @if (isAdmin || isMedicalStaff || isSuperAdmin)
-            {
-                <a href="@Url.Action("Index", "Dashboard", new { activeTab = "viewrecords" })"
-                    class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "viewrecords" ? "active" : "")"
-                    data-tab="viewrecords">
-                    <i class="fas fa-list"></i><span class="sidebar-text ms-2">View Submitted Records</span>
-                </a>    
-            } *@
         </div>
     </div>
 
@@ -201,9 +192,6 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
     <script>
         document.getElementById("menu-toggle").addEventListener("click", function () {
             document.getElementById("wrapper").classList.toggle("toggled");

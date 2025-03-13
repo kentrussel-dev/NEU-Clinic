@@ -23,15 +23,8 @@ public class QRCodeService
         string filePath = Path.Combine(_qrCodeDirectory, fileName);
         string relativePath = $"/qrcodes/{fileName}";
 
-        // Get the base URL from configuration
-        string baseUrl = _configuration["BaseUrl"];
-        if (string.IsNullOrEmpty(baseUrl))
-        {
-            throw new InvalidOperationException("Base URL is not configured in appsettings.json.");
-        }
-
-        // Generate the profile URL for the user
-        string profileUrl = $"{baseUrl}/profile/{userId}";
+        // Use a relative path for the QR code data
+        string profileUrl = $"profile/{userId}";
 
         if (File.Exists(filePath))
         {

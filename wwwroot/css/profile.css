@@ -73,37 +73,38 @@
     display: inline-block;
 }
 
-/* Hover effect for the QR code container */
-.qr-code-container:hover .qr-code-overlay {
-    opacity: 1;
-}
-
-/* QR Code Overlay */
 .qr-code-overlay {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent overlay */
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     opacity: 0;
+    /* Hidden by default */
     transition: opacity 0.3s ease;
 }
 
-/* Style for the download button */
-#downloadQrCodeBtn {
-    background-color: rgba(255, 255, 255, 0.8);
-    border: none;
-    border-radius: 50%;
-    padding: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease;
-    cursor: pointer;
+.qr-code-container:hover .qr-code-overlay {
+    opacity: 1;
+    /* Show on hover */
 }
 
-#downloadQrCodeBtn:hover {
-    background-color: rgba(255, 255, 255, 1);
+#downloadQrCodeBtn {
+    background-color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#downloadQrCodeBtn i {
+    font-size: 16px;
 }
