@@ -10,8 +10,11 @@ namespace WebApp.Models
         public string? ProfilePictureUrl { get; set; }
         public string? QRCodePath { get; set; }
 
-        public PersonalDetails PersonalDetails { get; set; } 
+        public PersonalDetails PersonalDetails { get; set; }
         public HealthDetails HealthDetails { get; set; }
         public ICollection<SubmittedHealthDetails> SubmittedHealthDetails { get; set; }
+
+        // Many-to-many relationship with RoomAppointment
+        public ICollection<RoomAppointmentUser> RoomAppointmentUsers { get; set; } = new List<RoomAppointmentUser>();
     }
 }

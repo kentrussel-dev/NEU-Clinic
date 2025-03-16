@@ -268,6 +268,55 @@ namespace WebApp.Migrations
                     b.ToTable("PersonalDetails");
                 });
 
+            modelBuilder.Entity("WebApp.Models.RoomAppointment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RoomName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RoomAppointments");
+                });
+
+            modelBuilder.Entity("WebApp.Models.RoomAppointmentUser", b =>
+                {
+                    b.Property<int>("RoomAppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("RoomAppointmentId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RoomAppointmentUsers");
+                });
+
             modelBuilder.Entity("WebApp.Models.SubmittedHealthDetails", b =>
                 {
                     b.Property<int>("Id")
@@ -467,6 +516,25 @@ namespace WebApp.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApp.Models.RoomAppointmentUser", b =>
+                {
+                    b.HasOne("WebApp.Models.RoomAppointment", "RoomAppointment")
+                        .WithMany("RoomAppointmentUsers")
+                        .HasForeignKey("RoomAppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApp.Models.Users", "User")
+                        .WithMany("RoomAppointmentUsers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RoomAppointment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApp.Models.SubmittedHealthDetails", b =>
                 {
                     b.HasOne("WebApp.Models.Users", "User")
@@ -478,6 +546,11 @@ namespace WebApp.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApp.Models.RoomAppointment", b =>
+                {
+                    b.Navigation("RoomAppointmentUsers");
+                });
+
             modelBuilder.Entity("WebApp.Models.Users", b =>
                 {
                     b.Navigation("HealthDetails")
@@ -485,6 +558,8 @@ namespace WebApp.Migrations
 
                     b.Navigation("PersonalDetails")
                         .IsRequired();
+
+                    b.Navigation("RoomAppointmentUsers");
 
                     b.Navigation("SubmittedHealthDetails");
                 });

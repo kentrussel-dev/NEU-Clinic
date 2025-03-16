@@ -11,6 +11,8 @@ namespace WebApp.Data
         // Existing tables
         public DbSet<PersonalDetails> PersonalDetails { get; set; }
         public DbSet<HealthDetails> HealthDetails { get; set; }
+        public DbSet<RoomAppointment> RoomAppointments { get; set; }
+        public DbSet<RoomAppointmentUser> RoomAppointmentUsers { get; set; }
 
         // New table for submitted health details
         public DbSet<SubmittedHealthDetails> SubmittedHealthDetails { get; set; }
@@ -39,6 +41,20 @@ namespace WebApp.Data
                 .WithMany(u => u.SubmittedHealthDetails)
                 .HasForeignKey(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure the many-to-many relationship
+            modelBuilder.Entity<RoomAppointmentUser>()
+                .HasKey(rau => new { rau.RoomAppointmentId, rau.UserId });
+
+            modelBuilder.Entity<RoomAppointmentUser>()
+                .HasOne(rau => rau.RoomAppointment)
+                .WithMany(ra => ra.RoomAppointmentUsers)
+                .HasForeignKey(rau => rau.RoomAppointmentId);
+
+            modelBuilder.Entity<RoomAppointmentUser>()
+                .HasOne(rau => rau.User)
+                .WithMany(u => u.RoomAppointmentUsers)
+                .HasForeignKey(rau => rau.UserId);
         }
     }
 }

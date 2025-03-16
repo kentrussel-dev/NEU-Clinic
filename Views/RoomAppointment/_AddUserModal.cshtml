@@ -1,0 +1,106 @@
+@model List<WebApp.Models.Users>
+
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addUserModalLabel">Add Student to Appointment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Input -->
+                <div class="mb-3">
+                    <input type="text" id="searchUserInput" class="form-control"
+                        placeholder="Search by Name, Email, or Student ID...">
+                </div>
+
+                <!-- User List -->
+                <div class="table-responsive">
+                    <table class="table table-hover user-table text-center" id="userTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Profile</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Student ID</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model)
+                            {
+                                // Check if the user is already enrolled in the current appointment
+                                var isEnrolled = ViewBag.EnrolledUserIds != null &&
+                                ViewBag.EnrolledUserIds.Contains(user.Id);
+
+                                <tr>
+                                    <td class="align-middle">
+                                        <img src="@user.ProfilePictureUrl" onerror="this.src='/default-profile.png';"
+                                            class="rounded-circle" style="width: 40px; height: 40px;" alt="Profile Picture">
+                                    </td>
+                                    <td class="align-middle">@user.FullName</td>
+                                    <td class="align-middle">@user.Email</td>
+                                    <td class="align-middle">@(user.PersonalDetails?.StudentId ?? "N/A")</td>
+                                    <td class="align-middle">
+                                        @if (isEnrolled)
+                                        {
+                                            <button class="btn btn-secondary btn-sm btn-modern" disabled>
+                                                <i class="fas fa-check"></i> Already Enrolled
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-success btn-sm btn-modern"
+                                                onclick="addUserToAppointment('@user.Id')">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to handle search
+    document.getElementById('searchUserInput').addEventListener('keyup', function () {
+        const search = this.value.toLowerCase(); // Get the search term
+        const rows = document.querySelectorAll('#userTable tbody tr'); // Get all table rows
+
+        rows.forEach(row => {
+            const fullName = row.cells[1].textContent.toLowerCase(); // Full Name (2nd column)
+            const email = row.cells[2].textContent.toLowerCase(); // Email (3rd column)
+            const studentId = row.cells[3].textContent.toLowerCase(); // Student ID (4th column)
+
+            // Check if the search term matches any of the fields
+            if (fullName.includes(search) || email.includes(search) || studentId.includes(search)) {
+                row.style.display = ''; // Show the row
+            } else {
+                row.style.display = 'none'; // Hide the row
+            }
+        });
+    });
+
+    // Function to add a user to the appointment
+    function addUserToAppointment(userId) {
+        const appointmentId = document.getElementById('currentAppointmentId').value;
+        fetch(`/RoomAppointment/AddUserToAppointment?appointmentId=${appointmentId}&userId=${userId}`, {
+            method: 'POST',
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload(); // Reload the page after adding the user
+            } else {
+                alert('Failed to add user to appointment');
+            }
+        });
+    }
+</script>

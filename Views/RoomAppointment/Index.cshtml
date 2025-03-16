@@ -1,0 +1,464 @@
+@model List<WebApp.Models.RoomAppointment>
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore;
+@using WebApp.Models
+@using WebApp.Data;
+@inject UserManager<Users> UserManager
+@inject SignInManager<Users> SignInManager
+@inject AppDbContext _context
+
+<link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
+
+@{
+    // Fetch all room appointments with enrolled users
+    var allAppointments = await _context.RoomAppointments
+    .Include(ra => ra.RoomAppointmentUsers)
+    .ThenInclude(rau => rau.User)
+    .ToListAsync();
+
+    ViewData["Title"] = "Room Appointment Management";
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+
+    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
+}
+
+<div class="container-fluid">
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
+        <i class="fa-solid fa-calendar-check"></i> Room Appointment Management
+    </h2>
+
+    <!-- Display TempData messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" id="searchInput" class="form-control w-25"
+            placeholder="Search by Room Name or Description...">
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Sorting Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <i class="fas fa-sort"></i> Sort By
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                <li><a class="dropdown-item" href="#" onclick="sortTable(1, true)"><i
+                            class="fas fa-sort-alpha-down"></i> Room Name (A-Z)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="sortTable(1, false)"><i class="fas fa-sort-alpha-up"></i>
+                        Room Name (Z-A)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="sortTable(2, true)"><i
+                            class="fas fa-sort-numeric-down"></i> Start Time (Asc)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="sortTable(2, false)"><i
+                            class="fas fa-sort-numeric-up"></i> Start Time (Desc)</a></li>
+            </ul>
+        </div>
+
+        <!-- Add Appointment Button -->
+        <button class="btn btn-success btn-modern" data-bs-toggle="modal" data-bs-target="#addAppointmentModal">
+            <i class="fas fa-plus"></i> Add Appointment
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover user-table text-center" id="appointmentTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Room Name</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Description</th>
+                    <th>Created By</th>
+                    <th>Created On</th>
+                    <th>Enrolled Users</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var appointment in Model)
+                {
+                    <tr id="appointment-@appointment.Id">
+                        <td class="align-middle">@appointment.RoomName</td>
+                        <td class="align-middle">@appointment.StartTime.ToString("g")</td>
+                        <td class="align-middle">@appointment.EndTime.ToString("g")</td>
+                        <td class="align-middle">@appointment.Description</td>
+                        <td class="align-middle">@appointment.CreatedBy</td>
+                        <td class="align-middle">@appointment.CreatedOn.ToString("g")</td>
+                        <td class="align-middle">
+                            <!-- View Button -->
+                            <button class="btn btn-info btn-sm btn-modern" data-bs-toggle="modal"
+                                data-bs-target="#viewEnrolledUsersModal" onclick="loadEnrolledUsers('@appointment.Id')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </td>
+                        <td class="align-middle">
+                            <!-- Edit Button -->
+                            <button class="btn btn-success btn-sm edit-btn btn-modern"
+                                onclick="toggleEdit('@appointment.Id')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <!-- Update Button -->
+                            <button type="button" class="btn btn-warning btn-sm update-btn btn-modern"
+                                style="display: none;" onclick="confirmUpdate('@appointment.Id')">
+                                <i class="fas fa-save"></i> Update
+                            </button>
+                            <!-- Delete Button -->
+                            <button type="button" class="btn btn-danger btn-sm btn-modern"
+                                onclick="confirmDelete('@appointment.Id')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Appointment Modal -->
+<div class="modal fade" id="addAppointmentModal" tabindex="-1" aria-labelledby="addAppointmentModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addAppointmentModalLabel">Add New Appointment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="CreateAppointment" method="post">
+                    <div class="mb-3">
+                        <label for="roomName" class="form-label">Room Name</label>
+                        <input type="text" class="form-control" id="roomName" name="roomName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="startTime" class="form-label">Start Time</label>
+                        <input type="datetime-local" class="form-control" id="startTime" name="startTime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="endTime" class="form-label">End Time</label>
+                        <input type="datetime-local" class="form-control" id="endTime" name="endTime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Appointment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Enrolled Users Modal -->
+<div class="modal fade" id="viewEnrolledUsersModal" tabindex="-1" aria-labelledby="viewEnrolledUsersModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="viewEnrolledUsersModalLabel">Enrolled Users</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Hidden input to store the current appointment ID -->
+                <input type="hidden" id="currentAppointmentId" />
+
+                <!-- Search Bar -->
+                <div class="mb-3">
+                    <input type="text" id="searchEnrolledUsersInput" class="form-control"
+                        placeholder="Search by Name, Email, or Student ID...">
+                </div>
+
+                <!-- Enrolled Users Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover user-table text-center" id="enrolledUsersTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Profile</th> <!-- Profile column moved to first -->
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Student ID</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="enrolledUsersList">
+                            <!-- Enrolled users will be dynamically populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add User Button -->
+                <button class="btn btn-success btn-modern mt-3" onclick="loadStudents()">
+                    <i class="fas fa-plus"></i> Add Student
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Confirmation Modal -->
+<div class="modal fade" id="removeConfirmationModal" tabindex="-1" aria-labelledby="removeConfirmationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="removeConfirmationModalLabel">Confirm Removal</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to remove this user from the appointment?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger btn-modern" id="confirmRemove">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Include the Add User Modal Partial -->
+<div id="addUserModalContainer">
+    @await Html.PartialAsync("_AddUserModal", await _context.Users.ToListAsync())
+</div>
+
+
+</div>
+
+<!-- Bootstrap Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to perform this action?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary btn-modern" id="confirmAction">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Function to load enrolled users for a specific appointment
+        function loadEnrolledUsers(appointmentId) {
+            // Set the current appointment ID in the hidden input
+            document.getElementById('currentAppointmentId').value = appointmentId;
+
+            fetch(`/RoomAppointment/GetEnrolledUsers?appointmentId=${appointmentId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const enrolledUsersList = document.getElementById('enrolledUsersList');
+                    enrolledUsersList.innerHTML = ''; // Clear previous content
+
+                    if (data.length > 0) {
+                        data.forEach(user => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                                <td class="align-middle">
+                                                    <img src="${user.profilePictureUrl}" onerror="this.src='/default-profile.png';" 
+                                                         class="rounded-circle" style="width: 40px; height: 40px;" alt="Profile Picture">
+                                                </td>
+                                                <td class="align-middle">${user.fullName}</td>
+                                                <td class="align-middle">${user.email}</td>
+                                                <td class="align-middle">${user.studentId || 'N/A'}</td>
+                                                <td class="align-middle">
+                                                    <a href="${user.profileUrl}" target="_blank" class="btn btn-primary btn-sm btn-modern">
+                                                        <i class="fas fa-user"></i> Profile
+                                                    </a>
+                                                    <button class="btn btn-danger btn-sm btn-modern" onclick="confirmRemoveUser('${user.userId}')">
+                                                        <i class="fas fa-trash"></i> Remove
+                                                    </button>
+                                                </td>
+                                            `;
+                            enrolledUsersList.appendChild(row);
+                        });
+                    } else {
+                        enrolledUsersList.innerHTML = `
+                                            <tr>
+                                                <td colspan="5" class="text-center">No users enrolled.</td>
+                                            </tr>
+                                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching enrolled users:', error);
+                });
+        }
+
+        // Function to handle search for enrolled users
+        document.getElementById('searchEnrolledUsersInput').addEventListener('keyup', function () {
+            const search = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#enrolledUsersTable tbody tr');
+            rows.forEach(row => {
+                const fullName = row.cells[1].textContent.toLowerCase(); // Search by full name (2nd column)
+                const email = row.cells[2].textContent.toLowerCase(); // Search by email (3rd column)
+                const studentId = row.cells[3].textContent.toLowerCase(); // Search by student ID (4th column)
+                row.style.display = (fullName.includes(search) || email.includes(search) || studentId.includes(search)) ? '' : 'none';
+            });
+        });
+
+        // Function to confirm removal of a user
+        let userIdToRemove = null;
+
+        function confirmRemoveUser(userId) {
+            userIdToRemove = userId;
+            const modal = new bootstrap.Modal(document.getElementById('removeConfirmationModal'));
+            modal.show();
+        }
+
+        // Function to remove a user from the appointment
+        document.getElementById('confirmRemove').addEventListener('click', function () {
+            if (userIdToRemove) {
+                const appointmentId = document.getElementById('currentAppointmentId').value;
+                fetch(`/RoomAppointment/RemoveUserFromAppointment?appointmentId=${appointmentId}&userId=${userIdToRemove}`, {
+                    method: 'POST',
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload(); // Reload the page after removing the user
+                    } else {
+                        alert('Failed to remove user from appointment');
+                    }
+                });
+            }
+        });
+
+        // Function to handle search for enrolled users
+        document.getElementById('searchEnrolledUsersInput').addEventListener('keyup', function () {
+            const search = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#enrolledUsersTable tbody tr');
+            rows.forEach(row => {
+                const fullName = row.cells[0].textContent.toLowerCase(); // Search by full name (1st column)
+                const email = row.cells[1].textContent.toLowerCase(); // Search by email (2nd column)
+                const studentId = row.cells[2].textContent.toLowerCase(); // Search by student ID (3rd column)
+                row.style.display = (fullName.includes(search) || email.includes(search) || studentId.includes(search)) ? '' : 'none';
+            });
+        });
+
+        // Function to remove a user from the appointment
+        function removeUserFromAppointment(userId) {
+            const appointmentId = document.getElementById('currentAppointmentId').value;
+            if (confirm('Are you sure you want to remove this user from the appointment?')) {
+                fetch(`/RoomAppointment/RemoveUserFromAppointment?appointmentId=${appointmentId}&userId=${userId}`, {
+                    method: 'POST',
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload(); // Reload the page after removing the user
+                    } else {
+                        alert('Failed to remove user from appointment');
+                    }
+                });
+            }
+        }
+        // Function to load students into the Add User modal
+        function loadStudents() {
+            const appointmentId = document.getElementById('currentAppointmentId').value;
+            fetch(`/RoomAppointment/GetStudents/${appointmentId}`) // Use the correct route
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('addUserModalContainer').innerHTML = data;
+                    const addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
+                    addUserModal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading students:', error);
+                });
+        }
+
+        // Function to toggle edit mode
+        function toggleEdit(appointmentId) {
+            const row = document.getElementById(`appointment-${appointmentId}`);
+            const editBtn = row.querySelector('.edit-btn');
+            const updateBtn = row.querySelector('.update-btn');
+
+            // Example: Enable editing of fields
+            const fields = row.querySelectorAll('td[contenteditable="false"]');
+            fields.forEach(field => {
+                field.contentEditable = field.contentEditable === 'true' ? 'false' : 'true';
+            });
+
+            editBtn.style.display = fields[0].contentEditable === 'true' ? 'none' : 'inline-block';
+            updateBtn.style.display = fields[0].contentEditable === 'true' ? 'inline-block' : 'none';
+        }
+
+        // Function to handle search
+        document.getElementById('searchInput').addEventListener('keyup', function () {
+            let search = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#appointmentTable tbody tr');
+            rows.forEach(row => {
+                let roomName = row.cells[0].textContent.toLowerCase(); // Search by room name (1st column)
+                let description = row.cells[3].textContent.toLowerCase(); // Search by description (4th column)
+                row.style.display = (roomName.includes(search) || description.includes(search)) ? '' : 'none';
+            });
+        });
+
+        // Function to confirm delete action
+        function confirmDelete(appointmentId) {
+            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            document.getElementById('confirmAction').onclick = function () {
+                fetch(`/RoomAppointment/DeleteAppointment?appointmentId=${appointmentId}`, {
+                    method: 'POST',
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload(); // Reload the page after deletion
+                    } else {
+                        alert('Failed to delete appointment');
+                    }
+                });
+                modal.hide();
+            };
+            modal.show();
+        }
+
+        // Function to confirm update action
+        function confirmUpdate(appointmentId) {
+            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            document.getElementById('confirmAction').onclick = function () {
+                // Submit the update form or perform an AJAX request
+                fetch(`/RoomAppointment/UpdateAppointment?appointmentId=${appointmentId}`, {
+                    method: 'POST',
+                    body: new FormData(document.getElementById(`updateForm-${appointmentId}`))
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload(); // Reload the page after update
+                    } else {
+                        alert('Failed to update appointment');
+                    }
+                });
+                modal.hide();
+            };
+            modal.show();
+        }
+
+        // Sorting functionality
+        function sortTable(columnIndex, ascending) {
+            let rows = Array.from(document.querySelectorAll('#appointmentTable tbody tr'));
+            rows.sort((a, b) => {
+                let aValue = a.cells[columnIndex].textContent.toLowerCase();
+                let bValue = b.cells[columnIndex].textContent.toLowerCase();
+                return ascending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            });
+            let tbody = document.querySelector('#appointmentTable tbody');
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+    </script>
+}
