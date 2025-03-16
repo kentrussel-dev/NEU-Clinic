@@ -297,6 +297,9 @@ namespace WebApp.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserLimit")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("RoomAppointments");

@@ -47,9 +47,10 @@ namespace WebApp.Controllers
             return Ok();
         }
         [HttpPost]
-        public async Task<IActionResult> UpdateAppointment(int appointmentId, string roomName, DateTime startTime, DateTime endTime, string description)
+        public async Task<IActionResult> UpdateAppointment(int appointmentId, string roomName, DateTime startTime, DateTime endTime, string description, int userLimit)
         {
             var appointment = await _context.RoomAppointments
+                .Include(ra => ra.RoomAppointmentUsers)
                 .FirstOrDefaultAsync(ra => ra.Id == appointmentId);
 
             if (appointment == null)
@@ -58,10 +59,17 @@ namespace WebApp.Controllers
                 return Ok();
             }
 
+            if (userLimit < appointment.RoomAppointmentUsers.Count)
+            {
+                TempData["ErrorMessage"] = "User limit cannot be less than the number of enrolled users.";
+                return Ok();
+            }
+
             appointment.RoomName = roomName;
             appointment.StartTime = startTime;
             appointment.EndTime = endTime;
             appointment.Description = description;
+            appointment.UserLimit = userLimit;
 
             _context.RoomAppointments.Update(appointment);
             await _context.SaveChangesAsync();
@@ -71,7 +79,7 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAppointment(string roomName, DateTime startTime, DateTime endTime, string description)
+        public async Task<IActionResult> CreateAppointment(string roomName, DateTime startTime, DateTime endTime, string description, int userLimit)
         {
             try
             {
@@ -88,6 +96,7 @@ namespace WebApp.Controllers
                     StartTime = startTime,
                     EndTime = endTime,
                     Description = description,
+                    UserLimit = userLimit, // Add user limit
                     CreatedBy = user.FullName ?? user.UserName,
                     CreatedOn = DateTime.UtcNow
                 };
@@ -144,6 +153,13 @@ namespace WebApp.Controllers
             if (appointment == null || user == null)
             {
                 TempData["ErrorMessage"] = "Appointment or user not found.";
+                return Ok();
+            }
+
+            // Check if the user limit has been reached
+            if (appointment.RoomAppointmentUsers.Count >= appointment.UserLimit)
+            {
+                TempData["ErrorMessage"] = "User limit has been reached.";
                 return Ok();
             }
 
@@ -227,6 +243,51 @@ namespace WebApp.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserLimit(int appointmentId, int userLimit)
+        {
+            var appointment = await _context.RoomAppointments.FindAsync(appointmentId);
+            if (appointment == null)
+            {
+                TempData["ErrorMessage"] = "Appointment not found.";
+                return Ok();
+            }
+
+            // Ensure the new limit is not less than the current number of enrolled users
+            if (userLimit < appointment.RoomAppointmentUsers.Count)
+            {
+                TempData["ErrorMessage"] = "User limit cannot be less than the number of enrolled users.";
+                return Ok();
+            }
+
+            appointment.UserLimit = userLimit;
+            _context.RoomAppointments.Update(appointment);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "User limit updated successfully.";
+            return Ok();
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAppointmentDetails(int appointmentId)
+        {
+            var appointment = await _context.RoomAppointments
+                .Include(ra => ra.RoomAppointmentUsers)
+                .FirstOrDefaultAsync(ra => ra.Id == appointmentId);
+
+            if (appointment == null)
+            {
+                return NotFound();
+            }
+
+            var result = new
+            {
+                roomAppointmentUsers = appointment.RoomAppointmentUsers.Count,
+                userLimit = appointment.UserLimit
+            };
+
+            return Json(result);
         }
     }
 }

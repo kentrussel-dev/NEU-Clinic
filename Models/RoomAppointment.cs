@@ -10,6 +10,9 @@
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
 
+        // New property for user limit
+        public int UserLimit { get; set; } = 30; // Default limit
+
         // Many-to-many relationship with Users
         public ICollection<RoomAppointmentUser> RoomAppointmentUsers { get; set; } = new List<RoomAppointmentUser>();
     }
