@@ -230,6 +230,35 @@ namespace WebApp.Migrations
                     b.ToTable("HealthDetails");
                 });
 
+            modelBuilder.Entity("WebApp.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("WebApp.Models.PersonalDetails", b =>
                 {
                     b.Property<int>("Id")
@@ -566,6 +595,17 @@ namespace WebApp.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApp.Models.Notification", b =>
+                {
+                    b.HasOne("WebApp.Models.Users", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApp.Models.PersonalDetails", b =>
                 {
                     b.HasOne("WebApp.Models.Users", "User")
@@ -616,6 +656,8 @@ namespace WebApp.Migrations
                 {
                     b.Navigation("HealthDetails")
                         .IsRequired();
+
+                    b.Navigation("Notifications");
 
                     b.Navigation("PersonalDetails")
                         .IsRequired();

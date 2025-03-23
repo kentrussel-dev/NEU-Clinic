@@ -13,6 +13,8 @@ namespace WebApp.Data
         public DbSet<HealthDetails> HealthDetails { get; set; }
         public DbSet<RoomAppointment> RoomAppointments { get; set; }
         public DbSet<RoomAppointmentUser> RoomAppointmentUsers { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+
 
         // New table for submitted health details
         public DbSet<SubmittedHealthDetails> SubmittedHealthDetails { get; set; }
@@ -63,6 +65,11 @@ namespace WebApp.Data
                 .HasOne(rau => rau.User)
                 .WithMany(u => u.RoomAppointmentUsers)
                 .HasForeignKey(rau => rau.UserId);
+
+            modelBuilder.Entity<Notification>()
+               .HasOne(n => n.User)
+               .WithMany(u => u.Notifications)
+               .HasForeignKey(n => n.UserId);
         }
     }
 }

@@ -37,98 +37,103 @@
 {
 	var userProfilePicture = User.FindFirst("ProfilePictureUrl")?.Value ?? "/default-profile.png";
 
-	<div class="dropdown">
-		<a class="d-flex align-items-center gap-2 text-white text-decoration-none dropdown-toggle bg-primary p-2 rounded"
-			href="#" role="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false"
-			style="height: 40px;">
+	<!-- Notification and Profile Dropdown Container -->
+	<div class="d-flex align-items-center gap-2">
+		<!-- Include Notification Partial View -->
+		@await Html.PartialAsync("Partials/_NotificationPartial")
 
-			@if (!isSuperAdmin)
-			{
-				<img src="@userProfilePicture" onerror="this.src='/default-profile.png';" class="rounded-circle"
-					style="height:40px;width:40px;" alt="Profile Picture">
-			}
-			else
-			{
-				<i class="fas fa-user-shield text-white rounded-circle bg-dark d-flex align-items-center justify-content-center"
-					style="height:40px; width:40px; font-size: 20px;"></i>
-			}
-		</a>
-		<ul class="dropdown-menu dropdown-menu-end bg-primary border-0 shadow rounded-3 p-2"
-			aria-labelledby="profileDropdown" style="min-width: 220px;">
+		<!-- Profile Dropdown -->
+		<div class="dropdown">
+			<a class="d-flex align-items-center gap-2 text-white text-decoration-none dropdown-toggle bg-primary p-2 rounded"
+				href="#" role="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+				style="height: 40px;">
+				@if (!isSuperAdmin)
+				{
+					<img src="@userProfilePicture" onerror="this.src='/default-profile.png';" class="rounded-circle"
+						style="height:40px;width:40px;" alt="Profile Picture">
+				}
+				else
+				{
+					<i class="fas fa-user-shield text-white rounded-circle bg-dark d-flex align-items-center justify-content-center"
+						style="height:40px; width:40px; font-size: 20px;"></i>
+				}
+			</a>
+			<ul class="dropdown-menu dropdown-menu-end bg-primary border-0 shadow rounded-3 p-2"
+				aria-labelledby="profileDropdown" style="min-width: 220px;">
+				<!-- 🏠 Dashboard Button -->
+				<li>
+					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" asp-controller="Dashboard"
+						asp-action="Index">
+						<i class="fas fa-tachometer-alt"></i> Dashboard
+					</a>
+				</li>
 
-			<!-- 🏠 Dashboard Button -->
-			<li>
-				<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" asp-controller="Dashboard"
-					asp-action="Index">
-					<i class="fas fa-tachometer-alt"></i> Dashboard
-				</a>
-			</li>
+				<li>
+					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" href="#">
+						<i class="fas fa-cog"></i> Settings
+					</a>
+				</li>
 
-			<li>
-				<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" href="#">
-					<i class="fas fa-cog"></i> Settings
-				</a>
-			</li>
+				@if (isSuperAdmin)
+				{
+					<li>
+						<hr class="dropdown-divider bg-white opacity-50">
+					</li>
+					<li>
+						<span class="dropdown-header text-uppercase text-warning small">Super Admin</span>
+					</li>
 
-			@if (isSuperAdmin)
-			{
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="UsersManagement" asp-action="Index">
+							<i class="fas fa-users-cog"></i> User Management
+						</a>
+					</li>
+				}
+				@if (isSuperAdmin || isAdmin || isMedicalStaff)
+				{
+					<li>
+						<hr class="dropdown-divider bg-white opacity-50">
+					</li>
+					<li>
+						<span class="dropdown-header text-uppercase text-warning small">Medical Staff/Admin</span>
+					</li>
+
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="UserHealthManagement" asp-action="Index">
+							<i class="fas fa-notes-medical"></i> Student Health Management
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="SubmittedHealthDetails" asp-action="Index">
+							<i class="fas fa-list"></i> View Submitted Records
+						</a>
+					</li>
+					<!-- Add Room Appointment Management Link -->
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="RoomAppointment" asp-action="Index">
+							<i class="fas fa-calendar-check"></i> Room Appointment Management
+						</a>
+					</li>
+				}
+
 				<li>
 					<hr class="dropdown-divider bg-white opacity-50">
 				</li>
-				<li>
-					<span class="dropdown-header text-uppercase text-warning small">Super Admin</span>
-				</li>
 
+				<!-- 🚪 Logout -->
 				<li>
-					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
-						asp-controller="UsersManagement" asp-action="Index">
-						<i class="fas fa-users-cog"></i> User Management
-					</a>
+					<form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
+						<button type="submit" class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2">
+							<i class="fas fa-sign-out-alt"></i> Logout
+						</button>
+					</form>
 				</li>
-			}
-			@if (isSuperAdmin || isAdmin || isMedicalStaff)
-			{
-				<li>
-					<hr class="dropdown-divider bg-white opacity-50">
-				</li>
-				<li>
-					<span class="dropdown-header text-uppercase text-warning small">Medical Staff/Admin</span>
-				</li>
-
-				<li>
-					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
-						asp-controller="UserHealthManagement" asp-action="Index">
-						<i class="fas fa-notes-medical"></i> Student Health Management
-					</a>
-				</li>
-				<li>
-					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
-						asp-controller="SubmittedHealthDetails" asp-action="Index">
-						<i class="fas fa-list"></i> View Submitted Records
-					</a>
-				</li>
-				<!-- Add Room Appointment Management Link -->
-				<li>
-					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
-						asp-controller="RoomAppointment" asp-action="Index">
-						<i class="fas fa-calendar-check"></i> Room Appointment Management
-					</a>
-				</li>
-			}
-
-			<li>
-				<hr class="dropdown-divider bg-white opacity-50">
-			</li>
-
-			<!-- 🚪 Logout -->
-			<li>
-				<form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
-					<button type="submit" class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2">
-						<i class="fas fa-sign-out-alt"></i> Logout
-					</button>
-				</form>
-			</li>
-		</ul>
+			</ul>
+		</div>
 	</div>
 }
 else
@@ -136,4 +141,37 @@ else
 	<a class="nav-link text-white" asp-controller="Account" asp-action="Login">
 		<i class="fas fa-sign-in-alt"></i> Login
 	</a>
+}
+
+
+@section Scripts {
+	<script>
+		function markNotificationAsRead(notificationId) {
+			fetch(`/Notifications/MarkAsRead/${notificationId}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+				}
+			}).then(response => {
+				if (response.ok) {
+					location.reload(); // Refresh the page to update the notification list
+				}
+			});
+		}
+
+		function markAllNotificationsAsRead() {
+			fetch('/Notifications/MarkAllAsRead', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+				}
+			}).then(response => {
+				if (response.ok) {
+					location.reload(); // Refresh the page to update the notification list
+				}
+			});
+		}
+	</script>
 }

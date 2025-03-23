@@ -1,0 +1,68 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Users> signInManager
+@inject UserManager<Users> userManager
+@inject NotificationService NotificationService
+
+@{
+    var user = await userManager.GetUserAsync(User);
+}
+
+<!-- Notification Dropdown -->
+<div class="dropdown">
+    <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle bg-primary p-2 rounded" href="#"
+        role="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="height: 40px;">
+        <i class="fas fa-bell"></i>
+        <!-- Red dot for unread notifications -->
+        @if (user != null && await NotificationService.HasUnreadNotificationsAsync(user.Id))
+        {
+            <span
+                class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                <span class="visually-hidden">New alerts</span>
+            </span>
+        }
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end bg-primary border-0 shadow rounded-3 p-2"
+        aria-labelledby="notificationDropdown" style="min-width: 300px;">
+        <!-- Notification Header -->
+        <li>
+            <span class="dropdown-header text-uppercase text-warning small">Notifications</span>
+        </li>
+        <!-- Notification List -->
+        @if (user != null)
+        {
+            var notifications = await NotificationService.GetNotificationsForUserAsync(user.Id);
+            if (notifications.Any())
+            {
+                foreach (var notification in notifications)
+                {
+                    <li>
+                        <a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2 @(notification.IsRead ? "" : "fw-bold")"
+                            href="#" onclick="markNotificationAsRead('@notification.Id')">
+                            <i class="fas fa-bell"></i>
+                            <div>
+                                <p class="mb-0">@notification.Message</p>
+                                <small class="text-muted">@notification.CreatedAt.ToString("g")</small>
+                            </div>
+                        </a>
+                    </li>
+                }
+            }
+            else
+            {
+                <li>
+                    <span class="dropdown-item text-white">No notifications yet.</span>
+                </li>
+            }
+        }
+        <!-- Mark All as Read -->
+        <li>
+            <hr class="dropdown-divider bg-white opacity-50">
+        </li>
+        <li>
+            <a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" href="#"
+                onclick="markAllNotificationsAsRead()">
+                <i class="fas fa-check-circle"></i> Mark all as read
+            </a>
+        </li>
+    </ul>
+</div>

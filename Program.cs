@@ -16,6 +16,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ✅ Register QRCodeService for Dependency Injection
 builder.Services.AddScoped<QRCodeService>();
 
+// ✅ Register EmailService for Dependency Injection
+builder.Services.AddScoped<EmailService>();
+
+// ✅ Register NotificationService for Dependency Injection
+builder.Services.AddScoped<NotificationService>();
+
 // ✅ Configure Identity with Google Authentication
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
 {

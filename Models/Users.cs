@@ -16,5 +16,8 @@ namespace WebApp.Models
 
         // Many-to-many relationship with RoomAppointment
         public ICollection<RoomAppointmentUser> RoomAppointmentUsers { get; set; } = new List<RoomAppointmentUser>();
+
+        // One-to-many relationship with Notification
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     }
 }
