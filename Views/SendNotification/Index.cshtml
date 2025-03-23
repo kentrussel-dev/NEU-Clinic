@@ -1,0 +1,109 @@
+@model List<WebApp.Models.Users>
+@using Microsoft.AspNetCore.Identity
+@using WebApp.Models
+@using WebApp.Data
+@inject UserManager<Users> UserManager
+@inject AppDbContext _context
+
+<link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
+
+@{
+    ViewData["Title"] = "Send Notification";
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
+        <i class="fas fa-bell"></i> Send Notification
+    </h2>
+
+    <!-- Display TempData messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search by Name or Email...">
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover user-table text-center" id="notificationTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Profile</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td class="align-middle">
+                            <img src="@user.ProfilePictureUrl" onerror="this.src='/default-profile.png';"
+                                class="rounded-circle" style="width: 40px; height: 40px;" alt="Profile Picture">
+                        </td>
+                        <td class="align-middle">@user.FullName</td>
+                        <td class="align-middle">@user.Email</td>
+                        <td class="align-middle">
+                            <button class="btn btn-primary btn-sm btn-modern" data-bs-toggle="modal"
+                                data-bs-target="#sendNotificationModal" onclick="setUserId('@user.Id')">
+                                <i class="fas fa-bell"></i> Send Notification
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Send Notification Modal -->
+<div class="modal fade" id="sendNotificationModal" tabindex="-1" aria-labelledby="sendNotificationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="sendNotificationModalLabel">Send Notification</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sendNotificationForm" asp-action="Send" method="post">
+                    <input type="hidden" id="userId" name="userId" />
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Function to set the user ID in the modal form
+        function setUserId(userId) {
+            document.getElementById('userId').value = userId;
+        }
+
+        // Function to handle search
+        document.getElementById('searchInput').addEventListener('keyup', function () {
+            const search = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#notificationTable tbody tr');
+            rows.forEach(row => {
+                const fullName = row.cells[1].textContent.toLowerCase(); // Search by full name (2nd column)
+                const email = row.cells[2].textContent.toLowerCase(); // Search by email (3rd column)
+                row.style.display = (fullName.includes(search) || email.includes(search)) ? '' : 'none';
+            });
+        });
+    </script>
+}

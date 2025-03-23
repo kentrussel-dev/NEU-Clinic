@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using WebApp.Data;
 using WebApp.Models;
@@ -35,6 +36,12 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 .AddUserValidator<CustomEmailValidator<Users>>()
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
+
+// ✅ Register UserManager<Users> for Dependency Injection
+builder.Services.AddScoped<UserManager<Users>>();
+
+// ✅ Register ILogger for Dependency Injection
+builder.Services.AddLogging();
 
 builder.Services.AddAuthentication(options =>
 {

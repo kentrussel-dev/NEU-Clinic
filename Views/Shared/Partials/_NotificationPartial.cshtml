@@ -1,5 +1,4 @@
 @using Microsoft.AspNetCore.Identity
-@inject SignInManager<Users> signInManager
 @inject UserManager<Users> userManager
 @inject NotificationService NotificationService
 
@@ -37,11 +36,12 @@
                 {
                     <li>
                         <a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2 @(notification.IsRead ? "" : "fw-bold")"
-                            href="#" onclick="markNotificationAsRead('@notification.Id')">
+                            asp-controller="Notifications" asp-action="Details" asp-route-id="@notification.Id">
                             <i class="fas fa-bell"></i>
                             <div>
                                 <p class="mb-0">@notification.Message</p>
-                                <small class="text-muted">@notification.CreatedAt.ToString("g")</small>
+                                <small class="text-warning">From: @notification.SenderEmail</small>
+                                <small class="text-warning">@notification.CreatedAt.ToString("g")</small>
                             </div>
                         </a>
                     </li>

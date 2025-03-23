@@ -1,6 +1,7 @@
-﻿using WebApp.Models;
+﻿using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
-using Microsoft.EntityFrameworkCore;
+using WebApp.Models;
+using System.Threading.Tasks;
 
 public class NotificationService
 {
@@ -9,6 +10,21 @@ public class NotificationService
     public NotificationService(AppDbContext context)
     {
         _context = context;
+    }
+
+    public async Task NotifyUserAsync(string userId, string senderEmail, string message)
+    {
+        var notification = new Notification
+        {
+            UserId = userId,
+            SenderEmail = senderEmail,
+            Message = message,
+            IsRead = false,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Notifications.Add(notification);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<bool> HasUnreadNotificationsAsync(string userId)

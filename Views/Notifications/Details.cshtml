@@ -1,0 +1,52 @@
+@model WebApp.Models.Notification
+
+@{
+    ViewData["Title"] = "Notification Details";
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="card-title mb-0">
+                <i class="fas fa-bell"></i> Notification Details
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <strong>Sent To:</strong>
+                <p>@Model.User.FullName (@Model.User.Email)</p>
+            </div>
+            <div class="mb-3">
+                <strong>Sent From:</strong>
+                <p>@Model.SenderEmail</p>
+            </div>
+            <div class="mb-3">
+                <strong>Message:</strong>
+                <p>@Model.Message</p>
+            </div>
+            <div class="mb-3">
+                <strong>Sent On:</strong>
+                <p>@Model.CreatedAt.ToString("g")</p>
+            </div>
+            <div class="mb-3">
+                <strong>Status:</strong>
+                <p>
+                    @if (Model.IsRead)
+                    {
+                        <span class="badge bg-success">Read</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning">Unread</span>
+                    }
+                </p>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
