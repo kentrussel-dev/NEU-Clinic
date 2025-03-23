@@ -1,0 +1,97 @@
+@model List<WebApp.Models.RoomAppointment>
+
+<!-- Include the custom CSS file -->
+<link rel="stylesheet" href="~/css/table.css" asp-append-version="true" />
+<div class="row">
+    <div class="col-md-12">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-info">No appointments available.</div>
+        }
+        else
+        {
+            foreach (var appointment in Model)
+            {
+                <div class="appointment-card card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>Appointment (@appointment.RoomName)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-control-design">
+                                    <i class="fas fa-clock me-2"></i><strong>Start Time:</strong>
+                                    @appointment.StartTime.ToString("g")
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-control-design">
+                                    <i class="fas fa-clock me-2"></i><strong>End Time:</strong>
+                                    @appointment.EndTime.ToString("g")
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-control-design">
+                                    <i class="fas fa-align-left me-2"></i><strong>Description:</strong> @appointment.Description
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-control-design">
+                                    <i class="fas fa-users me-2"></i><strong>Enrolled Users:</strong>
+                                    @appointment.RoomAppointmentUsers.Count / @appointment.UserLimit
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-control-design">
+                                    <i class="fas fa-user me-2"></i><strong>Created By:</strong> @appointment.CreatedBy
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-control-design">
+                                    <i class="fas fa-calendar-check me-2"></i><strong>Created On:</strong>
+                                    @appointment.CreatedOn.ToString("g")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card Footer for Buttons -->
+                    <div class="card-footer-buttons">
+                        <button class="btn btn-primary" onclick="viewAppointment('@appointment.Id')">
+                            <i class="fas fa-eye me-2"></i>View Appointment
+                        </button>
+                        @* <button class="btn btn-success" onclick="enrollInAppointment('@appointment.Id')">
+                            <i class="fas fa-plus me-2"></i>Book
+                        </button> *@
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<script>
+    // Function to enroll in an appointment
+    function enrollInAppointment(appointmentId) {
+        if (confirm("Are you sure you want to enroll in this appointment?")) {
+            fetch(`/RoomAppointment/EnrollInAppointment?appointmentId=${appointmentId}`, {
+                method: 'POST',
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload(); // Reload the page after enrolling
+                } else {
+                    alert('Failed to enroll in appointment');
+                }
+            });
+        }
+    }
+
+    // Function to view an appointment
+    function viewAppointment(appointmentId) {
+        // Redirect to the appointment details page using the AppointmentController
+        window.location.href = `/appointment/${appointmentId}`;
+    }
+</script>

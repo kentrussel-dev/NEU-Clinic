@@ -1,0 +1,200 @@
+@using System.Security.Claims
+@model WebApp.Controllers.AppointmentViewModel
+
+@{
+    ViewData["Title"] = "Appointment Details";
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+}
+
+<div class="container mt-3">
+    <div class="row">
+        <!-- Appointment Details Card -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Appointment Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Room Name:</strong> @Model.Appointment.RoomName</p>
+                            <p><strong>Description:</strong> @Model.Appointment.Description</p>
+                            <p><strong>Start Time:</strong> @Model.Appointment.StartTime.ToString("g")</p>
+                            <p><strong>End Time:</strong> @Model.Appointment.EndTime.ToString("g")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Created By:</strong> @Model.Appointment.CreatedBy</p>
+                            <p><strong>Created On:</strong> @Model.Appointment.CreatedOn.ToString("g")</p>
+                            <p><strong>User Limit:</strong> @Model.Appointment.UserLimit</p>
+                            <p><strong>Enrolled Users:</strong> @Model.Appointment.RoomAppointmentUsers.Count /
+                                @Model.Appointment.UserLimit</p>
+                        </div>
+                    </div>
+                    @if (Model.IsEnrolled)
+                    {
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-check-circle me-2"></i>You are enrolled in this appointment.
+                        </div>
+                        <!-- Unenroll Button -->
+                        <button class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#confirmationModal"
+                            data-action="unenroll" data-appointment-id="@Model.Appointment.Id">
+                            <i class="fas fa-minus me-2"></i>Unenroll
+                        </button>
+                    }
+                    else
+                    {
+                        <!-- Check if the user limit has been reached -->
+                        if (Model.Appointment.RoomAppointmentUsers.Count >= Model.Appointment.UserLimit)
+                        {
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-exclamation-circle me-2"></i>The user limit has been reached.
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Enroll button -->
+                            <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#confirmationModal"
+                                data-action="enroll" data-appointment-id="@Model.Appointment.Id">
+                                <i class="fas fa-plus me-2"></i>Book
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- QR Code Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-qrcode me-2"></i>QR Code
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.Appointment.QRCodePath))
+                    {
+                        <img src="@Model.Appointment.QRCodePath" alt="QR Code" class="img-fluid" />
+                        <p class="mt-3">Scan this QR code to view the appointment details.</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No QR code available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrolled Users Card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users me-2"></i>Enrolled Users
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Appointment.RoomAppointmentUsers.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var user in Model.EnrolledUsers)
+                            {
+                                <li class="d-flex align-items-center py-2 border-bottom">
+                                    <img src="@user.ProfilePictureUrl" alt="Profile Picture" class="rounded-circle me-3"
+                                        width="40" height="40" />
+                                    <div>
+                                        <a href="@user.ProfileUrl" class="text-decoration-none">@user.FullName</a>
+                                        <p class="text-muted mb-0">@user.Email</p>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>No users have enrolled in this appointment yet.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <span id="actionText"></span> this appointment?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAction">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Enroll and Unenroll Functionality -->
+<script>
+    // Set up the confirmation modal
+    const confirmationModal = document.getElementById('confirmationModal');
+    const actionText = document.getElementById('actionText');
+    const confirmActionButton = document.getElementById('confirmAction');
+
+    let currentAction = '';
+    let currentAppointmentId = '';
+
+    confirmationModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // Button that triggered the modal
+        currentAction = button.getAttribute('data-action'); // Get the action (enroll/unenroll)
+        currentAppointmentId = button.getAttribute('data-appointment-id'); // Get the appointment ID
+
+        // Update the modal text based on the action
+        actionText.textContent = currentAction === 'enroll' ? 'enroll in' : 'unenroll from';
+    });
+
+    // Handle the confirm action
+    confirmActionButton.addEventListener('click', function () {
+        if (currentAction === 'enroll') {
+            enrollInAppointment(currentAppointmentId);
+        } else if (currentAction === 'unenroll') {
+            unenrollFromAppointment(currentAppointmentId);
+        }
+    });
+
+    function enrollInAppointment(appointmentId) {
+        fetch(`/RoomAppointment/AddUserToAppointment?appointmentId=${appointmentId}&userId=@User.FindFirst(ClaimTypes.NameIdentifier)?.Value`, {
+            method: 'POST',
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload(); // Reload the page to reflect the changes
+            } else {
+                alert('Failed to enroll in appointment');
+            }
+        });
+    }
+
+    function unenrollFromAppointment(appointmentId) {
+        fetch(`/RoomAppointment/RemoveUserFromAppointment?appointmentId=${appointmentId}&userId=@User.FindFirst(ClaimTypes.NameIdentifier)?.Value`, {
+            method: 'POST',
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload(); // Reload the page to reflect the changes
+            } else {
+                alert('Failed to unenroll from appointment');
+            }
+        });
+    }
+</script>

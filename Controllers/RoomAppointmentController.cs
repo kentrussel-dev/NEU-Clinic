@@ -79,7 +79,7 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAppointment(string roomName, DateTime startTime, DateTime endTime, string description, int userLimit)
+        public async Task<IActionResult> CreateAppointment(string roomName, DateTime startTime, DateTime endTime, string description, int userLimit, [FromServices] QRCodeService qrCodeService)
         {
             try
             {
@@ -96,12 +96,20 @@ namespace WebApp.Controllers
                     StartTime = startTime,
                     EndTime = endTime,
                     Description = description,
-                    UserLimit = userLimit, // Add user limit
+                    UserLimit = userLimit,
                     CreatedBy = user.FullName ?? user.UserName,
                     CreatedOn = DateTime.UtcNow
                 };
 
+
+                appointment.QRCodePath = "/temp/qrcode.png"; 
+
                 _context.RoomAppointments.Add(appointment);
+                await _context.SaveChangesAsync();
+
+                appointment.QRCodePath = qrCodeService.GenerateAppointmentQRCode(appointment.Id);
+
+                _context.RoomAppointments.Update(appointment);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Appointment created successfully.";
@@ -140,7 +148,6 @@ namespace WebApp.Controllers
 
             return Json(enrolledUsers);
         }
-
         [HttpPost]
         public async Task<IActionResult> AddUserToAppointment(int appointmentId, string userId)
         {

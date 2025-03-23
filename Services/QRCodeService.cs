@@ -1,6 +1,4 @@
 ﻿using SkiaSharp;
-using ZXing.SkiaSharp;
-using Microsoft.Extensions.Configuration;
 
 public class QRCodeService
 {
@@ -17,13 +15,13 @@ public class QRCodeService
         }
     }
 
+    // Existing method for user QR codes
     public string GenerateQRCode(string userId, string fullName, string email)
     {
         string fileName = $"{userId}.png";
         string filePath = Path.Combine(_qrCodeDirectory, fileName);
         string relativePath = $"/qrcodes/{fileName}";
 
-        // Use a relative path for the QR code data
         string profileUrl = $"profile/{userId}";
 
         if (File.Exists(filePath))
@@ -42,8 +40,44 @@ public class QRCodeService
             Renderer = new ZXing.SkiaSharp.Rendering.SKBitmapRenderer()
         };
 
-        // Use the profile URL as the QR code data
         using (var qrCodeImage = qrCodeGenerator.Write(profileUrl))
+        using (var image = SKImage.FromBitmap(qrCodeImage))
+        using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+        using (var stream = File.OpenWrite(filePath))
+        {
+            data.SaveTo(stream);
+        }
+
+        return relativePath;
+    }
+
+    // New method for appointment QR codes
+    public string GenerateAppointmentQRCode(int appointmentId)
+    {
+        string fileName = $"roomappointment_{appointmentId}.png";
+        string filePath = Path.Combine(_qrCodeDirectory, fileName);
+        string relativePath = $"/qrcodes/{fileName}";
+
+        if (File.Exists(filePath))
+        {
+            return relativePath;
+        }
+
+        // Create QR code data
+        string qrCodeData = $"appointment/{appointmentId}";
+
+        var qrCodeGenerator = new ZXing.BarcodeWriter<SKBitmap>
+        {
+            Format = ZXing.BarcodeFormat.QR_CODE,
+            Options = new ZXing.Common.EncodingOptions
+            {
+                Height = 256,
+                Width = 256
+            },
+            Renderer = new ZXing.SkiaSharp.Rendering.SKBitmapRenderer()
+        };
+
+        using (var qrCodeImage = qrCodeGenerator.Write(qrCodeData))
         using (var image = SKImage.FromBitmap(qrCodeImage))
         using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
         using (var stream = File.OpenWrite(filePath))

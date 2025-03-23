@@ -1,14 +1,96 @@
-.drop-zone {
-    border: 2px dashed #007bff;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    transition: background-color 0.3s ease;
+/* Custom Card Styles for Appointments */
+.appointment-card {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 20px;
 }
 
-.drop-zone.dragover {
-    background-color: #e9ecef;
-    border-color: #0056b3;
+.appointment-card:hover {
+    transform: translateY(-5px);
+    /* Lift card on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.appointment-card .card-header {
+    background-color: var(--bs-primary);
+    /* Bootstrap primary color */
+    color: #ffffff;
+    padding: 16px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom: none;
+}
+
+.appointment-card .card-title {
+    font-size: 1.25em;
+    font-weight: 600;
+    margin: 0;
+}
+
+.appointment-card .card-body {
+    padding: 20px;
+}
+
+.appointment-card .card-text {
+    font-size: 0.95em;
+    color: #555555;
+    margin-bottom: 10px;
+}
+
+.appointment-card .card-text strong {
+    color: #333333;
+}
+
+.appointment-card .btn-enroll {
+    background-color: var(--bs-primary);
+    /* Bootstrap primary color */
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-card .btn-enroll:hover {
+    background-color: var(--bs-secondary);
+    /* Darker shade of primary color */
+    transform: translateY(-2px);
+    /* Lift button on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.appointment-card .btn-enroll:active {
+    transform: translateY(0);
+    /* Reset on click */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .appointment-card {
+        margin-bottom: 15px;
+    }
+
+    .appointment-card .card-header {
+        padding: 12px;
+    }
+
+    .appointment-card .card-title {
+        font-size: 1.1em;
+    }
+
+    .appointment-card .card-body {
+        padding: 16px;
+    }
+
+    .appointment-card .btn-enroll {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
 }

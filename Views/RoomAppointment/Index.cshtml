@@ -75,10 +75,11 @@
                     <th>Start Time</th>
                     <th>End Time</th>
                     <th>Description</th>
-                    <th>Created By</th>
-                    <th>Created On</th>
-                    <th>Enrolled Users</th>
+                    @* <th>Created By</th>
+                    <th>Created On</th> *@
                     <th>User Limit</th>
+                    <th>QR Code</th>
+                    <th>Enrolled Users</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -90,10 +91,16 @@
                         <td class="align-middle">@appointment.StartTime.ToString("g")</td>
                         <td class="align-middle">@appointment.EndTime.ToString("g")</td>
                         <td class="align-middle">@appointment.Description</td>
-                        <td class="align-middle">@appointment.CreatedBy</td>
-                        <td class="align-middle">@appointment.CreatedOn.ToString("g")</td>
+                        @* <td class="align-middle">@appointment.CreatedBy</td>
+                        <td class="align-middle">@appointment.CreatedOn.ToString("g")</td> *@
                         <td class="align-middle">
                             @appointment.RoomAppointmentUsers.Count / @appointment.UserLimit
+                        </td>
+                        <td class="align-middle">
+                            <button class="btn btn-info btn-sm btn-modern" data-bs-toggle="modal"
+                                data-bs-target="#viewQRCodeModal" onclick="loadQRCode('@appointment.QRCodePath')">
+                                <i class="fas fa-qrcode"></i> View QR Code
+                            </button>
                         </td>
                         <td class="align-middle">
                             <!-- View Button in the Main Table -->
@@ -124,6 +131,29 @@
                 }
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- QR Code Modal -->
+<div class="modal fade" id="viewQRCodeModal" tabindex="-1" aria-labelledby="viewQRCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="viewQRCodeModalLabel">Appointment QR Code</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <!-- QR Code Image will be dynamically inserted here -->
+                <img id="qrCodeImage" src="" alt="QR Code" style="width: 100%; max-width: 256px;" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Close</button>
+                <a id="downloadQRCodeLink" href="#" download class="btn btn-primary btn-modern">
+                    <i class="fas fa-download"></i> Download QR Code
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -326,30 +356,30 @@
                         data.forEach(user => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                                            <td class="align-middle">
-                                                                <img src="${user.profilePictureUrl}" onerror="this.src='/default-profile.png';" 
-                                                                     class="rounded-circle" style="width: 40px; height: 40px;" alt="Profile Picture">
-                                                            </td>
-                                                            <td class="align-middle">${user.fullName}</td>
-                                                            <td class="align-middle">${user.email}</td>
-                                                            <td class="align-middle">${user.studentId || 'N/A'}</td>
-                                                            <td class="align-middle">
-                                                                <a href="${user.profileUrl}" target="_blank" class="btn btn-primary btn-sm btn-modern">
-                                                                    <i class="fas fa-user"></i> Profile
-                                                                </a>
-                                                                <button class="btn btn-danger btn-sm btn-modern" onclick="confirmRemoveUser('${user.userId}')">
-                                                                    <i class="fas fa-trash"></i> Remove
-                                                                </button>
-                                                            </td>
-                                                        `;
+                                                                                                            <td class="align-middle">
+                                                                                                                <img src="${user.profilePictureUrl}" onerror="this.src='/default-profile.png';" 
+                                                                                                                     class="rounded-circle" style="width: 40px; height: 40px;" alt="Profile Picture">
+                                                                                                            </td>
+                                                                                                            <td class="align-middle">${user.fullName}</td>
+                                                                                                            <td class="align-middle">${user.email}</td>
+                                                                                                            <td class="align-middle">${user.studentId || 'N/A'}</td>
+                                                                                                            <td class="align-middle">
+                                                                                                                <a href="${user.profileUrl}" target="_blank" class="btn btn-primary btn-sm btn-modern">
+                                                                                                                    <i class="fas fa-user"></i> Profile
+                                                                                                                </a>
+                                                                                                                <button class="btn btn-danger btn-sm btn-modern" onclick="confirmRemoveUser('${user.userId}')">
+                                                                                                                    <i class="fas fa-trash"></i> Remove
+                                                                                                                </button>
+                                                                                                            </td>
+                                                                                                        `;
                             enrolledUsersList.appendChild(row);
                         });
                     } else {
                         enrolledUsersList.innerHTML = `
-                                                        <tr>
-                                                            <td colspan="5" class="text-center">No users enrolled.</td>
-                                                        </tr>
-                                                    `;
+                                                                                                        <tr>
+                                                                                                            <td colspan="5" class="text-center">No users enrolled.</td>
+                                                                                                        </tr>
+                                                                                                    `;
                     }
 
                     // Fetch the appointment details to check the user limit
@@ -562,6 +592,19 @@
             document.getElementById('editEndTime').value = endTime;
             document.getElementById('editDescription').value = description;
             document.getElementById('editUserLimit').value = userLimit;
+        }
+
+        // Load the QR code into the modal
+        function loadQRCode(qrCodePath) {
+            const qrCodeImage = document.getElementById('qrCodeImage');
+            const downloadQRCodeLink = document.getElementById('downloadQRCodeLink');
+
+            // Set the QR code image source
+            qrCodeImage.src = qrCodePath;
+
+            // Set the download link
+            downloadQRCodeLink.href = qrCodePath;
+            downloadQRCodeLink.download = `Appointment_QR_Code.png`;
         }
     </script>
 }
