@@ -272,7 +272,7 @@ namespace WebApp.Controllers
                     record.EmergencyContactPhoneStatus = "Rejected";
                     break;
                 case "XRayFile":
-                    record.XRayFileStatus = "Rejected";
+                    record.XRayFileStatus = "Rejected"; 
                     break;
                 case "MedicalCertificate":
                     record.MedicalCertificateStatus = "Rejected";

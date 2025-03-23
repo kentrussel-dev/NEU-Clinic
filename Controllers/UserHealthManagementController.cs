@@ -42,6 +42,7 @@ namespace WebApp.Controllers
             var users = await _userManager.Users.ToListAsync();
             var userRoles = new Dictionary<string, List<string>>();
             var userHealthDetails = new Dictionary<string, HealthDetails>();
+            var userSubmittedHealthDetails = new Dictionary<string, SubmittedHealthDetails>();
 
             foreach (var user in users)
             {
@@ -51,11 +52,19 @@ namespace WebApp.Controllers
                 var healthDetails = await _context.HealthDetails
                     .FirstOrDefaultAsync(h => h.UserId == user.Id);
                 userHealthDetails[user.Id] = healthDetails ?? new HealthDetails { UserId = user.Id };
+
+                // Fetch the latest SubmittedHealthDetails for the user
+                var submittedHealthDetails = await _context.SubmittedHealthDetails
+                    .Where(s => s.UserId == user.Id)
+                    .OrderByDescending(s => s.SubmissionDate)
+                    .FirstOrDefaultAsync();
+                userSubmittedHealthDetails[user.Id] = submittedHealthDetails;
             }
 
             ViewBag.UserRoles = userRoles;
             ViewBag.Roles = _roleManager.Roles.ToList();
             ViewBag.UserHealthDetails = userHealthDetails;
+            ViewBag.UserSubmittedHealthDetails = userSubmittedHealthDetails;
 
             return View(users);
         }

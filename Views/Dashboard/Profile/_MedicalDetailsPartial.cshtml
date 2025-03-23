@@ -13,6 +13,18 @@
     ? await _context.HealthDetails.FirstOrDefaultAsync(m => m.UserId == user.Id)
     : null;
 
+    // Fetch all submissions for the user, ordered by submission date (latest first)
+    var allSubmissions = user != null
+    ? await _context.SubmittedHealthDetails
+    .Where(s => s.UserId == user.Id)
+    .OrderByDescending(s => s.SubmissionDate)
+    .ToListAsync()
+    : new List<SubmittedHealthDetails>();
+
+    // Check if the user has submitted any health details
+    var hasSubmittedDetails = allSubmissions.Any();
+
+    // Health details
     var bloodType = medicalDetails?.BloodType ?? "N/A";
     var allergies = medicalDetails?.Allergies ?? "None";
     var medicalNotes = medicalDetails?.MedicalNotes ?? "No medical notes available.";
@@ -26,6 +38,52 @@
     var activityRestrictions = medicalDetails?.ActivityRestrictions ?? "No restrictions reported.";
     var dietaryRestrictions = medicalDetails?.DietaryRestrictions ?? "No dietary restrictions reported.";
     var mentalHealthNotes = medicalDetails?.MentalHealthNotes ?? "No mental health notes available.";
+
+    // Aggregate statuses and submitted values across all submissions
+    var bloodTypeStatus = allSubmissions
+    .Where(s => s.BloodType != null)
+    .Select(s => new { Status = s.BloodTypeStatus, Value = s.BloodType })
+    .FirstOrDefault(); // Get the status and value from the latest submission with a non-null BloodType
+
+    var allergiesStatus = allSubmissions
+    .Where(s => s.Allergies != null)
+    .Select(s => new { Status = s.AllergiesStatus, Value = s.Allergies })
+    .FirstOrDefault(); // Get the status and value from the latest submission with a non-null Allergies
+
+    var emergencyContactNameStatus = allSubmissions
+    .Where(s => s.EmergencyContactName != null)
+    .Select(s => new { Status = s.EmergencyContactNameStatus, Value = s.EmergencyContactName })
+    .FirstOrDefault(); // Get the status and value from the latest submission with a non-null EmergencyContactName
+
+    var emergencyContactRelationshipStatus = allSubmissions
+    .Where(s => s.EmergencyContactRelationship != null)
+    .Select(s => new { Status = s.EmergencyContactRelationshipStatus, Value = s.EmergencyContactRelationship })
+    .FirstOrDefault(); // Get the status and value from the latest submission with a non-null EmergencyContactRelationship
+
+    var emergencyContactPhoneStatus = allSubmissions
+    .Where(s => s.EmergencyContactPhone != null)
+    .Select(s => new { Status = s.EmergencyContactPhoneStatus, Value = s.EmergencyContactPhone })
+    .FirstOrDefault(); // Get the status and value from the latest submission with a non-null EmergencyContactPhone
+
+    var xRayFileStatus = allSubmissions
+    .Where(s => s.XRayFileUrl != null)
+    .Select(s => new { Status = s.XRayFileStatus, Value = s.XRayFileUrl })
+    .FirstOrDefault(); // Get the status and value from the latest submission with a non-null XRayFileUrl
+
+    var medicalCertificateStatus = allSubmissions
+    .Where(s => s.MedicalCertificateUrl != null)
+    .Select(s => new { Status = s.MedicalCertificateStatus, Value = s.MedicalCertificateUrl })
+    .FirstOrDefault(); // Get the status and value from the latest submission with a non-null MedicalCertificateUrl
+
+    var vaccinationRecordStatus = allSubmissions
+    .Where(s => s.VaccinationRecordUrl != null)
+    .Select(s => new { Status = s.VaccinationRecordStatus, Value = s.VaccinationRecordUrl })
+    .FirstOrDefault(); // Get the status and value from the latest submission with a non-null VaccinationRecordUrl
+
+    var otherDocumentsStatus = allSubmissions
+    .Where(s => s.OtherDocumentsUrl != null)
+    .Select(s => new { Status = s.OtherDocumentsStatus, Value = s.OtherDocumentsUrl })
+    .FirstOrDefault(); // Get the status and value from the latest submission with a non-null OtherDocumentsUrl
 
     var healthAlerts = new List<string>();
     if (!string.IsNullOrEmpty(medicalDetails?.HealthAlerts))
@@ -62,16 +120,60 @@
     }
 }
 
+@functions {
+    public string GetStatusBadgeColor(string status)
+    {
+        switch (status.ToLower())
+        {
+            case "approved":
+                return "success";
+            case "rejected":
+                return "danger";
+            case "pending":
+                return "warning";
+            default:
+                return "secondary";
+        }
+    }
+}
+
+<!-- Alert for Unsubmitted Details -->
+@if (!hasSubmittedDetails)
+{
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <div>
+            You have not submitted your health details yet. Please submit your health details as soon as possible.
+        </div>
+    </div>
+}
+
 <!-- Health Information -->
 <h5 class="mb-3">Health Information</h5>
 <div class="row mb-3">
     <div class="col-md-6">
         <label for="bloodType" class="form-label">Blood Type</label>
         <input type="text" class="form-control" id="bloodType" placeholder="@bloodType" readonly>
+        @if (bloodTypeStatus != null && bloodTypeStatus.Status != "Approved")
+        {
+            <small class="text-muted">
+                Status: <span class="badge bg-@GetStatusBadgeColor(bloodTypeStatus.Status)">@bloodTypeStatus.Status</span>
+                <br />
+                Submitted Value: @bloodTypeStatus.Value
+            </small>
+        }
     </div>
     <div class="col-md-6">
         <label for="allergies" class="form-label">Allergies</label>
         <input type="text" class="form-control" id="allergies" placeholder="@allergies" readonly>
+        @if (allergiesStatus != null && allergiesStatus.Status != "Approved")
+        {
+            <small class="text-muted">
+                Status: <span class="badge bg-@GetStatusBadgeColor(allergiesStatus.Status)">@allergiesStatus.Status</span>
+                <br />
+                Submitted Value: @allergiesStatus.Value
+            </small>
+        }
     </div>
 </div>
 <div class="row mb-3">
@@ -87,11 +189,29 @@
     <div class="col-md-6">
         <label for="emergencyContactName" class="form-label">Name</label>
         <input type="text" class="form-control" id="emergencyContactName" placeholder="@emergencyContactName" readonly>
+        @if (emergencyContactNameStatus != null && emergencyContactNameStatus.Status != "Approved")
+        {
+            <small class="text-muted">
+                Status: <span
+                    class="badge bg-@GetStatusBadgeColor(emergencyContactNameStatus.Status)">@emergencyContactNameStatus.Status</span>
+                <br />
+                Submitted Value: @emergencyContactNameStatus.Value
+            </small>
+        }
     </div>
     <div class="col-md-6">
         <label for="emergencyContactRelationship" class="form-label">Relationship</label>
         <input type="text" class="form-control" id="emergencyContactRelationship"
             placeholder="@emergencyContactRelationship" readonly>
+        @if (emergencyContactRelationshipStatus != null && emergencyContactRelationshipStatus.Status != "Approved")
+        {
+            <small class="text-muted">
+                Status: <span
+                    class="badge bg-@GetStatusBadgeColor(emergencyContactRelationshipStatus.Status)">@emergencyContactRelationshipStatus.Status</span>
+                <br />
+                Submitted Value: @emergencyContactRelationshipStatus.Value
+            </small>
+        }
     </div>
 </div>
 <div class="row mb-3">
@@ -99,74 +219,15 @@
         <label for="emergencyContactPhone" class="form-label">Phone Number</label>
         <input type="text" class="form-control" id="emergencyContactPhone" placeholder="@emergencyContactPhone"
             readonly>
-    </div>
-</div>
-
-<!-- Chronic Conditions -->
-<h5 class="mb-3 mt-4">Chronic Conditions</h5>
-<div class="row mb-3">
-    <div class="col-md-12">
-        <label for="chronicConditions" class="form-label">Conditions</label>
-        <textarea class="form-control" id="chronicConditions" rows="3" placeholder="@chronicConditions"
-            readonly></textarea>
-    </div>
-</div>
-
-<!-- Medications -->
-<h5 class="mb-3 mt-4">Medications</h5>
-<div class="row mb-3">
-    <div class="col-md-12">
-        <label for="medications" class="form-label">Current Medications</label>
-        <textarea class="form-control" id="medications" rows="3" placeholder="@medications" readonly></textarea>
-    </div>
-</div>
-
-<!-- Immunization History -->
-<h5 class="mb-3 mt-4">Immunization History</h5>
-<div class="row mb-3">
-    <div class="col-md-12">
-        <label for="immunizationHistory" class="form-label">Vaccination Records</label>
-        <textarea class="form-control" id="immunizationHistory" rows="3" placeholder="@immunizationHistory"
-            readonly></textarea>
-    </div>
-</div>
-
-<!-- Recent Health Checkups -->
-<h5 class="mb-3 mt-4">Recent Health Checkups</h5>
-<div class="row mb-3">
-    <div class="col-md-12">
-        <label for="recentCheckups" class="form-label">Checkup Details</label>
-        <textarea class="form-control" id="recentCheckups" rows="3" placeholder="@recentCheckups" readonly></textarea>
-    </div>
-</div>
-
-<!-- Physical Activity Restrictions -->
-<h5 class="mb-3 mt-4">Physical Activity Restrictions</h5>
-<div class="row mb-3">
-    <div class="col-md-12">
-        <label for="activityRestrictions" class="form-label">Restrictions</label>
-        <textarea class="form-control" id="activityRestrictions" rows="3" placeholder="@activityRestrictions"
-            readonly></textarea>
-    </div>
-</div>
-
-<!-- Dietary Restrictions -->
-<h5 class="mb-3 mt-4">Dietary Restrictions</h5>
-<div class="row mb-3">
-    <div class="col-md-12">
-        <label for="dietaryRestrictions" class="form-label">Restrictions</label>
-        <textarea class="form-control" id="dietaryRestrictions" rows="3" placeholder="@dietaryRestrictions"
-            readonly></textarea>
-    </div>
-</div>
-
-<!-- Mental Health Notes -->
-<h5 class="mb-3 mt-4">Mental Health Notes</h5>
-<div class="row mb-3">
-    <div class="col-md-12">
-        <label for="mentalHealthNotes" class="form-label">Notes</label>
-        <textarea class="form-control" id="mentalHealthNotes" rows="3" placeholder="@mentalHealthNotes"
-            readonly></textarea>
+        @if (emergencyContactPhoneStatus != null && emergencyContactPhoneStatus.Status != "Approved")
+        {
+            <small class="text-muted">
+                Status: <span
+                    class="badge bg-@GetStatusBadgeColor(emergencyContactPhoneStatus.Status)">@emergencyContactPhoneStatus.Status</span>
+                <br />
+                Submitted Value: @emergencyContactPhoneStatus.Value
+            </small>
+        }
     </div>
 </div>
 
@@ -183,6 +244,14 @@
         {
             <p class="form-control">No X-Ray file uploaded.</p>
         }
+        @if (xRayFileStatus != null && xRayFileStatus.Status != "Approved")
+        {
+            <small class="text-muted">
+                Status: <span class="badge bg-@GetStatusBadgeColor(xRayFileStatus.Status)">@xRayFileStatus.Status</span>
+                <br />
+                Submitted File: <a href="@xRayFileStatus.Value" target="_blank">View File</a>
+            </small>
+        }
     </div>
     <div class="col-md-6">
         <label class="form-label">Medical Certificate</label>
@@ -193,6 +262,15 @@
         else
         {
             <p class="form-control">No medical certificate uploaded.</p>
+        }
+        @if (medicalCertificateStatus != null && medicalCertificateStatus.Status != "Approved")
+        {
+            <small class="text-muted">
+                Status: <span
+                    class="badge bg-@GetStatusBadgeColor(medicalCertificateStatus.Status)">@medicalCertificateStatus.Status</span>
+                <br />
+                Submitted File: <a href="@medicalCertificateStatus.Value" target="_blank">View File</a>
+            </small>
         }
     </div>
 </div>
@@ -207,6 +285,15 @@
         {
             <p class="form-control">No vaccination record uploaded.</p>
         }
+        @if (vaccinationRecordStatus != null && vaccinationRecordStatus.Status != "Approved")
+        {
+            <small class="text-muted">
+                Status: <span
+                    class="badge bg-@GetStatusBadgeColor(vaccinationRecordStatus.Status)">@vaccinationRecordStatus.Status</span>
+                <br />
+                Submitted File: <a href="@vaccinationRecordStatus.Value" target="_blank">View File</a>
+            </small>
+        }
     </div>
     <div class="col-md-6">
         <label class="form-label">Other Documents</label>
@@ -218,27 +305,14 @@
         {
             <p class="form-control">No other documents uploaded.</p>
         }
+        @if (otherDocumentsStatus != null && otherDocumentsStatus.Status != "Approved")
+        {
+            <small class="text-muted">
+                Status: <span
+                    class="badge bg-@GetStatusBadgeColor(otherDocumentsStatus.Status)">@otherDocumentsStatus.Status</span>
+                <br />
+                Submitted File: <a href="@otherDocumentsStatus.Value" target="_blank">View File</a>
+            </small>
+        }
     </div>
 </div>
-
-<!-- Health Alerts -->
-<h5 class="mb-3 mt-4">Health Alerts</h5>
-@if (healthAlerts.Any())
-{
-    foreach (var alert in healthAlerts)
-    {
-        var alertParts = alert.Split('|');
-        var alertType = alertParts[0]; // e.g., "danger", "warning", etc.
-        var alertMessage = alertParts[1]; // e.g., "Allergy alert: Peanuts detected in cafeteria."
-
-        <div class="alert alert-@alertType" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i> @alertMessage
-        </div>
-    }
-}
-else
-{
-    <div class="alert alert-info" role="alert">
-        <i class="fas fa-info-circle me-2"></i> No health alerts available.
-    </div>
-}
