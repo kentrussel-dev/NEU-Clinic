@@ -43,6 +43,9 @@ builder.Services.AddScoped<UserManager<Users>>();
 // ✅ Register ILogger for Dependency Injection
 builder.Services.AddLogging();
 
+// ✅ Register IConfiguration for Dependency Injection
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
@@ -142,4 +145,4 @@ async Task SeedRolesAndSuperAdminAsync(IServiceProvider serviceProvider)
             await userManager.AddToRoleAsync(superAdmin, "SuperAdmin");
         }
     }
-}
+}   

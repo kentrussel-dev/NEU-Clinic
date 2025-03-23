@@ -9,11 +9,19 @@ public class SendNotificationController : Controller
 {
     private readonly UserManager<Users> _userManager;
     private readonly AppDbContext _context;
+    private readonly EmailService _emailService;
+    private readonly IConfiguration _configuration;
 
-    public SendNotificationController(UserManager<Users> userManager, AppDbContext context)
+    public SendNotificationController(
+        UserManager<Users> userManager,
+        AppDbContext context,
+        EmailService emailService,
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _context = context;
+        _emailService = emailService;
+        _configuration = configuration;
     }
 
     // GET: SendNotification/Index
@@ -35,9 +43,23 @@ public class SendNotificationController : Controller
 
         // Get the current user (sender)
         var sender = await _userManager.GetUserAsync(User);
+        string senderEmail;
+
         if (sender == null)
         {
-            TempData["ErrorMessage"] = "Sender not found.";
+            // If sender is not found, use the SuperAdmin email from appsettings
+            senderEmail = _configuration["SuperAdmin:Email"];
+        }
+        else
+        {
+            senderEmail = sender.Email;
+        }
+
+        // Get the recipient user
+        var recipient = await _userManager.FindByIdAsync(userId);
+        if (recipient == null)
+        {
+            TempData["ErrorMessage"] = "Recipient not found.";
             return RedirectToAction("Index");
         }
 
@@ -45,7 +67,7 @@ public class SendNotificationController : Controller
         var notification = new Notification
         {
             UserId = userId,
-            SenderEmail = sender.Email, // Add the sender's email
+            SenderEmail = senderEmail, // Use the sender's email or SuperAdmin email
             Message = message,
             IsRead = false,
             CreatedAt = DateTime.UtcNow
@@ -54,7 +76,31 @@ public class SendNotificationController : Controller
         _context.Notifications.Add(notification);
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "Notification sent successfully!";
+        // Send an email to the recipient
+        try
+        {
+            var subject = "New Notification";
+            var emailMessage = $"You have received a new notification from {senderEmail}:<br><br>{message}";
+            await _emailService.SendEmailAsync(recipient.Email, subject, emailMessage);
+
+            TempData["SuccessMessage"] = "Notification sent successfully!";
+        }
+        catch (Exception ex)
+        {
+            // Log the full exception details for debugging
+            var errorMessage = $"Notification saved, but email could not be sent: {ex.Message}";
+
+            if (ex.InnerException != null)
+            {
+                errorMessage += $"\nInner Exception: {ex.InnerException.Message}";
+            }
+
+            errorMessage += $"\nStack Trace: {ex.StackTrace}";
+
+            // Store the full error message in TempData
+            TempData["ErrorMessage"] = errorMessage;
+        }
+
         return RedirectToAction("Index");
     }
 }

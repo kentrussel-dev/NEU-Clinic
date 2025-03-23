@@ -5,6 +5,7 @@ using WebApp.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApp.Data;
 
 namespace WebApp.Controllers
 {
@@ -13,14 +14,19 @@ namespace WebApp.Controllers
     {
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<Users> userManager;
+        private readonly AppDbContext _context;
 
         // Temporary dictionary to store role permissions (simulating database behavior)
         private static Dictionary<string, List<string>> tempRolePermissions = new();
 
-        public RolesManagementController(RoleManager<IdentityRole> roleManager, UserManager<Users> userManager)
+        public RolesManagementController(
+            RoleManager<IdentityRole> roleManager,
+            UserManager<Users> userManager,
+            AppDbContext context)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -72,11 +78,36 @@ namespace WebApp.Controllers
             {
                 // Remove role from temporary permissions storage
                 tempRolePermissions.Remove(role.Name);
+
+                // Send notification to the SuperAdmin
+                var superAdmin = await userManager.GetUsersInRoleAsync("SuperAdmin");
+                if (superAdmin.Any())
+                {
+                    foreach (var admin in superAdmin)
+                    {
+                        await SendSystemNotification(admin.Id, $"Role '{role.Name}' has been deleted.");
+                    }
+                }
+
                 return RedirectToAction("Index");
             }
 
             return BadRequest("Failed to delete role.");
         }
 
+        private async Task SendSystemNotification(string userId, string message)
+        {
+            var notification = new Notification
+            {
+                UserId = userId,
+                SenderEmail = "System", // Set the sender as "System"
+                Message = message,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+        }
     }
 }

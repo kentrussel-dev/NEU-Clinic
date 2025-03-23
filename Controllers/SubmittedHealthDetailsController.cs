@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 using WebApp.Data;
 using WebApp.Models;
 using WebApp.ViewModels;
@@ -16,11 +15,13 @@ namespace WebApp.Controllers
     {
         private readonly AppDbContext _context;
         private readonly UserManager<Users> _userManager;
+        private readonly EmailService _emailService;
 
-        public SubmittedHealthDetailsController(AppDbContext context, UserManager<Users> userManager)
+        public SubmittedHealthDetailsController(AppDbContext context, UserManager<Users> userManager, EmailService emailService)
         {
             _context = context;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index()
@@ -95,6 +96,9 @@ namespace WebApp.Controllers
                 _context.SubmittedHealthDetails.Add(submittedHealthDetails);
                 await _context.SaveChangesAsync();
 
+                // Send notification to the user
+                await SendSystemNotification(user.Id, "Your health details have been submitted successfully.");
+
                 TempData["Message"] = "Health records submitted successfully!";
                 TempData["MessageType"] = "success";
             }
@@ -105,28 +109,6 @@ namespace WebApp.Controllers
             }
 
             return RedirectToAction("Index", "Dashboard", new { activeTab = "healthrecords" });
-        }
-
-
-        private async Task<string> SaveFile(IFormFile file)
-        {
-            if (file == null || file.Length == 0) return null;
-
-            var uploadsFolder = Path.Combine("wwwroot", "uploads");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
-            var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return $"/uploads/{uniqueFileName}";
         }
 
         [HttpPost]
@@ -145,6 +127,9 @@ namespace WebApp.Controllers
             {
                 _context.SubmittedHealthDetails.Remove(record);
                 await _context.SaveChangesAsync();
+
+                // Send notification to the user
+                await SendSystemNotification(record.UserId, "Your health record has been deleted.");
 
                 TempData["Message"] = "Record deleted successfully!";
                 TempData["MessageType"] = "success";
@@ -213,6 +198,9 @@ namespace WebApp.Controllers
             _context.SubmittedHealthDetails.Update(record);
             await _context.SaveChangesAsync();
 
+            // Send notification to the user
+            await SendSystemNotification(record.UserId, $"{fieldName} in your health record has been approved.");
+
             TempData["RecordId"] = id; // Pass the record ID to TempData
 
             // Set TempData values
@@ -228,20 +216,6 @@ namespace WebApp.Controllers
                 status = "Approved",
                 fieldName
             });
-        }
-
-
-        private async Task UpdateHealthDetails(string userId, Action<HealthDetails> updateAction)
-        {
-            var healthDetails = await _context.HealthDetails.FirstOrDefaultAsync(h => h.UserId == userId);
-            if (healthDetails == null)
-            {
-                healthDetails = new HealthDetails { UserId = userId };
-                _context.HealthDetails.Add(healthDetails);
-            }
-
-            updateAction(healthDetails);
-            await _context.SaveChangesAsync();
         }
 
         [HttpPost]
@@ -272,7 +246,7 @@ namespace WebApp.Controllers
                     record.EmergencyContactPhoneStatus = "Rejected";
                     break;
                 case "XRayFile":
-                    record.XRayFileStatus = "Rejected"; 
+                    record.XRayFileStatus = "Rejected";
                     break;
                 case "MedicalCertificate":
                     record.MedicalCertificateStatus = "Rejected";
@@ -290,6 +264,9 @@ namespace WebApp.Controllers
             _context.SubmittedHealthDetails.Update(record);
             await _context.SaveChangesAsync();
 
+            // Send notification to the user
+            await SendSystemNotification(record.UserId, $"{fieldName} in your health record has been rejected.");
+
             TempData["Message"] = $"{fieldName} rejected successfully!";
             TempData["MessageType"] = "success";
             TempData["RecordId"] = id; // Pass the record ID to TempData
@@ -304,5 +281,62 @@ namespace WebApp.Controllers
             });
         }
 
+        private async Task UpdateHealthDetails(string userId, Action<HealthDetails> updateAction)
+        {
+            var healthDetails = await _context.HealthDetails.FirstOrDefaultAsync(h => h.UserId == userId);
+            if (healthDetails == null)
+            {
+                healthDetails = new HealthDetails { UserId = userId };
+                _context.HealthDetails.Add(healthDetails);
+            }
+
+            updateAction(healthDetails);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SendSystemNotification(string userId, string message)
+        {
+            var notification = new Notification
+            {
+                UserId = userId,
+                SenderEmail = "System", // Set the sender as "System"
+                Message = message,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+
+            // Send email notification
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                var subject = "System Notification";
+                var emailMessage = $"You have received a new system notification:<br><br>{message}";
+                await _emailService.SendEmailAsync(user.Email, subject, emailMessage);
+            }
+        }
+
+        private async Task<string> SaveFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0) return null;
+
+            var uploadsFolder = Path.Combine("wwwroot", "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/uploads/{uniqueFileName}";
+        }
     }
 }

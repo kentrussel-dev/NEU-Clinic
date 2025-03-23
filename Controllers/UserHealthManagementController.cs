@@ -22,19 +22,22 @@ namespace WebApp.Controllers
         private readonly AppDbContext _context;
         private readonly ILogger<UserHealthManagementController> _logger;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly EmailService _emailService; // Add EmailService
 
         public UserHealthManagementController(
             UserManager<Users> userManager,
             RoleManager<IdentityRole> roleManager,
             AppDbContext context,
             ILogger<UserHealthManagementController> logger,
-            IWebHostEnvironment hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            EmailService emailService) // Inject EmailService
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
             _logger = logger;
             _hostingEnvironment = hostingEnvironment;
+            _emailService = emailService; // Initialize EmailService
         }
 
         public async Task<IActionResult> Index()
@@ -145,6 +148,19 @@ namespace WebApp.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                // Send notification to the user
+                await SendSystemNotification(userId, "Your health details have been updated by the medical staff.");
+
+                // Send an email to the user
+                var recipient = await _userManager.FindByIdAsync(userId);
+                if (recipient != null)
+                {
+                    var subject = "Health Details Updated";
+                    var emailMessage = $"Your health details have been updated by the medical staff.<br><br>Details:<br>{medicalNotes}";
+                    await _emailService.SendEmailAsync(recipient.Email, subject, emailMessage);
+                }
+
                 TempData["SuccessMessage"] = "Health details updated successfully.";
             }
             catch (Exception ex)
@@ -173,6 +189,21 @@ namespace WebApp.Controllers
             }
 
             return "/uploads/" + uniqueFileName;
+        }
+
+        private async Task SendSystemNotification(string userId, string message)
+        {
+            var notification = new Notification
+            {
+                UserId = userId,
+                SenderEmail = "System", // Set the sender as "System"
+                Message = message,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
         }
     }
 }

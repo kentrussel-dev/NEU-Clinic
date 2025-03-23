@@ -12,12 +12,14 @@ public class ProfileController : Controller
     private readonly UserManager<Users> _userManager;
     private readonly AppDbContext _context;
     private readonly ILogger<ProfileController> _logger;
+    private readonly EmailService _emailService;
 
-    public ProfileController(UserManager<Users> userManager, AppDbContext context, ILogger<ProfileController> logger)
+    public ProfileController(UserManager<Users> userManager, AppDbContext context, ILogger<ProfileController> logger, EmailService emailService)
     {
         _userManager = userManager;
         _context = context;
         _logger = logger;
+        _emailService = emailService;
     }
 
     // New action to display the profile view for a specific user
@@ -96,6 +98,10 @@ public class ProfileController : Controller
         try
         {
             await _context.SaveChangesAsync();
+
+            // Send notification to the user
+            await SendSystemNotification(user.Id, "Your personal details have been updated successfully.");
+
             TempData["SuccessMessage"] = "Profile updated successfully.";
             _logger.LogInformation($"User {user.UserName} (ID: {user.Id}) updated their personal details.");
         }
@@ -106,5 +112,29 @@ public class ProfileController : Controller
         }
 
         return RedirectToAction("Index", "Dashboard", new { activeTab = "profile" });
+    }
+
+    private async Task SendSystemNotification(string userId, string message)
+    {
+        var notification = new Notification
+        {
+            UserId = userId,
+            SenderEmail = "System", // Set the sender as "System"
+            Message = message,
+            IsRead = false,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Notifications.Add(notification);
+        await _context.SaveChangesAsync();
+
+        // Send email notification
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user != null)
+        {
+            var subject = "System Notification";
+            var emailMessage = $"You have received a new system notification:<br><br>{message}";
+            await _emailService.SendEmailAsync(user.Email, subject, emailMessage);
+        }
     }
 }

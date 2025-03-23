@@ -10,6 +10,9 @@
 @{
     ViewData["Title"] = "Send Notification";
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+
+    // Filter out SuperAdmins from the list of users
+    var nonSuperAdmins = Model.Where(u => !UserManager.IsInRoleAsync(u, "SuperAdmin").Result).ToList();
 }
 
 <div class="container-fluid">
@@ -42,7 +45,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var user in Model)
+                @foreach (var user in nonSuperAdmins)
                 {
                     <tr>
                         <td class="align-middle">
