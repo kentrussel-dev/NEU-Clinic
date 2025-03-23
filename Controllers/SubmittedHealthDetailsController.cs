@@ -157,5 +157,152 @@ namespace WebApp.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveField(int id, string fieldName)
+        {
+            var record = await _context.SubmittedHealthDetails.FindAsync(id);
+            if (record == null)
+            {
+                return Json(new { success = false, message = "Record not found." });
+            }
+
+            switch (fieldName)
+            {
+                case "BloodType":
+                    record.BloodTypeStatus = "Approved";
+                    await UpdateHealthDetails(record.UserId, h => h.BloodType = record.BloodType);
+                    break;
+                case "Allergies":
+                    record.AllergiesStatus = "Approved";
+                    await UpdateHealthDetails(record.UserId, h => h.Allergies = record.Allergies);
+                    break;
+                case "EmergencyContactName":
+                    record.EmergencyContactNameStatus = "Approved";
+                    await UpdateHealthDetails(record.UserId, h => h.EmergencyContactName = record.EmergencyContactName);
+                    break;
+                case "EmergencyContactRelationship":
+                    record.EmergencyContactRelationshipStatus = "Approved";
+                    await UpdateHealthDetails(record.UserId, h => h.EmergencyContactRelationship = record.EmergencyContactRelationship);
+                    break;
+                case "EmergencyContactPhone":
+                    record.EmergencyContactPhoneStatus = "Approved";
+                    await UpdateHealthDetails(record.UserId, h => h.EmergencyContactPhone = record.EmergencyContactPhone);
+                    break;
+                case "XRayFile":
+                    record.XRayFileStatus = "Approved";
+                    await UpdateHealthDetails(record.UserId, h => h.XRayFileUrl = record.XRayFileUrl);
+                    break;
+                case "MedicalCertificate":
+                    record.MedicalCertificateStatus = "Approved";
+                    await UpdateHealthDetails(record.UserId, h => h.MedicalCertificateUrl = record.MedicalCertificateUrl);
+                    break;
+                case "VaccinationRecord":
+                    record.VaccinationRecordStatus = "Approved";
+                    await UpdateHealthDetails(record.UserId, h => h.VaccinationRecordUrl = record.VaccinationRecordUrl);
+                    break;
+                case "OtherDocuments":
+                    record.OtherDocumentsStatus = "Approved";
+                    await UpdateHealthDetails(record.UserId, h => h.OtherDocumentsUrl = record.OtherDocumentsUrl);
+                    break;
+                default:
+                    return Json(new { success = false, message = "Invalid field name." });
+            }
+
+            _context.SubmittedHealthDetails.Update(record);
+            await _context.SaveChangesAsync();
+
+            TempData["RecordId"] = id; // Pass the record ID to TempData
+
+            // Set TempData values
+            TempData["Message"] = $"{fieldName} approved successfully!";
+            TempData["MessageType"] = "success";
+
+            // Include TempData values in the JSON response
+            return Json(new
+            {
+                success = true,
+                message = TempData["Message"],
+                messageType = TempData["MessageType"],
+                status = "Approved",
+                fieldName
+            });
+        }
+
+
+        private async Task UpdateHealthDetails(string userId, Action<HealthDetails> updateAction)
+        {
+            var healthDetails = await _context.HealthDetails.FirstOrDefaultAsync(h => h.UserId == userId);
+            if (healthDetails == null)
+            {
+                healthDetails = new HealthDetails { UserId = userId };
+                _context.HealthDetails.Add(healthDetails);
+            }
+
+            updateAction(healthDetails);
+            await _context.SaveChangesAsync();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectField(int id, string fieldName)
+        {
+            var record = await _context.SubmittedHealthDetails.FindAsync(id);
+            if (record == null)
+            {
+                return Json(new { success = false, message = "Record not found." });
+            }
+
+            switch (fieldName)
+            {
+                case "BloodType":
+                    record.BloodTypeStatus = "Rejected";
+                    break;
+                case "Allergies":
+                    record.AllergiesStatus = "Rejected";
+                    break;
+                case "EmergencyContactName":
+                    record.EmergencyContactNameStatus = "Rejected";
+                    break;
+                case "EmergencyContactRelationship":
+                    record.EmergencyContactRelationshipStatus = "Rejected";
+                    break;
+                case "EmergencyContactPhone":
+                    record.EmergencyContactPhoneStatus = "Rejected";
+                    break;
+                case "XRayFile":
+                    record.XRayFileStatus = "Rejected";
+                    break;
+                case "MedicalCertificate":
+                    record.MedicalCertificateStatus = "Rejected";
+                    break;
+                case "VaccinationRecord":
+                    record.VaccinationRecordStatus = "Rejected";
+                    break;
+                case "OtherDocuments":
+                    record.OtherDocumentsStatus = "Rejected";
+                    break;
+                default:
+                    return Json(new { success = false, message = "Invalid field name." });
+            }
+
+            _context.SubmittedHealthDetails.Update(record);
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = $"{fieldName} rejected successfully!";
+            TempData["MessageType"] = "success";
+            TempData["RecordId"] = id; // Pass the record ID to TempData
+
+            return Json(new
+            {
+                success = true,
+                message = TempData["Message"],
+                messageType = TempData["MessageType"],
+                status = "Rejected",
+                fieldName
+            });
+        }
+
     }
 }

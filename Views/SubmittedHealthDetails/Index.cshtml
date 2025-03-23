@@ -40,6 +40,7 @@
 }
 
 <link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
+
 @if (isAdmin || isMedicalStaff || isSuperAdmin)
 {
     <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
@@ -84,7 +85,6 @@
                     </div>
                 </div>
 
-               
                 <div class="table-responsive">
                     <table class="table table-hover user-table text-center" id="recordTable">
                         <thead class="table-dark">
@@ -157,26 +157,35 @@
     var userRoles = userDictionary.ContainsKey(record.UserId) ? userDictionary[record.UserId].Roles : new List<string>();
 
     <!-- View Record Modal -->
-    <div class="modal fade" id="viewRecordModal-@record.Id" tabindex="-1" aria-labelledby="viewRecordModalLabel-@record.Id"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    <div class="modal fade" id="viewRecordModal-@record.Id" tabindex="-1" aria-labelledby="viewRecordModalLabel-@record.Id" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <!-- Modal Header with bg-primary -->
+                <!-- Modal Header -->
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="viewRecordModalLabel-@record.Id">Submitted Health Records</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <!-- Modal Body -->
                 <div class="modal-body">
+                    <!-- Status Message -->
+                    <div id="statusMessage-@record.Id">
+                        @if (TempData["Message"] != null && TempData["RecordId"]?.ToString() == record.Id.ToString())
+                        {
+                            <div class="alert alert-@TempData["MessageType"] alert-dismissible fade show" role="alert">
+                                @TempData["Message"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+                    </div>
+
                     <!-- User Profile Section -->
                     <div id="userProfileSection-@record.Id" class="mb-4 p-4 bg-white shadow-sm rounded">
                         <div class="d-flex align-items-center">
                             <!-- Profile Picture -->
                             <div class="flex-shrink-0">
                                 <img id="userProfilePic-@record.Id"
-                                    src="@(recordUser?.ProfilePictureUrl ?? "/images/default-profile.png")" 
+                                    src="@(recordUser?.ProfilePictureUrl ?? "/images/default-profile.png")"
                                     alt="Profile Picture"
                                     class="rounded-circle border"
                                     style="width: 90px; height: 90px; object-fit: cover;">
@@ -200,101 +209,72 @@
                         </div>
                     </div>
 
-                    <!-- Submitted Records Section -->
-                    <div id="submittedRecordsSection-@record.Id">
-                        <h4>Submitted Records</h4>
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Blood Type:</strong></label>
-                            <input type="text" class="form-control" value="@record.BloodType" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Allergies:</strong></label>
-                            <input type="text" class="form-control" value="@record.Allergies" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Emergency Contact Name:</strong></label>
-                            <input type="text" class="form-control" value="@record.EmergencyContactName" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Emergency Contact Relationship:</strong></label>
-                            <input type="text" class="form-control" value="@record.EmergencyContactRelationship" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Emergency Contact Phone:</strong></label>
-                            <input type="text" class="form-control" value="@record.EmergencyContactPhone" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Submission Date:</strong></label>
-                            <input type="text" class="form-control"
-                                value="@record.SubmissionDate.ToString("yyyy-MM-dd HH:mm")" readonly>
-                        </div>
+                    <!-- Submitted Records Table -->
+                    <div class="table-responsive">
+                        <table class="table table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Value</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var fields = new[]
+                                    {
+                                        new { Name = "BloodType", Label = "Blood Type", Value = record.BloodType, Status = record.BloodTypeStatus },
+                                        new { Name = "Allergies", Label = "Allergies", Value = record.Allergies, Status = record.AllergiesStatus },
+                                        new { Name = "EmergencyContactName", Label = "Emergency Contact Name", Value = record.EmergencyContactName, Status = record.EmergencyContactNameStatus },
+                                        new { Name = "EmergencyContactRelationship", Label = "Emergency Contact Relationship", Value = record.EmergencyContactRelationship, Status = record.EmergencyContactRelationshipStatus },
+                                        new { Name = "EmergencyContactPhone", Label = "Emergency Contact Phone", Value = record.EmergencyContactPhone, Status = record.EmergencyContactPhoneStatus },
+                                        new { Name = "XRayFile", Label = "X-Ray File", Value = !string.IsNullOrEmpty(record.XRayFileUrl) ? $"<a href='{record.XRayFileUrl}' target='_blank' class='text-decoration-none'>View X-Ray</a>" : "No file uploaded", Status = record.XRayFileStatus },
+                                        new { Name = "MedicalCertificate", Label = "Medical Certificate", Value = !string.IsNullOrEmpty(record.MedicalCertificateUrl) ? $"<a href='{record.MedicalCertificateUrl}' target='_blank' class='text-decoration-none'>View Medical Certificate</a>" : "No file uploaded", Status = record.MedicalCertificateStatus },
+                                        new { Name = "VaccinationRecord", Label = "Vaccination Record", Value = !string.IsNullOrEmpty(record.VaccinationRecordUrl) ? $"<a href='{record.VaccinationRecordUrl}' target='_blank' class='text-decoration-none'>View Vaccination Record</a>" : "No file uploaded", Status = record.VaccinationRecordStatus },
+                                        new { Name = "OtherDocuments", Label = "Other Documents", Value = !string.IsNullOrEmpty(record.OtherDocumentsUrl) ? $"<a href='{record.OtherDocumentsUrl}' target='_blank' class='text-decoration-none'>View Other Documents</a>" : "No file uploaded", Status = record.OtherDocumentsStatus }
+                                    };
+                                }
 
-                        <!-- Health Documents Section -->
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Health Documents:</strong></label>
+                                @foreach (var field in fields)
+                                {
+                                    var statusClass = field.Status == "Approved" ? "bg-success" :
+                                                      field.Status == "Rejected" ? "bg-danger" : "bg-secondary";
+                                    var isApproved = field.Status == "Approved";
+                                    var isRejected = field.Status == "Rejected";
 
-                            <div class="mb-2">
-                                <label class="form-label"><i class="bi bi-file-earmark-medical me-2"></i> X-Ray Results</label>
-                                @if (!string.IsNullOrEmpty(record.XRayFileUrl))
-                                {
-                                    <a href="@record.XRayFileUrl" target="_blank" class="form-control text-decoration-none">
-                                       X-Ray Result
-                                    </a>
+                                    <tr>
+                                        <td><strong>@field.Label</strong></td>
+                                        <td>@Html.Raw(field.Value)</td>
+                                        <td>
+                                            <span id="@(field.Name)Status-@record.Id" class="badge @statusClass">@field.Status</span>
+                                        </td>
+                                        <td>
+                                            <form asp-action="ApproveField" method="post" class="d-inline" onsubmit="submitForm(event, this, '#statusMessage-@record.Id')">
+                                                <input type="hidden" name="id" value="@record.Id" />
+                                                <input type="hidden" name="fieldName" value="@field.Name" />
+                                                <button type="submit" class="btn btn-success btn-sm" @(isApproved ? "disabled" : "")>
+                                                    <i class="fas fa-check"></i> Approve
+                                                </button>
+                                            </form>
+                                            <form asp-action="RejectField" method="post" class="d-inline" onsubmit="submitForm(event, this, '#statusMessage-@record.Id')">
+                                                <input type="hidden" name="id" value="@record.Id" />
+                                                <input type="hidden" name="fieldName" value="@field.Name" />
+                                                <button type="submit" class="btn btn-danger btn-sm" @(isRejected ? "disabled" : "")>
+                                                    <i class="fas fa-times"></i> Reject
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
                                 }
-                                else
-                                {
-                                    <input type="text" class="form-control text-muted" value="No X-Ray Results submitted" disabled>
-                                }
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label"><i class="bi bi-file-earmark-text me-2"></i> Medical Certificate</label>
-                                @if (!string.IsNullOrEmpty(record.MedicalCertificateUrl))
-                                {
-                                    <a href="@record.MedicalCertificateUrl" target="_blank" class="form-control text-decoration-none">
-                                        Medical Certificate
-                                    </a>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control text-muted" value="No Medical Certificate submitted" disabled>
-                                }
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label"><i class="bi bi-file-earmark-medical me-2"></i> Vaccination Record</label>
-                                @if (!string.IsNullOrEmpty(record.VaccinationRecordUrl))
-                                {
-                                    <a href="@record.VaccinationRecordUrl" target="_blank" class="form-control text-decoration-none">
-                                        Vaccination Record
-                                    </a>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control text-muted" value="No Vaccination Record submitted" disabled>
-                                }
-                            </div>
-
-                            <div>
-                                <label class="form-label"><i class="bi bi-file-earmark me-2"></i> Other Documents</label>
-                                @if (!string.IsNullOrEmpty(record.OtherDocumentsUrl))
-                                {
-                                    <a href="@record.OtherDocumentsUrl" target="_blank" class="form-control text-decoration-none">
-                                        Other Documents
-                                    </a>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control text-muted" value="No Other Documents submitted" disabled>
-                                }
-                            </div>
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 <!-- Modal Footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -322,14 +302,15 @@
                     <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Cancel</button>
                     <form asp-action="Delete" method="post" class="d-inline">
                         <input type="hidden" name="id" value="@record.Id" />
-                        <button type="submit" class="btn btn-danger btn-modern">Delete</button>
+                        <button type="submit" class="btn btn-danger btn-modern">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 }
-
 @section Scripts {
     <script>
         // Function to handle search
@@ -365,6 +346,51 @@
             let tbody = document.querySelector('#recordTable tbody');
             tbody.innerHTML = '';
             rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function submitForm(event, form, statusMessageSelector) {
+            event.preventDefault(); // Prevent default form submission
+
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the status message section
+                    document.querySelector(statusMessageSelector).innerHTML = `
+                        <div class="alert alert-${data.messageType} alert-dismissible fade show" role="alert">
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+
+                    // Update the status badge for the specific field
+                    const recordId = form.querySelector('input[name="id"]').value;
+                    const fieldName = form.querySelector('input[name="fieldName"]').value;
+                    const statusBadge = document.querySelector(`#${fieldName}Status-${recordId}`);
+
+                    if (statusBadge) {
+                        statusBadge.textContent = data.status; // Update the text
+                        statusBadge.className = `badge bg-${data.status === 'Approved' ? 'success' : 'danger'}`; // Update the class
+                    }
+                } else {
+                    // Display error message
+                    document.querySelector(statusMessageSelector).innerHTML = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+
+            return false;
         }
     </script>
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using WebApp.Models;
 
 namespace WebApp.Models
 {
@@ -18,5 +18,15 @@ namespace WebApp.Models
         public string? OtherDocumentsUrl { get; set; }
         public DateTime SubmissionDate { get; set; } = DateTime.UtcNow;
 
+        // Add status for each field
+        public string BloodTypeStatus { get; set; } = "Pending";
+        public string AllergiesStatus { get; set; } = "Pending";
+        public string EmergencyContactNameStatus { get; set; } = "Pending";
+        public string EmergencyContactRelationshipStatus { get; set; } = "Pending";
+        public string EmergencyContactPhoneStatus { get; set; } = "Pending";
+        public string XRayFileStatus { get; set; } = "Pending";
+        public string MedicalCertificateStatus { get; set; } = "Pending";
+        public string VaccinationRecordStatus { get; set; } = "Pending";
+        public string OtherDocumentsStatus { get; set; } = "Pending";
     }
 }

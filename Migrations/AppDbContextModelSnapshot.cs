@@ -335,20 +335,62 @@ namespace WebApp.Migrations
                     b.Property<string>("Allergies")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AllergiesStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
+
                     b.Property<string>("BloodType")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BloodTypeStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
 
                     b.Property<string>("EmergencyContactName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("EmergencyContactNameStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
+
                     b.Property<string>("EmergencyContactPhone")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContactPhoneStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
 
                     b.Property<string>("EmergencyContactRelationship")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("EmergencyContactRelationshipStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<string>("MedicalCertificateStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
+
                     b.Property<string>("MedicalCertificateUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OtherDocumentsStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
 
                     b.Property<string>("OtherDocumentsUrl")
                         .HasColumnType("nvarchar(max)");
@@ -360,8 +402,20 @@ namespace WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("VaccinationRecordStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
+
                     b.Property<string>("VaccinationRecordUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("XRayFileStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
 
                     b.Property<string>("XRayFileUrl")
                         .HasColumnType("nvarchar(max)");

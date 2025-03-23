@@ -42,6 +42,14 @@ namespace WebApp.Data
                 .HasForeignKey(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            foreach (var property in typeof(SubmittedHealthDetails).GetProperties()
+                .Where(p => p.Name.EndsWith("Status") && p.PropertyType == typeof(string)))
+            {
+                modelBuilder.Entity<SubmittedHealthDetails>()
+                    .Property(property.Name)
+                    .HasDefaultValue("Pending");
+            }
+
             // Configure the many-to-many relationship
             modelBuilder.Entity<RoomAppointmentUser>()
                 .HasKey(rau => new { rau.RoomAppointmentId, rau.UserId });
