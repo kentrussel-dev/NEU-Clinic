@@ -21,7 +21,7 @@
         }
     </a>
     <ul class="dropdown-menu dropdown-menu-end bg-primary border-0 shadow rounded-3 p-2"
-        aria-labelledby="notificationDropdown" style="min-width: 300px;">
+        aria-labelledby="notificationDropdown" style="min-width: 300px; max-height: 400px;">
         <!-- Notification Header -->
         <li>
             <span class="dropdown-header text-uppercase text-warning small">Notifications</span>
@@ -32,20 +32,22 @@
             var notifications = await NotificationService.GetNotificationsForUserAsync(user.Id);
             if (notifications.Any())
             {
-                foreach (var notification in notifications)
-                {
-                    <li>
-                        <a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2 @(notification.IsRead ? "" : "fw-bold")"
-                            asp-controller="Notifications" asp-action="Details" asp-route-id="@notification.Id">
-                            <i class="fas fa-bell"></i>
-                            <div>
-                                <p class="mb-0">@notification.Message</p>
-                                <small class="text-warning">From: @notification.SenderEmail</small>
-                                <small class="text-warning">@notification.CreatedAt.ToString("g")</small>
-                            </div>
-                        </a>
-                    </li>
-                }
+                <div style="max-height: 300px; overflow-y: auto;">
+                    @foreach (var notification in notifications)
+                    {
+                        <li>
+                            <a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2 @(notification.IsRead ? "" : "fw-bold")"
+                                asp-controller="Notifications" asp-action="Details" asp-route-id="@notification.Id">
+                                <i class="fas fa-bell"></i>
+                                <div>
+                                    <p class="mb-0">@notification.Message</p>
+                                    <small class="text-warning">From: @notification.SenderEmail</small>
+                                    <small class="text-warning">@notification.CreatedAt.ToString("g")</small>
+                                </div>
+                            </a>
+                        </li>
+                    }
+                </div>
             }
             else
             {
