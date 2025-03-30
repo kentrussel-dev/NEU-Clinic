@@ -1,0 +1,203 @@
+@using Microsoft.AspNetCore.Identity
+@model WebApp.Models.Users
+@inject UserManager<WebApp.Models.Users> UserManager
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Success/Error Messages -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Appointment Form Column -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>Create New Appointment</h5>
+                </div>
+                <div class="card-body">
+                    <form id="studentAppointmentForm">
+                        <input type="hidden" id="studentUserId" value="@UserManager.GetUserId(User)">
+                        
+                        <div class="mb-3">
+                            <label for="studentPurpose" class="form-label">Purpose *</label>
+                            <select class="form-select" id="studentPurpose" required>
+                                <option value="">Select Purpose</option>
+                                <option value="Consultation">Consultation</option>
+                                <option value="Document Request">Document Request</option>
+                                <option value="Academic Advising">Academic Advising</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a purpose</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="studentVisitationDate" class="form-label">Preferred Date & Time *</label>
+                            <input type="datetime-local" class="form-control" id="studentVisitationDate" required>
+                            <div class="invalid-feedback">Please select a date and time</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="studentNotes" class="form-label">Additional Notes</label>
+                            <textarea class="form-control" id="studentNotes" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" id="submitStudentAppointment">
+                                <span class="button-text">Submit Appointment</span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointment History Column -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>My Appointment History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="studentAppointmentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Purpose</th>
+                                    <th>Scheduled Date</th>
+                                    <th>Status</th>
+                                    <th>Created On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Will be populated by JavaScript -->
+                                <tr>
+                                    <td colspan="4" class="text-center">Loading appointments...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load student's appointments
+            function loadStudentAppointments() {
+                $.get('/PersonalAppointment/GetUserAppointments', function(response) {
+                    const tbody = $('#studentAppointmentsTable tbody');
+                    tbody.empty();
+                    
+                    if (!response.success) {
+                        tbody.append('<tr><td colspan="4" class="text-center text-danger">Error loading appointments</td></tr>');
+                        return;
+                    }
+                    
+                    if (response.appointments.length === 0) {
+                        tbody.append('<tr><td colspan="4" class="text-center">No appointments found</td></tr>');
+                    } else {
+                        response.appointments.forEach(appointment => {
+                            const row = `
+                                <tr>
+                                    <td>${appointment.purpose}</td>
+                                    <td>${appointment.visitationDate}</td>
+                                    <td><span class="badge bg-info">${appointment.status}</span></td>
+                                    <td>${appointment.createdAt}</td>
+                                </tr>
+                            `;
+                            tbody.append(row);
+                        });
+                    }
+                }).fail(function() {
+                    $('#studentAppointmentsTable tbody').html('<tr><td colspan="4" class="text-center text-danger">Failed to load appointments</td></tr>');
+                });
+            }
+
+            // Initial load
+            loadStudentAppointments();
+
+            // Handle form submission
+            $('#studentAppointmentForm').submit(function(e) {
+                e.preventDefault();
+                
+                const form = this;
+                const $btn = $('#submitStudentAppointment');
+                const $btnText = $btn.find('.button-text');
+                const $spinner = $btn.find('.spinner-border');
+                
+                // Client-side validation
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                const userId = $('#studentUserId').val();
+                const purpose = $('#studentPurpose').val();
+                const visitationDate = $('#studentVisitationDate').val();
+                const notes = $('#studentNotes').val();
+                
+                $btn.prop('disabled', true);
+                $btnText.text('Submitting...');
+                $spinner.removeClass('d-none');
+
+                const data = {
+                    UserId: userId,
+                    Purpose: purpose + (notes ? ` (${notes})` : ''),
+                    VisitationDate: visitationDate
+                };
+
+                $.ajax({
+                    url: '/PersonalAppointment/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        if (response.success) {
+                            $('#studentAppointmentForm')[0].reset();
+                            form.classList.remove('was-validated');
+                            loadStudentAppointments();
+                            // Show success message
+                            window.location.reload(); // Refresh to show TempData message
+                        } else {
+                            alert(response.message || 'Failed to create appointment');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Server error';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        alert(errorMessage);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                        $btnText.text('Submit Appointment');
+                        $spinner.addClass('d-none');
+                    }
+                });
+            });
+
+            // Set minimum datetime for appointment (current time + 1 hour)
+            const now = new Date();
+            now.setHours(now.getHours() + 1);
+            const minDateTime = now.toISOString().slice(0, 16);
+            $('#studentVisitationDate').attr('min', minDateTime);
+        });
+    </script>
+}

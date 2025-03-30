@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
@@ -102,7 +102,7 @@ namespace WebApp.Controllers
                 };
 
 
-                appointment.QRCodePath = "/temp/qrcode.png";
+                appointment.QRCodePath = "/temp/qrcode.png"; 
 
                 _context.RoomAppointments.Add(appointment);
                 await _context.SaveChangesAsync();

@@ -18,6 +18,7 @@ namespace WebApp.Data
 
         // New table for submitted health details
         public DbSet<SubmittedHealthDetails> SubmittedHealthDetails { get; set; }
+        public DbSet<PersonalAppointment> PersonalAppointments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -70,6 +71,11 @@ namespace WebApp.Data
                .HasOne(n => n.User)
                .WithMany(u => u.Notifications)
                .HasForeignKey(n => n.UserId);
+
+            modelBuilder.Entity<PersonalAppointment>()
+               .HasOne(a => a.User)
+               .WithMany()
+               .HasForeignKey(a => a.UserId);
         }
     }
 }

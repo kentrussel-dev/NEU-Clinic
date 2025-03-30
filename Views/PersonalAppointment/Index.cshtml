@@ -1,0 +1,422 @@
+@model List<PersonalAppointment>
+
+@{
+    ViewData["Title"] = "Personal Appointments";
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+}
+
+
+<link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
+
+<div class="container-fluid">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">Personal Appointments</h2>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Appointments...">
+        <button class="btn btn-success btn-modern" data-bs-toggle="modal" data-bs-target="#addAppointmentModal">
+            <i class="fas fa-plus"></i> Add Appointment
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover user-table text-center" id="appointmentTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Profile</th>
+                    <th>User</th>
+                    <th>Purpose</th>
+                    <th>Visitation Date</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var appointment in Model)
+                {
+                    <tr id="appointment-@appointment.Id">
+                        <td class="align-middle">
+                            <img src="@(appointment.User?.ProfilePictureUrl ?? "/default-profile.png")" 
+                                 class="rounded-circle" 
+                                 style="width: 40px; height: 40px;" 
+                                 alt="Profile Picture"
+                                 onerror="this.src='/default-profile.png'">
+                        </td>
+                        <td class="align-middle">
+                            <div>@(appointment.User?.UserName ?? "N/A")</div>
+                            <small class="text-muted">@(appointment.User?.FullName)</small>
+                        </td>
+                        <td class="align-middle">@appointment.Purpose</td>
+                        <td class="align-middle">@appointment.VisitationDate.ToString("g")</td>
+                        <td class="align-middle">@appointment.CreatedAt.ToString("g")</td>
+                        <td class="align-middle">
+                            <button type="button" class="btn btn-primary btn-sm edit-btn btn-modern" data-id="@appointment.Id">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm delete-btn btn-modern" data-id="@appointment.Id">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Appointment Modal -->
+<div class="modal fade" id="addAppointmentModal" tabindex="-1" aria-labelledby="addAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addAppointmentModalLabel">Add New Appointment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addAppointmentForm">
+                    <div class="mb-3">
+                        <label for="userId" class="form-label">User</label>
+                        <select class="form-select" id="userId" required>
+                            <option value="">Select User</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="purpose" class="form-label">Purpose</label>
+                        <input type="text" class="form-control" id="purpose" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="visitationDate" class="form-label">Visitation Date</label>
+                        <input type="datetime-local" class="form-control" id="visitationDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveAppointment">
+                    <span class="button-text">Save</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Appointment Modal -->
+<div class="modal fade" id="editAppointmentModal" tabindex="-1" aria-labelledby="editAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editAppointmentModalLabel">Edit Appointment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAppointmentForm">
+                    <input type="hidden" id="editAppointmentId">
+                    <div class="mb-3">
+                        <label for="editUserId" class="form-label">User</label>
+                        <select class="form-select" id="editUserId" required>
+                            <option value="">Select User</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPurpose" class="form-label">Purpose</label>
+                        <input type="text" class="form-control" id="editPurpose" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editVisitationDate" class="form-label">Visitation Date</label>
+                        <input type="datetime-local" class="form-control" id="editVisitationDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="updateAppointment">
+                    <span class="button-text">Update</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this appointment? This action cannot be undone.
+                <input type="hidden" id="deleteAppointmentId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <span class="button-text">Delete</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load users when add modal is shown
+            $('#addAppointmentModal').on('show.bs.modal', function() {
+                $.get('/PersonalAppointment/GetUsersWithProfile', function(users) {
+                    const select = $('#userId');
+                    select.empty();
+                    select.append('<option value="">Select User</option>');
+                    users.forEach(user => {
+                        select.append(`
+                            <option value="${user.id}" 
+                                    data-profile="${user.profilePictureUrl}"
+                                    data-fullname="${user.fullName || ''}">
+                                ${user.userName}
+                            </option>
+                        `);
+                    });
+                });
+            });
+
+            // Save new appointment
+            $('#saveAppointment').click(function() {
+                const $btn = $(this);
+                const $btnText = $btn.find('.button-text');
+                const $spinner = $btn.find('.spinner-border');
+                
+                const userId = $('#userId').val();
+                const selectedOption = $('#userId option:selected');
+                const purpose = $('#purpose').val();
+                const visitationDate = $('#visitationDate').val();
+                
+                if (!userId || !purpose || !visitationDate) {
+                    alert('Please fill all fields');
+                    return;
+                }
+
+                $btn.prop('disabled', true);
+                $btnText.text('Saving...');
+                $spinner.removeClass('d-none');
+
+                const data = {
+                    UserId: userId,
+                    Purpose: purpose,
+                    VisitationDate: visitationDate
+                };
+
+                $.ajax({
+                    url: '/PersonalAppointment/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        if (response.success) {
+                            const newRow = `
+                                <tr id="appointment-${response.appointment.id}">
+                                    <td class="align-middle">
+                                        <img src="${selectedOption.data('profile')}" 
+                                             class="rounded-circle" 
+                                             style="width: 40px; height: 40px;" 
+                                             alt="Profile Picture"
+                                             onerror="this.src='/default-profile.png'">
+                                    </td>
+                                    <td class="align-middle">
+                                        <div>${selectedOption.text()}</div>
+                                        <small class="text-muted">${selectedOption.data('fullname')}</small>
+                                    </td>
+                                    <td class="align-middle">${response.appointment.purpose}</td>
+                                    <td class="align-middle">${response.appointment.visitationDate}</td>
+                                    <td class="align-middle">${response.appointment.createdAt}</td>
+                                    <td class="align-middle">
+                                        <button class="btn btn-primary btn-sm edit-btn btn-modern" data-id="${response.appointment.id}">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn btn-danger btn-sm delete-btn btn-modern" data-id="${response.appointment.id}">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                            $('#appointmentTable tbody').append(newRow);
+                            $('#addAppointmentModal').modal('hide');
+                            $('#addAppointmentForm')[0].reset();
+                        } else {
+                            alert(response.message || 'Failed to save appointment');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.message || 'Server error');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                        $btnText.text('Save');
+                        $spinner.addClass('d-none');
+                    }
+                });
+            });
+
+            // Edit button click
+            $(document).on('click', '.edit-btn', function() {
+                const appointmentId = $(this).data('id');
+                loadAppointmentForEdit(appointmentId);
+            });
+
+            // Load appointment data for editing
+            function loadAppointmentForEdit(appointmentId) {
+                $.get('/PersonalAppointment/GetAppointment', { id: appointmentId }, function(response) {
+                    if (response.success) {
+                        $.get('/PersonalAppointment/GetUsersWithProfile', function(users) {
+                            const select = $('#editUserId');
+                            select.empty();
+                            select.append('<option value="">Select User</option>');
+                            users.forEach(user => {
+                                select.append(`
+                                    <option value="${user.id}" 
+                                            data-profile="${user.profilePictureUrl}"
+                                            data-fullname="${user.fullName || ''}"
+                                            ${user.id === response.appointment.userId ? 'selected' : ''}>
+                                        ${user.userName}
+                                    </option>
+                                `);
+                            });
+
+                            $('#editAppointmentId').val(response.appointment.id);
+                            $('#editPurpose').val(response.appointment.purpose);
+                            $('#editVisitationDate').val(response.appointment.visitationDate);
+                            
+                            $('#editAppointmentModal').modal('show');
+                        });
+                    } else {
+                        alert(response.message || 'Failed to load appointment');
+                    }
+                });
+            }
+
+            // Update appointment
+            $('#updateAppointment').click(function() {
+                const $btn = $(this);
+                const $btnText = $btn.find('.button-text');
+                const $spinner = $btn.find('.spinner-border');
+                
+                const appointmentId = $('#editAppointmentId').val();
+                const userId = $('#editUserId').val();
+                const selectedOption = $('#editUserId option:selected');
+                const purpose = $('#editPurpose').val();
+                const visitationDate = $('#editVisitationDate').val();
+                
+                if (!userId || !purpose || !visitationDate) {
+                    alert('Please fill all fields');
+                    return;
+                }
+
+                $btn.prop('disabled', true);
+                $btnText.text('Updating...');
+                $spinner.removeClass('d-none');
+
+                const data = {
+                    Id: appointmentId,
+                    UserId: userId,
+                    Purpose: purpose,
+                    VisitationDate: visitationDate
+                };
+
+                $.ajax({
+                    url: '/PersonalAppointment/Update',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        if (response.success) {
+                            const row = $(`#appointment-${response.appointment.id}`);
+                            row.find('td:eq(1) img').attr('src', response.appointment.profilePictureUrl);
+                            row.find('td:eq(2) div').text(response.appointment.userName);
+                            row.find('td:eq(2) small').text(response.appointment.fullName || '');
+                            row.find('td:eq(3)').text(response.appointment.purpose);
+                            row.find('td:eq(4)').text(response.appointment.visitationDate);
+                            
+                            $('#editAppointmentModal').modal('hide');
+                        } else {
+                            alert(response.message || 'Failed to update appointment');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.message || 'Server error');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                        $btnText.text('Update');
+                        $spinner.addClass('d-none');
+                    }
+                });
+            });
+
+            // Delete button click
+            $(document).on('click', '.delete-btn', function() {
+                const appointmentId = $(this).data('id');
+                $('#deleteAppointmentId').val(appointmentId);
+                $('#deleteConfirmationModal').modal('show');
+            });
+
+            // Confirm delete
+            $('#confirmDelete').click(function() {
+                const $btn = $(this);
+                const $btnText = $btn.find('.button-text');
+                const $spinner = $btn.find('.spinner-border');
+                const appointmentId = $('#deleteAppointmentId').val();
+
+                $btn.prop('disabled', true);
+                $btnText.text('Deleting...');
+                $spinner.removeClass('d-none');
+
+                $.ajax({
+                    url: '/PersonalAppointment/Delete',
+                    type: 'POST',
+                    data: { id: appointmentId },
+                    success: function(response) {
+                        if (response.success) {
+                            $(`#appointment-${appointmentId}`).remove();
+                            $('#deleteConfirmationModal').modal('hide');
+                        } else {
+                            alert(response.message || 'Failed to delete appointment');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.message || 'Server error');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                        $btnText.text('Delete');
+                        $spinner.addClass('d-none');
+                    }
+                });
+            });
+
+            // Search functionality
+            $('#searchInput').on('keyup', function() {
+                const search = this.value.toLowerCase();
+                $('#appointmentTable tbody tr').each(function() {
+                    const rowText = $(this).text().toLowerCase();
+                    $(this).toggle(rowText.includes(search));
+                });
+            });
+        });
+    </script>
+}

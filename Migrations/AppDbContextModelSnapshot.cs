@@ -263,6 +263,35 @@ namespace WebApp.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("WebApp.Models.PersonalAppointment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("VisitationDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PersonalAppointments");
+                });
+
             modelBuilder.Entity("WebApp.Models.PersonalDetails", b =>
                 {
                     b.Property<int>("Id")
@@ -603,6 +632,17 @@ namespace WebApp.Migrations
                 {
                     b.HasOne("WebApp.Models.Users", "User")
                         .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApp.Models.PersonalAppointment", b =>
+                {
+                    b.HasOne("WebApp.Models.Users", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
