@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Models;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace WebApp.Controllers
 {
@@ -12,13 +10,11 @@ namespace WebApp.Controllers
     {
         private readonly AppDbContext _context;
         private readonly UserManager<Users> _userManager;
-        private readonly EmailService _emailService;
 
-        public RoomAppointmentController(AppDbContext context, UserManager<Users> userManager, EmailService emailService)
+        public RoomAppointmentController(AppDbContext context, UserManager<Users> userManager)
         {
             _context = context;
             _userManager = userManager;
-            _emailService = emailService;
         }
 
         public IActionResult Index()
@@ -47,13 +43,9 @@ namespace WebApp.Controllers
             _context.RoomAppointments.Remove(appointment);
             await _context.SaveChangesAsync();
 
-            // Send notification to the creator of the appointment
-            await SendSystemNotification(appointment.CreatedBy, "Your room appointment has been deleted.");
-
             TempData["SuccessMessage"] = "Appointment deleted successfully.";
             return Ok();
         }
-
         [HttpPost]
         public async Task<IActionResult> UpdateAppointment(int appointmentId, string roomName, DateTime startTime, DateTime endTime, string description, int userLimit)
         {
@@ -82,9 +74,6 @@ namespace WebApp.Controllers
             _context.RoomAppointments.Update(appointment);
             await _context.SaveChangesAsync();
 
-            // Send notification to the creator of the appointment
-            await SendSystemNotification(appointment.CreatedBy, "Your room appointment has been updated.");
-
             TempData["SuccessMessage"] = "Appointment updated successfully.";
             return Ok();
         }
@@ -108,11 +97,12 @@ namespace WebApp.Controllers
                     EndTime = endTime,
                     Description = description,
                     UserLimit = userLimit,
-                    CreatedBy = user.Id, // Store the user ID instead of name
+                    CreatedBy = user.FullName ?? user.UserName,
                     CreatedOn = DateTime.UtcNow
                 };
 
-                appointment.QRCodePath = "/temp/qrcode.png"; // Temporary path
+
+                appointment.QRCodePath = "/temp/qrcode.png";
 
                 _context.RoomAppointments.Add(appointment);
                 await _context.SaveChangesAsync();
@@ -121,9 +111,6 @@ namespace WebApp.Controllers
 
                 _context.RoomAppointments.Update(appointment);
                 await _context.SaveChangesAsync();
-
-                // Send notification to the creator of the appointment
-                await SendSystemNotification(user.Id, "Your room appointment has been created successfully.");
 
                 TempData["SuccessMessage"] = "Appointment created successfully.";
                 return RedirectToAction(nameof(Index));
@@ -134,7 +121,6 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
-
         [HttpGet]
         public async Task<IActionResult> GetEnrolledUsers(int appointmentId)
         {
@@ -162,7 +148,6 @@ namespace WebApp.Controllers
 
             return Json(enrolledUsers);
         }
-
         [HttpPost]
         public async Task<IActionResult> AddUserToAppointment(int appointmentId, string userId)
         {
@@ -195,10 +180,6 @@ namespace WebApp.Controllers
                 });
 
                 await _context.SaveChangesAsync();
-
-                // Send notification to the user who was added
-                await SendSystemNotification(userId, "You have been added to a room appointment.");
-
                 TempData["SuccessMessage"] = "User added to appointment successfully.";
             }
             else
@@ -207,6 +188,39 @@ namespace WebApp.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet("RoomAppointment/GetStudents/{appointmentId}")]
+        public async Task<IActionResult> GetStudents(int appointmentId)
+        {
+            // Fetch all users with the "Student" role
+            var students = await _context.Users
+                .Where(u => _context.UserRoles
+                    .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
+                    .Any(ur => ur.UserId == u.Id && ur.Name == "Student"))
+                .Select(u => new Users // Map to the Users model
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    ProfilePictureUrl = u.ProfilePictureUrl,
+                    PersonalDetails = new PersonalDetails // Include PersonalDetails if needed
+                    {
+                        StudentId = u.PersonalDetails.StudentId
+                    }
+                })
+                .ToListAsync();
+
+            // Fetch the list of enrolled user IDs for the current appointment
+            var enrolledUserIds = await _context.RoomAppointmentUsers
+                .Where(rau => rau.RoomAppointmentId == appointmentId)
+                .Select(rau => rau.UserId)
+                .ToListAsync();
+
+            // Pass the enrolled user IDs to the view
+            ViewBag.EnrolledUserIds = enrolledUserIds;
+
+            return PartialView("_AddUserModal", students);
         }
 
         [HttpPost]
@@ -228,10 +242,6 @@ namespace WebApp.Controllers
             {
                 appointment.RoomAppointmentUsers.Remove(userToRemove);
                 await _context.SaveChangesAsync();
-
-                // Send notification to the user who was removed
-                await SendSystemNotification(userId, "You have been removed from a room appointment.");
-
                 TempData["SuccessMessage"] = "User removed from appointment successfully.";
             }
             else
@@ -263,13 +273,9 @@ namespace WebApp.Controllers
             _context.RoomAppointments.Update(appointment);
             await _context.SaveChangesAsync();
 
-            // Send notification to the creator of the appointment
-            await SendSystemNotification(appointment.CreatedBy, "The user limit for your room appointment has been updated.");
-
             TempData["SuccessMessage"] = "User limit updated successfully.";
             return Ok();
         }
-
         [HttpGet]
         public async Task<IActionResult> GetAppointmentDetails(int appointmentId)
         {
@@ -289,30 +295,6 @@ namespace WebApp.Controllers
             };
 
             return Json(result);
-        }
-
-        private async Task SendSystemNotification(string userId, string message)
-        {
-            var notification = new Notification
-            {
-                UserId = userId,
-                SenderEmail = "System", // Set the sender as "System"
-                Message = message,
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
-
-            // Send email notification
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
-            {
-                var subject = "System Notification";
-                var emailMessage = $"You have received a new system notification:<br><br>{message}";
-                await _emailService.SendEmailAsync(user.Email, subject, emailMessage);
-            }
         }
     }
 }
