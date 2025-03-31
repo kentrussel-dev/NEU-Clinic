@@ -250,17 +250,19 @@
                                             <span id="@(field.Name)Status-@record.Id" class="badge @statusClass">@field.Status</span>
                                         </td>
                                         <td>
-                                            <form asp-action="ApproveField" method="post" class="d-inline" onsubmit="submitForm(event, this, '#statusMessage-@record.Id')">
+                                            <form asp-action="ApproveField" method="post" class="d-inline" onsubmit="submitFormWithSpinner(event, this, '#statusMessage-@record.Id')">
                                                 <input type="hidden" name="id" value="@record.Id" />
                                                 <input type="hidden" name="fieldName" value="@field.Name" />
                                                 <button type="submit" class="btn btn-success btn-sm" @(isApproved ? "disabled" : "")>
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
                                                     <i class="fas fa-check"></i> Approve
                                                 </button>
                                             </form>
-                                            <form asp-action="RejectField" method="post" class="d-inline" onsubmit="submitForm(event, this, '#statusMessage-@record.Id')">
+                                            <form asp-action="RejectField" method="post" class="d-inline" onsubmit="submitFormWithSpinner(event, this, '#statusMessage-@record.Id')">
                                                 <input type="hidden" name="id" value="@record.Id" />
                                                 <input type="hidden" name="fieldName" value="@field.Name" />
                                                 <button type="submit" class="btn btn-danger btn-sm" @(isRejected ? "disabled" : "")>
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
                                                     <i class="fas fa-times"></i> Reject
                                                 </button>
                                             </form>
@@ -389,6 +391,62 @@
                 }
             })
             .catch(error => console.error('Error:', error));
+
+            return false;
+        }
+
+        function submitFormWithSpinner(event, form, statusMessageSelector) {
+            event.preventDefault(); // Prevent default form submission
+
+            const button = form.querySelector('button[type="submit"]');
+            const spinner = button.querySelector('.spinner-border');
+
+            // Disable the button and show the spinner
+            button.disabled = true;
+            spinner.style.display = 'inline-block';
+
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the status message section
+                    document.querySelector(statusMessageSelector).innerHTML = `
+                        <div class="alert alert-${data.messageType} alert-dismissible fade show" role="alert">
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+
+                    // Update the status badge for the specific field
+                    const recordId = form.querySelector('input[name="id"]').value;
+                    const fieldName = form.querySelector('input[name="fieldName"]').value;
+                    const statusBadge = document.querySelector(`#${fieldName}Status-${recordId}`);
+
+                    if (statusBadge) {
+                        statusBadge.textContent = data.status; // Update the text
+                        statusBadge.className = `badge bg-${data.status === 'Approved' ? 'success' : 'danger'}`; // Update the class
+                    }
+                } else {
+                    // Display error message
+                    document.querySelector(statusMessageSelector).innerHTML = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+                // Hide the spinner (optional, depending on whether you want to re-enable the button)
+                spinner.style.display = 'none';
+            });
 
             return false;
         }
