@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Models;
-
 namespace WebApp.Controllers
 {
     [Authorize]
@@ -12,11 +11,15 @@ namespace WebApp.Controllers
     {
         private readonly AppDbContext _context;
         private readonly UserManager<Users> _userManager;
+        private readonly EmailService _emailService;
+        private readonly NotificationService _notificationService;
 
-        public PersonalAppointmentController(AppDbContext context, UserManager<Users> userManager)
+        public PersonalAppointmentController(AppDbContext context, UserManager<Users> userManager, EmailService emailService, NotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
+            _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         public IActionResult Index()
@@ -128,6 +131,15 @@ namespace WebApp.Controllers
                 _context.PersonalAppointments.Add(appointment);
                 await _context.SaveChangesAsync();
 
+                // Send notification to the user
+                var notificationMessage = $"A new appointment has been created for you with the purpose: {dto.Purpose}.";
+                await _notificationService.NotifyUserAsync(dto.UserId, "System", notificationMessage);
+
+                // Send an email to the user
+                var subject = "New Appointment Created";
+                var emailMessage = $"Dear {user.FullName},<br><br>{notificationMessage}<br><br>Thank you.";
+                await _emailService.SendEmailAsync(user.Email, subject, emailMessage);
+
                 TempData["SuccessMessage"] = "Appointment created successfully";
                 return Json(new
                 {
@@ -204,6 +216,15 @@ namespace WebApp.Controllers
 
                 _context.PersonalAppointments.Update(appointment);
                 await _context.SaveChangesAsync();
+
+                // Send notification to the user
+                var notificationMessage = $"Your appointment has been updated with the purpose: {dto.Purpose}.";
+                await _notificationService.NotifyUserAsync(dto.UserId, "System", notificationMessage);
+
+                // Send an email to the user
+                var subject = "Appointment Updated";
+                var emailMessage = $"Dear {user.FullName},<br><br>{notificationMessage}<br><br>Thank you.";
+                await _emailService.SendEmailAsync(user.Email, subject, emailMessage);
 
                 TempData["SuccessMessage"] = "Appointment updated successfully";
                 return Json(new

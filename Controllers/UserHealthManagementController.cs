@@ -23,6 +23,7 @@ namespace WebApp.Controllers
         private readonly ILogger<UserHealthManagementController> _logger;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly EmailService _emailService; // Add EmailService
+        private readonly NotificationService _notificationService;
 
         public UserHealthManagementController(
             UserManager<Users> userManager,
@@ -30,7 +31,8 @@ namespace WebApp.Controllers
             AppDbContext context,
             ILogger<UserHealthManagementController> logger,
             IWebHostEnvironment hostingEnvironment,
-            EmailService emailService) // Inject EmailService
+            EmailService emailService, // Inject EmailService
+            NotificationService notificationService) // Inject NotificationService
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -38,6 +40,7 @@ namespace WebApp.Controllers
             _logger = logger;
             _hostingEnvironment = hostingEnvironment;
             _emailService = emailService; // Initialize EmailService
+            _notificationService = notificationService; // Initialize NotificationService
         }
 
         public async Task<IActionResult> Index()
@@ -150,14 +153,15 @@ namespace WebApp.Controllers
                 await _context.SaveChangesAsync();
 
                 // Send notification to the user
-                await SendSystemNotification(userId, "Your health details have been updated by the medical staff.");
+                var notificationMessage = "Your health details have been updated by the medical staff.";
+                await _notificationService.NotifyUserAsync(userId, "System", notificationMessage);
 
                 // Send an email to the user
                 var recipient = await _userManager.FindByIdAsync(userId);
                 if (recipient != null)
                 {
                     var subject = "Health Details Updated";
-                    var emailMessage = $"Your health details have been updated by the medical staff.<br><br>Details:<br>{medicalNotes}";
+                    var emailMessage = $"Dear {recipient.FullName},<br><br>{notificationMessage}<br><br>Thank you.";
                     await _emailService.SendEmailAsync(recipient.Email, subject, emailMessage);
                 }
 

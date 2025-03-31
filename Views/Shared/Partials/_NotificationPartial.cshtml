@@ -6,6 +6,16 @@
     var user = await userManager.GetUserAsync(User);
 }
 
+<style>
+    .truncate-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px; /* Adjust as needed */
+        display: block;
+    }
+</style>
+
 <!-- Notification Dropdown -->
 <div class="dropdown">
     <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle bg-primary p-2 rounded" href="#"
@@ -40,7 +50,7 @@
                                 asp-controller="Notifications" asp-action="Details" asp-route-id="@notification.Id">
                                 <i class="fas fa-bell"></i>
                                 <div>
-                                    <p class="mb-0">@notification.Message</p>
+                                    <p class="mb-0 truncate-text">@notification.Message</p>
                                     <small class="text-warning">From: @notification.SenderEmail</small>
                                     <small class="text-warning">@notification.CreatedAt.ToString("g")</small>
                                 </div>

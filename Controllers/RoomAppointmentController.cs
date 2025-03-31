@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Models;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace WebApp.Controllers
 {
@@ -10,11 +12,19 @@ namespace WebApp.Controllers
     {
         private readonly AppDbContext _context;
         private readonly UserManager<Users> _userManager;
+        private readonly EmailService _emailService;
+        private readonly NotificationService _notificationService;
 
-        public RoomAppointmentController(AppDbContext context, UserManager<Users> userManager)
+        public RoomAppointmentController(
+            AppDbContext context,
+            UserManager<Users> userManager,
+            EmailService emailService,
+            NotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
+            _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         public IActionResult Index()
@@ -46,6 +56,7 @@ namespace WebApp.Controllers
             TempData["SuccessMessage"] = "Appointment deleted successfully.";
             return Ok();
         }
+
         [HttpPost]
         public async Task<IActionResult> UpdateAppointment(int appointmentId, string roomName, DateTime startTime, DateTime endTime, string description, int userLimit)
         {
@@ -101,8 +112,7 @@ namespace WebApp.Controllers
                     CreatedOn = DateTime.UtcNow
                 };
 
-
-                appointment.QRCodePath = "/temp/qrcode.png"; 
+                appointment.QRCodePath = "/temp/qrcode.png";
 
                 _context.RoomAppointments.Add(appointment);
                 await _context.SaveChangesAsync();
@@ -121,6 +131,7 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> GetEnrolledUsers(int appointmentId)
         {
@@ -137,17 +148,18 @@ namespace WebApp.Controllers
             var enrolledUsers = appointment.RoomAppointmentUsers
                 .Select(rau => new
                 {
-                    userId = rau.UserId, // Include userId for removal
+                    userId = rau.UserId,
                     fullName = rau.User.FullName,
                     email = rau.User.Email,
-                    studentId = rau.User.PersonalDetails?.StudentId, // Assuming StudentId is in PersonalDetails
-                    profileUrl = $"/profile/{rau.User.Id}", // Example profile URL
-                    profilePictureUrl = rau.User.ProfilePictureUrl ?? "/default-profile.png" // Profile picture URL
+                    studentId = rau.User.PersonalDetails?.StudentId,
+                    profileUrl = $"/profile/{rau.User.Id}",
+                    profilePictureUrl = rau.User.ProfilePictureUrl ?? "/default-profile.png"
                 })
                 .ToList();
 
             return Json(enrolledUsers);
         }
+
         [HttpPost]
         public async Task<IActionResult> AddUserToAppointment(int appointmentId, string userId)
         {
@@ -163,14 +175,12 @@ namespace WebApp.Controllers
                 return Ok();
             }
 
-            // Check if the user limit has been reached
             if (appointment.RoomAppointmentUsers.Count >= appointment.UserLimit)
             {
                 TempData["ErrorMessage"] = "User limit has been reached.";
                 return Ok();
             }
 
-            // Check if the user is already enrolled
             if (!appointment.RoomAppointmentUsers.Any(rau => rau.UserId == userId))
             {
                 appointment.RoomAppointmentUsers.Add(new RoomAppointmentUser
@@ -180,6 +190,14 @@ namespace WebApp.Controllers
                 });
 
                 await _context.SaveChangesAsync();
+
+                var message = $"You have been added to the appointment '{appointment.RoomName}' scheduled from {appointment.StartTime} to {appointment.EndTime}.";
+                await _notificationService.NotifyUserAsync(userId, "System", message);
+
+                var subject = "Appointment Enrollment";
+                var emailMessage = $"Dear {user.FullName},<br><br>{message}<br><br>Thank you.";
+                await _emailService.SendEmailAsync(user.Email, subject, emailMessage);
+
                 TempData["SuccessMessage"] = "User added to appointment successfully.";
             }
             else
@@ -193,31 +211,28 @@ namespace WebApp.Controllers
         [HttpGet("RoomAppointment/GetStudents/{appointmentId}")]
         public async Task<IActionResult> GetStudents(int appointmentId)
         {
-            // Fetch all users with the "Student" role
             var students = await _context.Users
                 .Where(u => _context.UserRoles
                     .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
                     .Any(ur => ur.UserId == u.Id && ur.Name == "Student"))
-                .Select(u => new Users // Map to the Users model
+                .Select(u => new Users
                 {
                     Id = u.Id,
                     FullName = u.FullName,
                     Email = u.Email,
                     ProfilePictureUrl = u.ProfilePictureUrl,
-                    PersonalDetails = new PersonalDetails // Include PersonalDetails if needed
+                    PersonalDetails = new PersonalDetails
                     {
                         StudentId = u.PersonalDetails.StudentId
                     }
                 })
                 .ToListAsync();
 
-            // Fetch the list of enrolled user IDs for the current appointment
             var enrolledUserIds = await _context.RoomAppointmentUsers
                 .Where(rau => rau.RoomAppointmentId == appointmentId)
                 .Select(rau => rau.UserId)
                 .ToListAsync();
 
-            // Pass the enrolled user IDs to the view
             ViewBag.EnrolledUserIds = enrolledUserIds;
 
             return PartialView("_AddUserModal", students);
@@ -236,12 +251,23 @@ namespace WebApp.Controllers
                 return Ok();
             }
 
-            // Find the user to remove
             var userToRemove = appointment.RoomAppointmentUsers.FirstOrDefault(rau => rau.UserId == userId);
             if (userToRemove != null)
             {
                 appointment.RoomAppointmentUsers.Remove(userToRemove);
                 await _context.SaveChangesAsync();
+
+                var message = $"You have been removed from the appointment '{appointment.RoomName}' scheduled from {appointment.StartTime} to {appointment.EndTime}.";
+                await _notificationService.NotifyUserAsync(userId, "System", message);
+
+                var user = await _context.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    var subject = "Appointment Removal";
+                    var emailMessage = $"Dear {user.FullName},<br><br>{message}<br><br>Thank you.";
+                    await _emailService.SendEmailAsync(user.Email, subject, emailMessage);
+                }
+
                 TempData["SuccessMessage"] = "User removed from appointment successfully.";
             }
             else
@@ -262,7 +288,6 @@ namespace WebApp.Controllers
                 return Ok();
             }
 
-            // Ensure the new limit is not less than the current number of enrolled users
             if (userLimit < appointment.RoomAppointmentUsers.Count)
             {
                 TempData["ErrorMessage"] = "User limit cannot be less than the number of enrolled users.";
@@ -276,6 +301,7 @@ namespace WebApp.Controllers
             TempData["SuccessMessage"] = "User limit updated successfully.";
             return Ok();
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAppointmentDetails(int appointmentId)
         {

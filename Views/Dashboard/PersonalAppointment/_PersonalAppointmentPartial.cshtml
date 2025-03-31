@@ -21,6 +21,9 @@
                                 <option value="">Select Purpose</option>
                                 <option value="Consultation"><i class="fas fa-comments me-2"></i>Consultation</option>
                                 <option value="Document Request"><i class="fas fa-file-alt me-2"></i>Document Request</option>
+                                <option value="Follow-Up"><i class="fas fa-undo me-2"></i>Follow-Up</option>
+                                <option value="Medical Checkup"><i class="fas fa-stethoscope me-2"></i>Medical Checkup</option>
+                                <option value="Vaccination"><i class="fas fa-syringe me-2"></i>Vaccination</option>
                                 <option value="Other"><i class="fas fa-ellipsis-h me-2"></i>Other</option>
                             </select>
                         </div>
@@ -199,12 +202,19 @@
         // Handle form submission
         $('#appointmentForm').submit(function(e) {
             e.preventDefault();
-            
+
+            const submitButton = $(this).find('button[type="submit"]');
+            const originalButtonText = submitButton.html();
+
+            // Disable the button and show loading spinner
+            submitButton.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> Scheduling...');
+
             const purpose = $('#purpose').val();
             const date = $('#visitationDate').val();
-            
+
             if (!purpose || !date) {
                 showNotification('Please fill all required fields', 'danger');
+                submitButton.prop('disabled', false).html(originalButtonText); // Re-enable button
                 return;
             }
 
@@ -232,6 +242,10 @@
                 },
                 error: function(xhr) {
                     showNotification('Error: ' + (xhr.responseJSON?.message || xhr.responseText || 'Server error'), 'danger');
+                },
+                complete: function() {
+                    // Re-enable the button and restore original text
+                    submitButton.prop('disabled', false).html(originalButtonText);
                 }
             });
         });
