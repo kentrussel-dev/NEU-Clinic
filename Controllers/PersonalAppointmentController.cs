@@ -281,6 +281,8 @@ namespace WebApp.Controllers
             return Json(new { success = true, appointments });
         }
 
+
+
         public class AppointmentDto
         {
             public int Id { get; set; }

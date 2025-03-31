@@ -9,29 +9,29 @@
         <div class="col-md-4">
             <div class="card shadow-sm m-2">
                 <div class="card-header bg-primary text-white align-items-center d-flex justify-content-center">
-                    <h5>Schedule Personal Appointment</h5>
+                    <h5><i class="fas fa-calendar-plus me-2"></i>Schedule Personal Appointment</h5>
                 </div>
                 <div class="card-body">
                     <form id="appointmentForm">
                         <input type="hidden" id="userId" value="@UserManager.GetUserId(User)">
                         
                         <div class="mb-3">
-                            <label class="form-label">Purpose</label>
+                            <label class="form-label"><i class="fas fa-bullseye me-2"></i>Purpose</label>
                             <select class="form-select" id="purpose" required>
                                 <option value="">Select Purpose</option>
-                                <option value="Consultation">Consultation</option>
-                                <option value="Document Request">Document Request</option>
-                                <option value="Other">Other</option>
+                                <option value="Consultation"><i class="fas fa-comments me-2"></i>Consultation</option>
+                                <option value="Document Request"><i class="fas fa-file-alt me-2"></i>Document Request</option>
+                                <option value="Other"><i class="fas fa-ellipsis-h me-2"></i>Other</option>
                             </select>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Date & Time</label>
+                            <label class="form-label"><i class="far fa-calendar-alt me-2"></i>Date & Time</label>
                             <input type="datetime-local" class="form-control" id="visitationDate" required>
                         </div>
                         
                         <button type="submit" class="btn btn-primary w-100 btn-modern">
-                            <i class="fas fa-plus"></i> Schedule Appointment
+                            <i class="fas fa-calendar-check me-2"></i> Schedule Appointment
                         </button>
                     </form>
                 </div>
@@ -39,31 +39,73 @@
         </div>
 
         <!-- Right Column - Appointments Table -->
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">My Schedule Visitations</h5>
+        <div class="col-md-8 my-2">
+            <div class="table-responsive">
+                <table class="table table-hover user-table" id="appointmentsTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><i class="fas fa-bullseye me-2"></i>Purpose</th>
+                            <th><i class="far fa-calendar-alt me-2"></i>Visitation Date</th>
+                            <th><i class="fas fa-check-circle me-2"></i>Approval</th>
+                            <th><i class="fas fa-tasks me-2"></i>Progress</th>
+                            <th><i class="fas fa-clock me-2"></i>Created At</th>
+                            <th><i class="fas fa-cog me-2"></i>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Appointment Modal -->
+<div class="modal fade" id="viewAppointmentModal" tabindex="-1" aria-labelledby="viewAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="viewAppointmentModalLabel">
+                    <i class="fas fa-calendar-alt me-2"></i>Appointment Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong><i class="fas fa-bullseye me-2"></i>Purpose:</strong></p>
+                        <p id="modalPurpose"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong><i class="far fa-calendar-alt me-2"></i>Visitation Date:</strong></p>
+                        <p id="modalVisitationDate"></p>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover user-table" id="appointmentsTable">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Purpose</th>
-                                    <th>Visitation Date</th>
-                                    <th>Approval Status</th>
-                                    <th>Progress Status</th>
-                                    <th>Created At</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Will be filled by JavaScript -->
-                            </tbody>
-                        </table>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong><i class="fas fa-check-circle me-2"></i>Approval Status:</strong></p>
+                        <p id="modalApprovalStatus"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong><i class="fas fa-tasks me-2"></i>Progress Status:</strong></p>
+                        <p id="modalProgressStatus"></p>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-12">
+                        <p><strong><i class="fas fa-clock me-2"></i>Created At:</strong></p>
+                        <p id="modalCreatedAt"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+                <button type="button" class="btn btn-danger btn-modern" id="modalCancelBtn" style="display: none;">
+                    <i class="fas fa-times me-2"></i>Cancel Appointment
+                </button>
             </div>
         </div>
     </div>
@@ -78,6 +120,7 @@
             const notification = $(`
                 <div class="custom-notification alert alert-${type} alert-dismissible fade show position-fixed" 
                      style="top: 20px; right: 20px; z-index: 9999;">
+                    <i class="${type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'} me-2"></i>
                     ${message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -104,26 +147,48 @@
                                                  appointment.progressStatus === 'Ongoing' ? 'bg-primary' : 
                                                  appointment.progressStatus === 'Cancelled' ? 'bg-danger' : 'bg-secondary';
                         
+                        // Determine icons based on status
+                        const approvalIcon = appointment.approvalStatus === 'Approved' ? 'fa-check' :
+                                           appointment.approvalStatus === 'Rejected' ? 'fa-times' : 'fa-clock';
+                        
+                        const progressIcon = appointment.progressStatus === 'Done' ? 'fa-check-circle' :
+                                           appointment.progressStatus === 'Ongoing' ? 'fa-spinner' :
+                                           appointment.progressStatus === 'Cancelled' ? 'fa-ban' : 'fa-calendar';
+                        
+                        // Show cancel button if pending, view button otherwise
+                        const actionButton = appointment.approvalStatus === 'Pending' ? 
+                            `<button class="btn btn-danger btn-sm cancel-btn btn-modern" data-id="${appointment.id}">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>` : 
+                            `<button class="btn btn-primary btn-sm view-btn btn-modern" data-id="${appointment.id}">
+                                <i class="fas fa-eye"></i> View
+                            </button>`;
+                        
                         tbody.append(`
                             <tr data-id="${appointment.id}">
                                 <td class="align-middle">${appointment.purpose}</td>
                                 <td class="align-middle">${appointment.visitationDate}</td>
                                 <td class="align-middle">
                                     <span class="badge ${approvalBadgeClass}">
+                                        <i class="fas ${approvalIcon} me-1"></i>
                                         ${appointment.approvalStatus}
                                     </span>
                                 </td>
                                 <td class="align-middle">
                                     <span class="badge ${progressBadgeClass}">
+                                        <i class="fas ${progressIcon} me-1"></i>
                                         ${appointment.progressStatus}
                                     </span>
                                 </td>
                                 <td class="align-middle">${appointment.createdAt}</td>
+                                <td class="align-middle">
+                                    ${actionButton}
+                                </td>
                             </tr>
                         `);
                     });
                 } else {
-                    tbody.append('<tr><td colspan="5" class="text-center">No appointments found</td></tr>');
+                    tbody.append('<tr><td colspan="6" class="text-center">No appointments found</td></tr>');
                 }
             });
         }
@@ -167,6 +232,79 @@
                 },
                 error: function(xhr) {
                     showNotification('Error: ' + (xhr.responseJSON?.message || xhr.responseText || 'Server error'), 'danger');
+                }
+            });
+        });
+
+        // Handle view/cancel buttons in the table
+        $(document).on('click', '.view-btn, .cancel-btn', function() {
+            const appointmentId = $(this).data('id');
+            const isCancelButton = $(this).hasClass('cancel-btn');
+            
+            $.get(`/PersonalAppointment/GetAppointment?id=${appointmentId}`, function(response) {
+                if (response.success) {
+                    // Populate modal with appointment data
+                    $('#modalPurpose').text(response.appointment.purpose);
+                    $('#modalVisitationDate').text(new Date(response.appointment.visitationDate).toLocaleString());
+                    $('#modalCreatedAt').text(new Date(response.appointment.createdAt).toLocaleString());
+                    
+                    // Format approval status with badge
+                    const approvalBadgeClass = response.appointment.approvalStatus === 'Approved' ? 'badge bg-success' : 
+                                             response.appointment.approvalStatus === 'Rejected' ? 'badge bg-danger' : 'badge bg-warning';
+                    const approvalIcon = response.appointment.approvalStatus === 'Approved' ? 'fa-check' :
+                                        response.appointment.approvalStatus === 'Rejected' ? 'fa-times' : 'fa-clock';
+                    $('#modalApprovalStatus').html(`
+                        <span class="${approvalBadgeClass}">
+                            <i class="fas ${approvalIcon} me-1"></i>
+                            ${response.appointment.approvalStatus}
+                        </span>
+                    `);
+                    
+                    // Format progress status with badge
+                    const progressBadgeClass = response.appointment.progressStatus === 'Done' ? 'badge bg-success' : 
+                                             response.appointment.progressStatus === 'Ongoing' ? 'badge bg-primary' : 
+                                             response.appointment.progressStatus === 'Cancelled' ? 'badge bg-danger' : 'badge bg-secondary';
+                    const progressIcon = response.appointment.progressStatus === 'Done' ? 'fa-check-circle' :
+                                       response.appointment.progressStatus === 'Ongoing' ? 'fa-spinner' :
+                                       response.appointment.progressStatus === 'Cancelled' ? 'fa-ban' : 'fa-calendar';
+                    $('#modalProgressStatus').html(`
+                        <span class="${progressBadgeClass}">
+                            <i class="fas ${progressIcon} me-1"></i>
+                            ${response.appointment.progressStatus}
+                        </span>
+                    `);
+                    
+                    // Replace the button visibility logic with:
+                    if (response.appointment.approvalStatus === 'Pending') {
+                        $('#modalCancelBtn').show().off('click').on('click', function() {
+                            if (confirm('Are you sure you want to cancel this appointment?')) {
+                                $.ajax({
+                                    url: '/PersonalAppointment/Delete',
+                                    type: 'POST',
+                                    data: { id: appointmentId },
+                                    success: function(deleteResponse) {
+                                        if (deleteResponse.success) {
+                                            $('#viewAppointmentModal').modal('hide');
+                                            loadAppointments();
+                                            showNotification('Appointment cancelled successfully!');
+                                        } else {
+                                            showNotification(deleteResponse.message || 'Failed to cancel appointment', 'danger');
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        showNotification('Error: ' + (xhr.responseJSON?.message || xhr.responseText || 'Server error'), 'danger');
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        $('#modalCancelBtn').hide();
+                    }
+                    
+                    // Show the modal
+                    $('#viewAppointmentModal').modal('show');
+                } else {
+                    showNotification(response.message || 'Failed to load appointment details', 'danger');
                 }
             });
         });

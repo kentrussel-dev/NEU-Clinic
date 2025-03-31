@@ -20,7 +20,7 @@ namespace WebApp.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Add these new properties
-        public string ApprovalStatus { get; set; } = "Pending"; // Default to Pending
+        public string ApprovalStatus { get; set; } = "Pending"; // Default to Pendingz
         public string ProgressStatus { get; set; } = "Upcoming"; // Default to Upcoming
     }
 }
