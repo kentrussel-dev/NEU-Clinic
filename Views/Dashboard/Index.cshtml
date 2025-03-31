@@ -94,13 +94,14 @@
                     data-tab="appointments">
                     <i class="fas fa-calendar-alt"></i><span class="sidebar-text ms-2">Available Appointments</span>
                 </a>
+                <!-- Add Personal Appointments Tab -->
+                <a href="@Url.Action("Index", "Dashboard", new { activeTab = "personalappointments" })"
+                    class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "personalappointments" ? "active" : "")"
+                    data-tab="personalappointments">
+                    <i class="fas fa-calendar-check"></i><span class="sidebar-text ms-2">Personal Appointments</span>
+                </a>
             }
-            <!-- Add Personal Appointments Tab -->
-            <a href="@Url.Action("Index", "Dashboard", new { activeTab = "personalappointments" })"
-                class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "personalappointments" ? "active" : "")"
-                data-tab="personalappointments">
-                <i class="fas fa-calendar-check"></i><span class="sidebar-text ms-2">Personal Appointments</span>
-            </a>
+            
         </div>
     </div>
 
@@ -199,13 +200,15 @@
                     style="display: @(activeTab == "appointments" ? "block" : "none");">
                     @await Html.PartialAsync("Partials/_AvailableAppointmentsPartial", Model)
                 </div>
+                 <!-- Personal Appointments Content -->
+                <div id="personalappointments-content" class="tab-content @(activeTab == "personalappointments" ? "active" : "")"
+                    style="display: @(activeTab == "personalappointments" ? "block" : "none");">
+                    @await Html.PartialAsync("PersonalAppointment/_PersonalAppointmentPartial")
+                </div>
             }
 
-            <!-- Personal Appointments Content -->
-            <div id="personalappointments-content" class="tab-content @(activeTab == "personalappointments" ? "active" : "")"
-                style="display: @(activeTab == "personalappointments" ? "block" : "none");">
-                @await Html.PartialAsync("PersonalAppointment/_PersonalAppointmentPartial")
-            </div>
+           
+            
         </div>
     </div>
 </div>

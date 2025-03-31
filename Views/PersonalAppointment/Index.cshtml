@@ -5,7 +5,6 @@
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
 }
 
-
 <link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
 
 <div class="container-fluid">
@@ -23,7 +22,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
-    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">Personal Appointments</h2>
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">Personal Appointments History</h2>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <input type="text" id="searchInput" class="form-control w-25" placeholder="Search Appointments...">
@@ -40,6 +39,8 @@
                     <th>User</th>
                     <th>Purpose</th>
                     <th>Visitation Date</th>
+                    <th>Approval Status</th>
+                    <th>Progress Status</th>
                     <th>Created At</th>
                     <th>Action</th>
                 </tr>
@@ -61,6 +62,21 @@
                         </td>
                         <td class="align-middle">@appointment.Purpose</td>
                         <td class="align-middle">@appointment.VisitationDate.ToString("g")</td>
+                        <td class="align-middle">
+                            <span class="badge 
+                                @(appointment.ApprovalStatus == "Approved" ? "bg-success" :
+                                  appointment.ApprovalStatus == "Rejected" ? "bg-danger" : "bg-warning")">
+                                @appointment.ApprovalStatus
+                            </span>
+                        </td>
+                        <td class="align-middle">
+                            <span class="badge 
+                                @(appointment.ProgressStatus == "Done" ? "bg-success" :
+                                  appointment.ProgressStatus == "Ongoing" ? "bg-primary" :
+                                  appointment.ProgressStatus == "Cancelled" ? "bg-danger" : "bg-secondary")">
+                                @appointment.ProgressStatus
+                            </span>
+                        </td>
                         <td class="align-middle">@appointment.CreatedAt.ToString("g")</td>
                         <td class="align-middle">
                             <button type="button" class="btn btn-primary btn-sm edit-btn btn-modern" data-id="@appointment.Id">
@@ -101,6 +117,23 @@
                         <label for="visitationDate" class="form-label">Visitation Date</label>
                         <input type="datetime-local" class="form-control" id="visitationDate" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="approvalStatus" class="form-label">Approval Status</label>
+                        <select class="form-select" id="approvalStatus" required>
+                            <option value="Pending" selected>Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="progressStatus" class="form-label">Progress Status</label>
+                        <select class="form-select" id="progressStatus" required>
+                            <option value="Upcoming" selected>Upcoming</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="Done">Done</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -138,6 +171,23 @@
                     <div class="mb-3">
                         <label for="editVisitationDate" class="form-label">Visitation Date</label>
                         <input type="datetime-local" class="form-control" id="editVisitationDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editApprovalStatus" class="form-label">Approval Status</label>
+                        <select class="form-select" id="editApprovalStatus" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProgressStatus" class="form-label">Progress Status</label>
+                        <select class="form-select" id="editProgressStatus" required>
+                            <option value="Upcoming">Upcoming</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="Done">Done</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -206,8 +256,10 @@
                 const selectedOption = $('#userId option:selected');
                 const purpose = $('#purpose').val();
                 const visitationDate = $('#visitationDate').val();
+                const approvalStatus = $('#approvalStatus').val();
+                const progressStatus = $('#progressStatus').val();
                 
-                if (!userId || !purpose || !visitationDate) {
+                if (!userId || !purpose || !visitationDate || !approvalStatus || !progressStatus) {
                     alert('Please fill all fields');
                     return;
                 }
@@ -219,7 +271,9 @@
                 const data = {
                     UserId: userId,
                     Purpose: purpose,
-                    VisitationDate: visitationDate
+                    VisitationDate: visitationDate,
+                    ApprovalStatus: approvalStatus,
+                    ProgressStatus: progressStatus
                 };
 
                 $.ajax({
@@ -244,6 +298,19 @@
                                     </td>
                                     <td class="align-middle">${response.appointment.purpose}</td>
                                     <td class="align-middle">${response.appointment.visitationDate}</td>
+                                    <td class="align-middle">
+                                        <span class="badge ${response.appointment.approvalStatus === 'Approved' ? 'bg-success' : 
+                                                             response.appointment.approvalStatus === 'Rejected' ? 'bg-danger' : 'bg-warning'}">
+                                            ${response.appointment.approvalStatus}
+                                        </span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="badge ${response.appointment.progressStatus === 'Done' ? 'bg-success' : 
+                                                             response.appointment.progressStatus === 'Ongoing' ? 'bg-primary' : 
+                                                             response.appointment.progressStatus === 'Cancelled' ? 'bg-danger' : 'bg-secondary'}">
+                                            ${response.appointment.progressStatus}
+                                        </span>
+                                    </td>
                                     <td class="align-middle">${response.appointment.createdAt}</td>
                                     <td class="align-middle">
                                         <button class="btn btn-primary btn-sm edit-btn btn-modern" data-id="${response.appointment.id}">
@@ -301,6 +368,8 @@
                             $('#editAppointmentId').val(response.appointment.id);
                             $('#editPurpose').val(response.appointment.purpose);
                             $('#editVisitationDate').val(response.appointment.visitationDate);
+                            $('#editApprovalStatus').val(response.appointment.approvalStatus);
+                            $('#editProgressStatus').val(response.appointment.progressStatus);
                             
                             $('#editAppointmentModal').modal('show');
                         });
@@ -321,8 +390,10 @@
                 const selectedOption = $('#editUserId option:selected');
                 const purpose = $('#editPurpose').val();
                 const visitationDate = $('#editVisitationDate').val();
+                const approvalStatus = $('#editApprovalStatus').val();
+                const progressStatus = $('#editProgressStatus').val();
                 
-                if (!userId || !purpose || !visitationDate) {
+                if (!userId || !purpose || !visitationDate || !approvalStatus || !progressStatus) {
                     alert('Please fill all fields');
                     return;
                 }
@@ -335,7 +406,9 @@
                     Id: appointmentId,
                     UserId: userId,
                     Purpose: purpose,
-                    VisitationDate: visitationDate
+                    VisitationDate: visitationDate,
+                    ApprovalStatus: approvalStatus,
+                    ProgressStatus: progressStatus
                 };
 
                 $.ajax({
@@ -346,11 +419,20 @@
                     success: function(response) {
                         if (response.success) {
                             const row = $(`#appointment-${response.appointment.id}`);
-                            row.find('td:eq(1) img').attr('src', response.appointment.profilePictureUrl);
-                            row.find('td:eq(2) div').text(response.appointment.userName);
-                            row.find('td:eq(2) small').text(response.appointment.fullName || '');
-                            row.find('td:eq(3)').text(response.appointment.purpose);
-                            row.find('td:eq(4)').text(response.appointment.visitationDate);
+                            row.find('td:eq(0) img').attr('src', response.appointment.profilePictureUrl);
+                            row.find('td:eq(1) div').text(response.appointment.userName);
+                            row.find('td:eq(1) small').text(response.appointment.fullName || '');
+                            row.find('td:eq(2)').text(response.appointment.purpose);
+                            row.find('td:eq(3)').text(response.appointment.visitationDate);
+                            row.find('td:eq(4) span').text(response.appointment.approvalStatus)
+                                .removeClass('bg-success bg-danger bg-warning')
+                                .addClass(response.appointment.approvalStatus === 'Approved' ? 'bg-success' : 
+                                         response.appointment.approvalStatus === 'Rejected' ? 'bg-danger' : 'bg-warning');
+                            row.find('td:eq(5) span').text(response.appointment.progressStatus)
+                                .removeClass('bg-success bg-primary bg-danger bg-secondary')
+                                .addClass(response.appointment.progressStatus === 'Done' ? 'bg-success' : 
+                                         response.appointment.progressStatus === 'Ongoing' ? 'bg-primary' : 
+                                         response.appointment.progressStatus === 'Cancelled' ? 'bg-danger' : 'bg-secondary');
                             
                             $('#editAppointmentModal').modal('hide');
                         } else {

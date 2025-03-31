@@ -72,6 +72,8 @@ namespace WebApp.Controllers
                     userId = appointment.UserId,
                     purpose = appointment.Purpose,
                     visitationDate = appointment.VisitationDate.ToString("yyyy-MM-ddTHH:mm"),
+                    approvalStatus = appointment.ApprovalStatus,
+                    progressStatus = appointment.ProgressStatus,
                     createdAt = appointment.CreatedAt
                 }
             });
@@ -118,6 +120,8 @@ namespace WebApp.Controllers
                     UserId = dto.UserId,
                     Purpose = dto.Purpose,
                     VisitationDate = visitationDate,
+                    ApprovalStatus = dto.ApprovalStatus ?? "Pending",
+                    ProgressStatus = dto.ProgressStatus ?? "Upcoming",
                     CreatedAt = DateTime.Now
                 };
 
@@ -132,8 +136,12 @@ namespace WebApp.Controllers
                     {
                         id = appointment.Id,
                         userName = user.UserName,
+                        fullName = user.FullName,
+                        profilePictureUrl = user.ProfilePictureUrl ?? "/default-profile.png",
                         purpose = appointment.Purpose,
                         visitationDate = appointment.VisitationDate.ToString("g"),
+                        approvalStatus = appointment.ApprovalStatus,
+                        progressStatus = appointment.ProgressStatus,
                         createdAt = appointment.CreatedAt.ToString("g")
                     }
                 });
@@ -191,6 +199,8 @@ namespace WebApp.Controllers
                 appointment.UserId = dto.UserId;
                 appointment.Purpose = dto.Purpose;
                 appointment.VisitationDate = visitationDate;
+                appointment.ApprovalStatus = dto.ApprovalStatus ?? appointment.ApprovalStatus;
+                appointment.ProgressStatus = dto.ProgressStatus ?? appointment.ProgressStatus;
 
                 _context.PersonalAppointments.Update(appointment);
                 await _context.SaveChangesAsync();
@@ -207,6 +217,8 @@ namespace WebApp.Controllers
                         profilePictureUrl = user.ProfilePictureUrl ?? "/default-profile.png",
                         purpose = appointment.Purpose,
                         visitationDate = appointment.VisitationDate.ToString("g"),
+                        approvalStatus = appointment.ApprovalStatus,
+                        progressStatus = appointment.ProgressStatus,
                         createdAt = appointment.CreatedAt.ToString("g")
                     }
                 });
@@ -261,7 +273,8 @@ namespace WebApp.Controllers
                     purpose = a.Purpose,
                     visitationDate = a.VisitationDate.ToString("g"),
                     createdAt = a.CreatedAt.ToString("g"),
-                    status = "Scheduled" // Static status for now
+                    approvalStatus = a.ApprovalStatus,
+                    progressStatus = a.ProgressStatus
                 })
                 .ToListAsync();
 
@@ -274,6 +287,8 @@ namespace WebApp.Controllers
             public string UserId { get; set; }
             public string Purpose { get; set; }
             public string VisitationDate { get; set; }
+            public string ApprovalStatus { get; set; }
+            public string ProgressStatus { get; set; }
         }
     }
 }
