@@ -70,7 +70,7 @@
                         <td class="align-middle">
                             <span class="badge 
                                 @(appointment.ApprovalStatus == "Approved" ? "bg-success" :
-                                  appointment.ApprovalStatus == "Rejected" ? "bg-danger" : "bg-warning")">
+                                  appointment.ApprovalStatus == "Rejected" ? "bg-danger" : "bg-warning") status-badge">
                                 @if(appointment.ApprovalStatus == "Approved") {
                                     <i class="fas fa-check me-1"></i>
                                 } else if(appointment.ApprovalStatus == "Rejected") {
@@ -85,7 +85,7 @@
                             <span class="badge 
                                 @(appointment.ProgressStatus == "Done" ? "bg-success" :
                                   appointment.ProgressStatus == "Ongoing" ? "bg-primary" :
-                                  appointment.ProgressStatus == "Cancelled" ? "bg-danger" : "bg-secondary")">
+                                  appointment.ProgressStatus == "Cancelled" ? "bg-danger" : "bg-secondary") status-badge">
                                 @if(appointment.ProgressStatus == "Done") {
                                     <i class="fas fa-check-circle me-1"></i>
                                 } else if(appointment.ProgressStatus == "Ongoing") {
@@ -347,7 +347,7 @@
                                     <td class="align-middle">${response.appointment.visitationDate}</td>
                                     <td class="align-middle">
                                         <span class="badge ${response.appointment.approvalStatus === 'Approved' ? 'bg-success' : 
-                                                             response.appointment.approvalStatus === 'Rejected' ? 'bg-danger' : 'bg-warning'}">
+                                                             response.appointment.approvalStatus === 'Rejected' ? 'bg-danger' : 'bg-warning'} status-badge">
                                             ${response.appointment.approvalStatus === 'Approved' ? '<i class="fas fa-check me-1"></i>' : 
                                               response.appointment.approvalStatus === 'Rejected' ? '<i class="fas fa-times me-1"></i>' : '<i class="fas fa-clock me-1"></i>'}
                                             ${response.appointment.approvalStatus}
@@ -356,7 +356,7 @@
                                     <td class="align-middle">
                                         <span class="badge ${response.appointment.progressStatus === 'Done' ? 'bg-success' : 
                                                              response.appointment.progressStatus === 'Ongoing' ? 'bg-primary' : 
-                                                             response.appointment.progressStatus === 'Cancelled' ? 'bg-danger' : 'bg-secondary'}">
+                                                             response.appointment.progressStatus === 'Cancelled' ? 'bg-danger' : 'bg-secondary'} status-badge">
                                             ${response.appointment.progressStatus === 'Done' ? '<i class="fas fa-check-circle me-1"></i>' : 
                                               response.appointment.progressStatus === 'Ongoing' ? '<i class="fas fa-spinner me-1"></i>' : 
                                               response.appointment.progressStatus === 'Cancelled' ? '<i class="fas fa-ban me-1"></i>' : '<i class="fas fa-calendar me-1"></i>'}

@@ -44,7 +44,7 @@
         <!-- Right Column - Appointments Table -->
         <div class="col-md-8 my-2">
             <div class="table-responsive">
-                <table class="table table-hover user-table" id="appointmentsTable">
+                <table class="table table-hover user-table text-sm" id="appointmentsTable">
                     <thead class="table-dark">
                         <tr>
                             <th><i class="fas fa-bullseye me-2"></i>Purpose</th>
@@ -114,6 +114,12 @@
     </div>
 </div>
 
+<style>
+    .text-sm {
+        font-size: 0.875rem; /* Smaller font size */
+    }
+</style>
+
 <script>
     $(document).ready(function() {
         // Notification function
@@ -172,13 +178,13 @@
                                 <td class="align-middle">${appointment.purpose}</td>
                                 <td class="align-middle">${appointment.visitationDate}</td>
                                 <td class="align-middle">
-                                    <span class="badge ${approvalBadgeClass}">
+                                    <span class="badge ${approvalBadgeClass} status-badge">
                                         <i class="fas ${approvalIcon} me-1"></i>
                                         ${appointment.approvalStatus}
                                     </span>
                                 </td>
                                 <td class="align-middle">
-                                    <span class="badge ${progressBadgeClass}">
+                                    <span class="badge ${progressBadgeClass} status-badge">
                                         <i class="fas ${progressIcon} me-1"></i>
                                         ${appointment.progressStatus}
                                     </span>

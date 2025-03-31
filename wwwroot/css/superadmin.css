@@ -46,6 +46,11 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.btn-modern.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
 .btn-primary.btn-modern {
     background-color: #007bff;
     color: #fff;
@@ -74,6 +79,12 @@
 .btn-danger.btn-modern:hover {
     background-color: #c82333;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.status-badge {
+    width: 100px;
+    text-align: center;
+    display: inline-block;
 }
 
 /* Responsive adjustments */
