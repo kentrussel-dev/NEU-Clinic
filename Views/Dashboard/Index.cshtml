@@ -6,7 +6,7 @@
 @model List<WebApp.Models.RoomAppointment>
 
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "NEU Care | Dashboard";
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
 
     var user = await userManager.GetUserAsync(User);
@@ -198,7 +198,7 @@
             {
                 <div id="appointments-content" class="tab-content @(activeTab == "appointments" ? "active" : "")"
                     style="display: @(activeTab == "appointments" ? "block" : "none");">
-                    @await Html.PartialAsync("Partials/_AvailableAppointmentsPartial", Model)
+                    @await Html.PartialAsync("AvailableAppointments/_AvailableAppointmentsPartial", Model)
                 </div>
                  <!-- Personal Appointments Content -->
                 <div id="personalappointments-content" class="tab-content @(activeTab == "personalappointments" ? "active" : "")"

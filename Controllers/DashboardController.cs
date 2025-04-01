@@ -2,11 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
 using WebApp.Data;
 using WebApp.Models;
-using WebApp.ViewModels;
 
 namespace WebApp.Controllers
 {

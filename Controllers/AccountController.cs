@@ -45,7 +45,7 @@ namespace WebApp.Controllers
 
             if (remoteError != null)
             {
-                ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
+                AddModelError($"Error from external provider: {remoteError}");
                 return View(nameof(Login));
             }
 
@@ -55,46 +55,48 @@ namespace WebApp.Controllers
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
             if (!IsValidEmail(email))
             {
-                TempData["ErrorMessage"] = "Only @neu.edu.ph emails are allowed.";
+                SetTempDataError("Only @neu.edu.ph emails are allowed.");
                 return RedirectToAction(nameof(Login));
             }
 
-            var user = await userManager.FindByEmailAsync(email);
-            bool isNewUser = user == null;
-
-            if (isNewUser)
-                user = await CreateUserAsync(info, email);
+            var user = await GetOrCreateUserAsync(info, email);
+            if (user == null) return RedirectToAction(nameof(Login));
 
             await EnsureQRCodeExists(user);
             await UpdateUserInfoIfChanged(user, info);
-
             await SignInUser(user);
 
             return RedirectToAction("Index", "Dashboard");
         }
 
-        private bool IsValidEmail(string email)
+        private async Task<Users> GetOrCreateUserAsync(ExternalLoginInfo info, string email)
         {
-            return email != null && (email.EndsWith("@neu.edu.ph", System.StringComparison.OrdinalIgnoreCase) || email == superAdminEmail);
+            var user = await userManager.FindByEmailAsync(email);
+            if (user != null) return user;
+
+            user = await CreateUserAsync(info, email);
+            if (user == null) AddModelError("Failed to create user.");
+            return user;
+        }
+
+        private void AddModelError(string errorMessage)
+        {
+            ModelState.AddModelError(string.Empty, errorMessage);
+        }
+
+        private void SetTempDataError(string errorMessage)
+        {
+            TempData["ErrorMessage"] = errorMessage;
         }
 
         private async Task<Users> CreateUserAsync(ExternalLoginInfo info, string email)
         {
-            var user = new Users
-            {
-                UserName = email,
-                Email = email,
-                FullName = info.Principal.FindFirstValue("urn:google:fullname"),
-                ProfilePictureUrl = info.Principal.FindFirstValue("urn:google:picture") ?? "/default-profile.png",
-                PhoneNumber = string.Empty,
-                ESignaturePath = string.Empty
-            };
-
+            var user = InitializeNewUser(info, email);
             var createResult = await userManager.CreateAsync(user);
+
             if (!createResult.Succeeded)
             {
-                foreach (var error in createResult.Errors)
-                    ModelState.AddModelError(string.Empty, error.Description);
+                AddIdentityErrors(createResult.Errors);
                 return null;
             }
 
@@ -105,34 +107,45 @@ namespace WebApp.Controllers
             return user;
         }
 
-        private async Task AssignUserRole(Users user, string email)
+        private Users InitializeNewUser(ExternalLoginInfo info, string email)
         {
-            string role = (email == superAdminEmail) ? "SuperAdmin" : "Student";
-            await userManager.AddToRoleAsync(user, role);
+            return new Users
+            {
+                UserName = email,
+                Email = email,
+                FullName = info.Principal.FindFirstValue("urn:google:fullname"),
+                ProfilePictureUrl = info.Principal.FindFirstValue("urn:google:picture") ?? "/default-profile.png",
+                PhoneNumber = string.Empty,
+                ESignaturePath = string.Empty
+            };
         }
 
-        private async Task EnsureUserDetails(string userId)
+        private void AddIdentityErrors(IEnumerable<IdentityError> errors)
         {
-            dbContext.PersonalDetails.Add(new PersonalDetails { UserId = userId });
-            dbContext.HealthDetails.Add(new HealthDetails { UserId = userId });
-            await dbContext.SaveChangesAsync();
+            foreach (var error in errors)
+                ModelState.AddModelError(string.Empty, error.Description);
         }
 
         private async Task EnsureQRCodeExists(Users user)
         {
-            if (string.IsNullOrEmpty(user.QRCodePath))
-            {
-                user.QRCodePath = qrCodeService.GenerateQRCode(user.Id, user.FullName, user.Email);
-                await userManager.UpdateAsync(user);
-            }
+            if (!string.IsNullOrEmpty(user.QRCodePath)) return;
+
+            user.QRCodePath = qrCodeService.GenerateQRCode(user.Id, user.FullName, user.Email);
+            await userManager.UpdateAsync(user);
         }
 
         private async Task UpdateUserInfoIfChanged(Users user, ExternalLoginInfo info)
         {
-            bool needsUpdate = false;
-
             var fullName = info.Principal.FindFirstValue("urn:google:fullname");
             var profilePictureUrl = info.Principal.FindFirstValue("urn:google:picture") ?? "/default-profile.png";
+
+            if (UpdateUserFields(user, fullName, profilePictureUrl))
+                await userManager.UpdateAsync(user);
+        }
+
+        private bool UpdateUserFields(Users user, string fullName, string profilePictureUrl)
+        {
+            bool needsUpdate = false;
 
             if (!string.IsNullOrEmpty(fullName) && user.FullName != fullName)
             {
@@ -146,8 +159,7 @@ namespace WebApp.Controllers
                 needsUpdate = true;
             }
 
-            if (needsUpdate)
-                await userManager.UpdateAsync(user);
+            return needsUpdate;
         }
 
         private async Task SignInUser(Users user)
@@ -159,6 +171,24 @@ namespace WebApp.Controllers
             };
 
             await signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            return email != null && (email.EndsWith("@neu.edu.ph", System.StringComparison.OrdinalIgnoreCase) || email == superAdminEmail);
+        }
+
+        private async Task AssignUserRole(Users user, string email)
+        {
+            string role = (email == superAdminEmail) ? "SuperAdmin" : "Student";
+            await userManager.AddToRoleAsync(user, role);
+        }
+
+        private async Task EnsureUserDetails(string userId)
+        {
+            dbContext.PersonalDetails.Add(new PersonalDetails { UserId = userId });
+            dbContext.HealthDetails.Add(new HealthDetails { UserId = userId });
+            await dbContext.SaveChangesAsync();
         }
 
         [HttpPost]
