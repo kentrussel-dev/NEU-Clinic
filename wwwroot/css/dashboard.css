@@ -137,14 +137,11 @@
     padding: 1.5rem;
 }
 
-
 /* Media query for screens less than 1000px */
 @media (max-width: 1000px) {
-
     /* Shrink the sidebar */
     #sidebar-wrapper {
         width: 60px !important;
-        /* Force the sidebar to stay small */
     }
 
     /* Hide the sidebar text */
@@ -165,7 +162,6 @@
     /* Prevent the sidebar from expanding */
     #wrapper.toggled #sidebar-wrapper {
         width: 60px !important;
-        /* Force the sidebar to stay small */
     }
 
     /* Adjust page content width */

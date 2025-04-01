@@ -39,6 +39,12 @@
 
 	<!-- Notification and Profile Dropdown Container -->
 	<div class="d-flex align-items-center gap-2">
+		<!-- Chat Link -->
+		<a class="d-flex align-items-center gap-2 text-white text-decoration-none bg-primary p-2 rounded"
+		href="#" style="height: 40px;" data-bs-toggle="modal" data-bs-target="#chatModal">
+			<i class="fas fa-comment"></i>
+		</a>
+
 		<!-- Include Notification Partial View -->
 		@await Html.PartialAsync("Partials/_NotificationPartial")
 

@@ -1,0 +1,77 @@
+<div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chat</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="chatMessages">
+                    <!-- Messages will appear here -->
+                </div>
+            </div>
+            <div class="modal-footer p-2">
+                <div class="input-group w-100">
+                    <input type="text" class="form-control" placeholder="Type your message..." id="chatMessageInput">
+                    <button class="btn btn-primary" type="button" id="sendMessageBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+    // Initialize chat modal
+    $('#chatModal').on('shown.bs.modal', function() {
+        $('#chatMessageInput').focus();
+    });
+
+    // Simulate sending a message (frontend only for now)
+    $('#sendMessageBtn').click(function() {
+        sendMessage();
+    });
+
+    $('#chatMessageInput').keypress(function(e) {
+        if (e.which === 13) { // Enter key
+            sendMessage();
+        }
+    });
+
+    function sendMessage() {
+        const messageText = $('#chatMessageInput').val().trim();
+        if (messageText) {
+            // Create message element
+            const messageElement = `
+                <div class="chat-message sent">
+                    <div class="message-text">${messageText}</div>
+                    <div class="message-time text-end">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                </div>
+            `;
+            
+            // Append to chat
+            $('#chatMessages').append(messageElement);
+            
+            // Clear input
+            $('#chatMessageInput').val('');
+            
+            // Scroll to bottom
+            $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+            
+            // Simulate received message after 1 second
+            setTimeout(function() {
+                const replyElement = `
+                    <div class="chat-message received">
+                        <div class="message-text">This is a simulated reply. Backend integration will be added later.</div>
+                        <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                `;
+                $('#chatMessages').append(replyElement);
+                $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+            }, 1000);
+        }
+    }
+});
+</script>

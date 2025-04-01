@@ -109,6 +109,11 @@
     }
 }
 
+
+.modal.fade .modal-dialog {
+    animation: scaleUp 0.3s ease-out;
+}
+
 /* Scaling animation for the modal */
 @keyframes scaleUp {
     from {
@@ -120,8 +125,4 @@
         transform: scale(1);
         opacity: 1;
     }
-}
-
-.modal.fade .modal-dialog {
-    animation: scaleUp 0.3s ease-out;
 }
