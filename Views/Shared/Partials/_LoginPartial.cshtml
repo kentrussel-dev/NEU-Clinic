@@ -49,7 +49,7 @@
 				style="height: 40px;">
 				@if (!isSuperAdmin)
 				{
-					<img src="@userProfilePicture" onerror="this.src='/default-profile.png';" class="rounded-circle"
+					<img src="@userProfilePicture" alt="Profile" class="rounded-circle"
 						style="height:40px;width:40px;" alt="Profile Picture">
 				}
 				else
@@ -157,8 +157,8 @@ else
 }
 
 
-
-<script>
+@section Scripts {
+	<script>
 	function markNotificationAsRead(notificationId) {
 		fetch(`/Notifications/MarkAsRead/${notificationId}`, {
 			method: 'POST',
@@ -186,4 +186,6 @@ else
 			}
 		});
 	}
-</script>
+	</script>
+}
+

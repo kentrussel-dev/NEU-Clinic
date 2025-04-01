@@ -13,6 +13,7 @@
 
     // Filter out SuperAdmins from the list of users
     var nonSuperAdmins = Model.Where(u => !UserManager.IsInRoleAsync(u, "SuperAdmin").Result).ToList();
+    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
 }
 
 <div class="container-fluid">
@@ -49,8 +50,9 @@
                 {
                     <tr>
                         <td class="align-middle">
-                            <img src="@user.ProfilePictureUrl" onerror="this.src='/default-profile.png';"
-                                class="rounded-circle" style="width: 40px; height: 40px;" alt="Profile Picture">
+                            <a href="@baseUrl/profile/@user.Id" target="_blank">
+                                    <img src="@user.ProfilePictureUrl" alt="Profile" class="profile-img rounded-circle">
+                                </a>
                         </td>
                         <td class="align-middle">@user.FullName</td>
                         <td class="align-middle">@user.Email</td>

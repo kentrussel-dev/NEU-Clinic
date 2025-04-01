@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Personal Appointments";
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+
+    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
 }
 
 <link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
@@ -55,11 +57,9 @@
                 {
                     <tr id="appointment-@appointment.Id">
                         <td class="align-middle">
-                            <img src="@(appointment.User?.ProfilePictureUrl ?? "/default-profile.png")" 
-                                 class="rounded-circle" 
-                                 style="width: 40px; height: 40px;" 
-                                 alt="Profile Picture"
-                                 onerror="this.src='/default-profile.png'">
+                             <a href="@baseUrl/profile/@appointment.User?.Id" target="_blank">
+                                    <img src="@appointment.User?.ProfilePictureUrl" alt="Profile" class="profile-img rounded-circle">
+                                </a>
                         </td>
                         <td class="align-middle">
                             <div>@(appointment.User?.UserName ?? "N/A")</div>
