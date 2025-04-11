@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
 namespace WebApp.Controllers
 {
     [Authorize]
@@ -14,7 +18,11 @@ namespace WebApp.Controllers
         private readonly EmailService _emailService;
         private readonly NotificationService _notificationService;
 
-        public PersonalAppointmentController(AppDbContext context, UserManager<Users> userManager, EmailService emailService, NotificationService notificationService)
+        public PersonalAppointmentController(
+            AppDbContext context,
+            UserManager<Users> userManager,
+            EmailService emailService,
+            NotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
@@ -62,8 +70,7 @@ namespace WebApp.Controllers
 
             if (appointment == null)
             {
-                TempData["ErrorMessage"] = "Appointment not found";
-                return Json(new { success = false });
+                return Json(new { success = false, message = "Appointment not found" });
             }
 
             return Json(new
@@ -82,6 +89,46 @@ namespace WebApp.Controllers
             });
         }
 
+        private string CreateEmailBody(string title, string userName, string message, string details, string status = null)
+        {
+            string statusHtml = string.Empty;
+            if (!string.IsNullOrEmpty(status))
+            {
+                string statusColor = status == "Approved" ? "#28a745" :
+                                    status == "Rejected" ? "#dc3545" : "#17a2b8";
+                statusHtml = $@"
+                <div style='margin: 15px 0;'>
+                    <strong>Status:</strong> 
+                    <span style='color: {statusColor}; font-weight: bold;'>{status}</span>
+                </div>";
+            }
+
+            return $@"
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;'>
+                <div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;'>
+                    <h2 style='color: #343a40; margin: 0;'>{title}</h2>
+                </div>
+                
+                <p>Dear {userName},</p>
+                
+                <div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;'>
+                    {message}
+                </div>
+                
+                {statusHtml}
+                
+                <div style='margin: 20px 0;'>
+                    <h3 style='color: #343a40; border-bottom: 1px solid #e0e0e0; padding-bottom: 5px;'>Appointment Details:</h3>
+                    {details}
+                </div>
+                
+                <div style='margin-top: 25px; padding-top: 15px; border-top: 1px solid #e0e0e0;'>
+                    <p>If you have any questions, please contact our support team at <a href='mailto:neucare.sa@gmail.com'>neucare.sa@gmail.com</a></p>
+                    <p>Best regards,<br>The Support Team</p>
+                </div>
+            </div>";
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AppointmentDto dto)
         {
@@ -89,33 +136,33 @@ namespace WebApp.Controllers
             {
                 if (string.IsNullOrEmpty(dto.UserId))
                 {
-                    TempData["ErrorMessage"] = "Please select a user";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Please select a user" });
                 }
 
                 if (string.IsNullOrEmpty(dto.Purpose))
                 {
-                    TempData["ErrorMessage"] = "Please enter a purpose";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Please enter a purpose" });
                 }
 
                 if (string.IsNullOrEmpty(dto.VisitationDate))
                 {
-                    TempData["ErrorMessage"] = "Please select a date";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Please select a date" });
                 }
 
                 var user = await _userManager.FindByIdAsync(dto.UserId);
                 if (user == null)
                 {
-                    TempData["ErrorMessage"] = "User not found";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "User not found" });
                 }
 
                 if (!DateTime.TryParse(dto.VisitationDate, out var visitationDate))
                 {
-                    TempData["ErrorMessage"] = "Invalid date format";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Invalid date format" });
+                }
+
+                if (visitationDate < DateTime.Now.AddHours(1))
+                {
+                    return Json(new { success = false, message = "Appointment date must be at least 1 hour from now" });
                 }
 
                 var appointment = new PersonalAppointment
@@ -131,19 +178,26 @@ namespace WebApp.Controllers
                 _context.PersonalAppointments.Add(appointment);
                 await _context.SaveChangesAsync();
 
-                // Send notification to the user
-                var notificationMessage = $"A new appointment has been created for you with the purpose: {dto.Purpose}.";
+                // Create and send notification
+                string notificationMessage = $"New appointment created: {appointment.Purpose} on {appointment.VisitationDate:MMM dd, yyyy}";
                 await _notificationService.NotifyUserAsync(dto.UserId, "System", notificationMessage);
 
-                // Send an email to the user
-                var subject = "New Appointment Created";
-                var emailMessage = $"Dear {user.FullName},<br><br>{notificationMessage}<br><br>Thank you.";
-                await _emailService.SendEmailAsync(user.Email, subject, emailMessage);
+                // Create and send email
+                string emailSubject = "New Appointment Created";
+                string emailBody = CreateEmailBody(
+                    emailSubject,
+                    user.FullName,
+                    "Your appointment has been successfully created with the following details:",
+                    $@"<p><strong>Purpose:</strong> {appointment.Purpose}</p>
+                       <p><strong>Date & Time:</strong> {appointment.VisitationDate:MMMM dd, yyyy 'at' hh:mm tt}</p>
+                       <p><strong>Status:</strong> {appointment.ApprovalStatus}</p>");
 
-                TempData["SuccessMessage"] = "Appointment created successfully";
+                await _emailService.SendEmailAsync(user.Email, emailSubject, emailBody);
+
                 return Json(new
                 {
                     success = true,
+                    message = "Appointment created successfully",
                     appointment = new
                     {
                         id = appointment.Id,
@@ -160,8 +214,7 @@ namespace WebApp.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error creating appointment: " + ex.Message;
-                return Json(new { success = false });
+                return Json(new { success = false, message = $"Error creating appointment: {ex.Message}" });
             }
         }
 
@@ -173,41 +226,41 @@ namespace WebApp.Controllers
                 var appointment = await _context.PersonalAppointments.FindAsync(dto.Id);
                 if (appointment == null)
                 {
-                    TempData["ErrorMessage"] = "Appointment not found";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Appointment not found" });
                 }
 
                 if (string.IsNullOrEmpty(dto.UserId))
                 {
-                    TempData["ErrorMessage"] = "Please select a user";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Please select a user" });
                 }
 
                 if (string.IsNullOrEmpty(dto.Purpose))
                 {
-                    TempData["ErrorMessage"] = "Please enter a purpose";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Please enter a purpose" });
                 }
 
                 if (string.IsNullOrEmpty(dto.VisitationDate))
                 {
-                    TempData["ErrorMessage"] = "Please select a date";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Please select a date" });
                 }
 
                 var user = await _userManager.FindByIdAsync(dto.UserId);
                 if (user == null)
                 {
-                    TempData["ErrorMessage"] = "User not found";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "User not found" });
                 }
 
                 if (!DateTime.TryParse(dto.VisitationDate, out var visitationDate))
                 {
-                    TempData["ErrorMessage"] = "Invalid date format";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Invalid date format" });
                 }
 
+                if (visitationDate < DateTime.Now.AddHours(1))
+                {
+                    return Json(new { success = false, message = "Appointment date must be at least 1 hour from now" });
+                }
+
+                // Update appointment
                 appointment.UserId = dto.UserId;
                 appointment.Purpose = dto.Purpose;
                 appointment.VisitationDate = visitationDate;
@@ -217,19 +270,39 @@ namespace WebApp.Controllers
                 _context.PersonalAppointments.Update(appointment);
                 await _context.SaveChangesAsync();
 
-                // Send notification to the user
-                var notificationMessage = $"Your appointment has been updated with the purpose: {dto.Purpose}.";
+                // Create and send notification
+                string notificationMessage = appointment.ApprovalStatus switch
+                {
+                    "Approved" => $"Your appointment for {appointment.Purpose} has been approved",
+                    "Rejected" => $"Your appointment for {appointment.Purpose} has been rejected",
+                    _ => $"Your appointment for {appointment.Purpose} has been updated"
+                };
+
                 await _notificationService.NotifyUserAsync(dto.UserId, "System", notificationMessage);
 
-                // Send an email to the user
-                var subject = "Appointment Updated";
-                var emailMessage = $"Dear {user.FullName},<br><br>{notificationMessage}<br><br>Thank you.";
-                await _emailService.SendEmailAsync(user.Email, subject, emailMessage);
+                // Create and send email
+                string emailSubject = appointment.ApprovalStatus switch
+                {
+                    "Approved" => "Appointment Approved",
+                    "Rejected" => "Appointment Rejected",
+                    _ => "Appointment Updated"
+                };
 
-                TempData["SuccessMessage"] = "Appointment updated successfully";
+                string emailBody = CreateEmailBody(
+                    emailSubject,
+                    user.FullName,
+                    notificationMessage,
+                    $@"<p><strong>Purpose:</strong> {appointment.Purpose}</p>
+                       <p><strong>Date & Time:</strong> {appointment.VisitationDate:MMMM dd, yyyy 'at' hh:mm tt}</p>
+                       <p><strong>Status:</strong> {appointment.ApprovalStatus}</p>",
+                    appointment.ApprovalStatus);
+
+                await _emailService.SendEmailAsync(user.Email, emailSubject, emailBody);
+
                 return Json(new
                 {
                     success = true,
+                    message = "Appointment updated successfully",
                     appointment = new
                     {
                         id = appointment.Id,
@@ -246,8 +319,7 @@ namespace WebApp.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error updating appointment: " + ex.Message;
-                return Json(new { success = false });
+                return Json(new { success = false, message = $"Error updating appointment: {ex.Message}" });
             }
         }
 
@@ -256,23 +328,39 @@ namespace WebApp.Controllers
         {
             try
             {
-                var appointment = await _context.PersonalAppointments.FindAsync(id);
+                var appointment = await _context.PersonalAppointments
+                    .Include(a => a.User)
+                    .FirstOrDefaultAsync(a => a.Id == id);
+
                 if (appointment == null)
                 {
-                    TempData["ErrorMessage"] = "Appointment not found";
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "Appointment not found" });
                 }
 
+                // Create and send notification before deleting
+                string notificationMessage = $"Appointment cancelled: {appointment.Purpose} on {appointment.VisitationDate:MMM dd, yyyy}";
+                await _notificationService.NotifyUserAsync(appointment.UserId, "System", notificationMessage);
+
+                // Create and send email
+                string emailSubject = "Appointment Cancelled";
+                string emailBody = CreateEmailBody(
+                    emailSubject,
+                    appointment.User.FullName,
+                    "Your appointment has been cancelled with the following details:",
+                    $@"<p><strong>Purpose:</strong> {appointment.Purpose}</p>
+                       <p><strong>Date:</strong> {appointment.VisitationDate:MMMM dd, yyyy 'at' hh:mm tt}</p>");
+
+                await _emailService.SendEmailAsync(appointment.User.Email, emailSubject, emailBody);
+
+                // Delete the appointment
                 _context.PersonalAppointments.Remove(appointment);
                 await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = "Appointment deleted successfully";
-                return Json(new { success = true });
+                return Json(new { success = true, message = "Appointment deleted successfully" });
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error deleting appointment: " + ex.Message;
-                return Json(new { success = false });
+                return Json(new { success = false, message = $"Error deleting appointment: {ex.Message}" });
             }
         }
 
@@ -302,8 +390,6 @@ namespace WebApp.Controllers
             return Json(new { success = true, appointments });
         }
 
-
-
         public class AppointmentDto
         {
             public int Id { get; set; }
@@ -312,6 +398,7 @@ namespace WebApp.Controllers
             public string VisitationDate { get; set; }
             public string ApprovalStatus { get; set; }
             public string ProgressStatus { get; set; }
+            public string RejectionReason { get; set; }
         }
     }
 }

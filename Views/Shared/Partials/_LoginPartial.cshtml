@@ -163,35 +163,4 @@ else
 }
 
 
-@section Scripts {
-	<script>
-	function markNotificationAsRead(notificationId) {
-		fetch(`/Notifications/MarkAsRead/${notificationId}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-			}
-		}).then(response => {
-			if (response.ok) {
-				location.reload(); // Refresh the page to update the notification list
-			}
-		});
-	}
-
-	function markAllNotificationsAsRead() {
-		fetch('/Notifications/MarkAllAsRead', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-			}
-		}).then(response => {
-			if (response.ok) {
-				location.reload(); // Refresh the page to update the notification list
-			}
-		});
-	}
-	</script>
-}
 

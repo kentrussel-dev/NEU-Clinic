@@ -70,23 +70,37 @@ namespace WebApp.Controllers
         [HttpPost("Notifications/MarkAllAsRead")]
         public async Task<IActionResult> MarkAllAsRead()
         {
-            var userId = _userManager.GetUserId(User); // Get the current user's ID
-            if (string.IsNullOrEmpty(userId))
+            try
             {
-                return Unauthorized(); // User is not authenticated
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized();
+                }
+
+                var unreadNotifications = await _context.Notifications
+                    .Where(n => n.UserId == userId && !n.IsRead)
+                    .ToListAsync();
+
+                if (!unreadNotifications.Any())
+                {
+                    return Ok(new { success = true, message = "No unread notifications" });
+                }
+
+                foreach (var notification in unreadNotifications)
+                {
+                    notification.IsRead = true;
+                    _context.Notifications.Update(notification);
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok(new { success = true, message = $"{unreadNotifications.Count} notifications marked as read" });
             }
-
-            var notifications = await _context.Notifications
-                .Where(n => n.UserId == userId && !n.IsRead)
-                .ToListAsync();
-
-            foreach (var notification in notifications)
+            catch (Exception ex)
             {
-                notification.IsRead = true;
+                _logger.LogError(ex, "Error marking notifications as read");
+                return StatusCode(500, new { success = false, message = "Error marking notifications as read" });
             }
-
-            await _context.SaveChangesAsync();
-            return Ok();
         }
 
         // GET: Notifications/GetNotificationsForUser

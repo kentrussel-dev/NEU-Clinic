@@ -114,6 +114,33 @@
     </div>
 </div>
 
+<!-- Confirmation Modal for Cancellation -->
+<div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmCancelModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Cancellation
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this appointment?</p>
+                <p class="fw-bold" id="cancelAppointmentDetails"></p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>No, Keep It
+                </button>
+                <button type="button" class="btn btn-danger btn-modern" id="confirmCancelBtn">
+                    <i class="fas fa-trash-alt me-2"></i>Yes, Cancel It
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     .text-sm {
         font-size: 0.875rem; /* Smaller font size */
@@ -122,6 +149,9 @@
 
 <script>
     $(document).ready(function() {
+        // Track current appointment to cancel
+        let currentAppointmentToCancel = null;
+
         // Notification function
         function showNotification(message, type = 'success') {
             $('.custom-notification').remove();
@@ -220,7 +250,7 @@
 
             if (!purpose || !date) {
                 showNotification('Please fill all required fields', 'danger');
-                submitButton.prop('disabled', false).html(originalButtonText); // Re-enable button
+                submitButton.prop('disabled', false).html(originalButtonText);
                 return;
             }
 
@@ -228,8 +258,8 @@
                 UserId: $('#userId').val(),
                 Purpose: purpose,
                 VisitationDate: date,
-                ApprovalStatus: "Pending",  // Automatically set to Pending
-                ProgressStatus: "Upcoming"  // Automatically set to Upcoming
+                ApprovalStatus: "Pending",
+                ProgressStatus: "Upcoming"
             };
 
             $.ajax({
@@ -250,7 +280,6 @@
                     showNotification('Error: ' + (xhr.responseJSON?.message || xhr.responseText || 'Server error'), 'danger');
                 },
                 complete: function() {
-                    // Re-enable the button and restore original text
                     submitButton.prop('disabled', false).html(originalButtonText);
                 }
             });
@@ -294,37 +323,71 @@
                         </span>
                     `);
                     
-                    // Replace the button visibility logic with:
+                    // Store current appointment for cancellation
+                    currentAppointmentToCancel = {
+                        id: appointmentId,
+                        purpose: response.appointment.purpose,
+                        date: new Date(response.appointment.visitationDate).toLocaleString()
+                    };
+                    
+                    // Show/hide cancel button based on status
                     if (response.appointment.approvalStatus === 'Pending') {
                         $('#modalCancelBtn').show().off('click').on('click', function() {
-                            if (confirm('Are you sure you want to cancel this appointment?')) {
-                                $.ajax({
-                                    url: '/PersonalAppointment/Delete',
-                                    type: 'POST',
-                                    data: { id: appointmentId },
-                                    success: function(deleteResponse) {
-                                        if (deleteResponse.success) {
-                                            $('#viewAppointmentModal').modal('hide');
-                                            loadAppointments();
-                                            showNotification('Appointment cancelled successfully!');
-                                        } else {
-                                            showNotification(deleteResponse.message || 'Failed to cancel appointment', 'danger');
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        showNotification('Error: ' + (xhr.responseJSON?.message || xhr.responseText || 'Server error'), 'danger');
-                                    }
-                                });
-                            }
+                            // Show confirmation modal with appointment details
+                            $('#cancelAppointmentDetails').html(`
+                                <strong>Purpose:</strong> ${currentAppointmentToCancel.purpose}<br>
+                                <strong>Date:</strong> ${currentAppointmentToCancel.date}
+                            `);
+                            $('#confirmCancelModal').modal('show');
                         });
                     } else {
                         $('#modalCancelBtn').hide();
                     }
                     
-                    // Show the modal
+                    // Show the details modal
                     $('#viewAppointmentModal').modal('show');
                 } else {
                     showNotification(response.message || 'Failed to load appointment details', 'danger');
+                }
+            });
+        });
+
+        // Handle the actual cancellation when confirmed
+        $('#confirmCancelBtn').click(function() {
+            if (!currentAppointmentToCancel) return;
+            
+            const $btn = $(this);
+            const originalBtnHtml = $btn.html();
+            
+            // Add spinner to button and disable it
+            $btn.html('<i class="fas fa-spinner fa-spin me-2"></i> Cancelling...');
+            $btn.prop('disabled', true);
+            
+            // Perform the cancellation
+            $.ajax({
+                url: '/PersonalAppointment/Delete',
+                type: 'POST',
+                data: { id: currentAppointmentToCancel.id },
+                success: function(deleteResponse) {
+                    // Restore button state
+                    $btn.html(originalBtnHtml);
+                    $btn.prop('disabled', false);
+                    
+                    if (deleteResponse.success) {
+                        $('#confirmCancelModal').modal('hide');
+                        $('#viewAppointmentModal').modal('hide');
+                        loadAppointments();
+                        showNotification('Appointment cancelled successfully!');
+                    } else {
+                        showNotification(deleteResponse.message || 'Failed to cancel appointment', 'danger');
+                    }
+                },
+                error: function(xhr) {
+                    // Restore button state
+                    $btn.html(originalBtnHtml);
+                    $btn.prop('disabled', false);
+                    
+                    showNotification('Error: ' + (xhr.responseJSON?.message || xhr.responseText || 'Server error'), 'danger');
                 }
             });
         });
