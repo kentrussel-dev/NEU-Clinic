@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 using WebApp.Data;
 using WebApp.Models;
 using WebApp.Validators;
@@ -22,6 +20,9 @@ builder.Services.AddScoped<EmailService>();
 
 // ✅ Register NotificationService for Dependency Injection
 builder.Services.AddScoped<NotificationService>();
+
+// ✅ Add SignalR services
+builder.Services.AddSignalR();
 
 // ✅ Configure Identity with Google Authentication
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
@@ -110,10 +111,15 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapDefaultControllerRoute();
+// ✅ Configure endpoints (including SignalR)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{activeTab?}");
+
+app.MapDefaultControllerRoute();
+
+// ✅ Add SignalR hub endpoint
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();
 
@@ -145,4 +151,4 @@ async Task SeedRolesAndSuperAdminAsync(IServiceProvider serviceProvider)
             await userManager.AddToRoleAsync(superAdmin, "SuperAdmin");
         }
     }
-}   
+}

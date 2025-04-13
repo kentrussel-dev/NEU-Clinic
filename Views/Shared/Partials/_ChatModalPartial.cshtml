@@ -1,16 +1,46 @@
+@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<Users> signInManager;
+@inject UserManager<Users> userManager;
+
+@{
+    var user = await userManager.GetUserAsync(User);
+    var name = user?.FullName ?? user?.UserName ?? "Guest";
+    var profilePicture = user?.ProfilePictureUrl ?? "/images/default-profile.png";
+
+    var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
+    var role = roles.Any() ? roles.First() : "User";
+}
+
+@functions {
+    string GetRoleBadgeClass(string role)
+    {
+        switch(role.ToLower())
+        {
+            case "admin": return "bg-danger";
+            case "superadmin": return "bg-warning text-dark";
+            case "medicalstaff": return "bg-info text-dark";
+            case "student": return "bg-primary";
+            default: return "bg-secondary";
+        }
+    }
+}
+
 <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Chat</h5>
+                <h5 class="modal-title">Group Chat <span id="connectionStatus" class="badge bg-secondary">Disconnected</span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="alert alert-warning d-flex align-items-center m-2" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <div>This chat feature is still in development. Some functionalities may not work as expected.</div>
+            <div class="alert alert-info d-flex align-items-center m-2" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <div>
+                    Connected as: <span id="userIdentifier">@name</span>
+                    <span class="badge @GetRoleBadgeClass(role) ms-2">@role</span>
+                </div>
             </div>
             <div class="modal-body p-0">
-                <div id="chatMessages">
+                <div id="chatMessages" style="height: 300px; overflow-y: auto; padding: 10px;">
                     <!-- Messages will appear here -->
                 </div>
             </div>
@@ -26,56 +56,150 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
 <script>
     $(document).ready(function() {
-    // Initialize chat modal
-    $('#chatModal').on('shown.bs.modal', function() {
-        $('#chatMessageInput').focus();
-    });
-
-    // Simulate sending a message (frontend only for now)
-    $('#sendMessageBtn').click(function() {
-        sendMessage();
-    });
-
-    $('#chatMessageInput').keypress(function(e) {
-        if (e.which === 13) { // Enter key
-            sendMessage();
+        // Get the user's info from the server-side variables
+        const userName = '@name';
+        const userProfilePic = '@profilePicture';
+        const userRole = '@role';
+        
+        // Initialize SignalR connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+        
+        // Connection status indicators
+        function updateConnectionStatus(isConnected) {
+            const statusElement = $('#connectionStatus');
+            statusElement.removeClass('bg-secondary bg-success bg-danger');
+            
+            if (isConnected === true) {
+                statusElement.addClass('bg-success').text('Connected');
+            } else if (isConnected === false) {
+                statusElement.addClass('bg-danger').text('Disconnected');
+            } else {
+                statusElement.addClass('bg-secondary').text('Connecting...');
+            }
         }
-    });
-
-    function sendMessage() {
-        const messageText = $('#chatMessageInput').val().trim();
-        if (messageText) {
-            // Create message element
+        
+        // Start the connection
+        async function startConnection() {
+            updateConnectionStatus(null);
+            try {
+                await connection.start();
+                updateConnectionStatus(true);
+                console.log("SignalR Connected.");
+                
+                // Join the group chat with the user's name
+                await connection.invoke("JoinGroup", "GeneralChat", userName);
+                
+            } catch (err) {
+                updateConnectionStatus(false);
+                console.log(err);
+                setTimeout(startConnection, 5000);
+            }
+        }
+        
+        // Connection closed handler
+        connection.onclose(async () => {
+            updateConnectionStatus(false);
+            await startConnection();
+        });
+        
+        // Receive messages from the hub
+        connection.on("ReceiveMessage", (user, message, timestamp, profilePic) => {
+            const isCurrentUser = user === userName;
+            const messageClass = isCurrentUser ? "sent" : "received";
+            
+            const getRoleBadgeClass = (role) => {
+                switch(role.toLowerCase()) {
+                    case 'admin': return 'bg-danger';
+                    case 'superadmin': return 'bg-warning text-dark';
+                    case 'medicalstaff': return 'bg-info text-dark';
+                    case 'student': return 'bg-primary';
+                    default: return 'bg-secondary';
+                }
+            };
+            
+            const roleBadge = isCurrentUser 
+                ? `<span class="badge ${getRoleBadgeClass(userRole)} ms-2">${userRole}</span>`
+                : `<span class="badge bg-secondary ms-2">User</span>`;
+            
             const messageElement = `
-                <div class="chat-message sent">
-                    <div class="message-text">${messageText}</div>
-                    <div class="message-time text-end">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                <div class="chat-message ${messageClass}">
+                    <div class="message-container">
+                        ${!isCurrentUser ? `<img src="${profilePic || '/images/default-profile.png'}" class="message-avatar" alt="${user}'s profile picture">` : ''}
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-user">${user}</span>
+                                ${roleBadge}
+                            </div>
+                            <div class="message-bubble">
+                                <div class="message-text">${message}</div>
+                            </div>
+                            <div class="message-footer">
+                                <span class="message-time">${formatTime(timestamp)}</span>
+                            </div>
+                        </div>
+                        ${isCurrentUser ? `<img src="${userProfilePic}" class="message-avatar" alt="Your profile picture">` : ''}
+                    </div>
                 </div>
             `;
             
-            // Append to chat
             $('#chatMessages').append(messageElement);
-            
-            // Clear input
-            $('#chatMessageInput').val('');
-            
-            // Scroll to bottom
             $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
-            
-            // Simulate received message after 1 second
-            setTimeout(function() {
-                const replyElement = `
-                    <div class="chat-message received">
-                        <div class="message-text">This is a simulated reply. Backend integration will be added later.</div>
-                        <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                    </div>
-                `;
-                $('#chatMessages').append(replyElement);
-                $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
-            }, 1000);
+        });
+        
+        // User joined notification
+        connection.on("UserJoined", (user) => {
+            const notificationElement = `
+                <div class="user-joined-notification">
+                    ${user} has joined the chat
+                </div>
+            `;
+            $('#chatMessages').append(notificationElement);
+            $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+        });
+        
+        // Format time to HH:MM AM/PM
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            let hours = date.getHours();
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            return `${hours}:${minutes} ${ampm}`;
         }
-    }
-});
+        
+        // Initialize chat modal
+        $('#chatModal').on('shown.bs.modal', function() {
+            $('#chatMessageInput').focus();
+        });
+        
+        // Send message handler
+        $('#sendMessageBtn').click(sendMessage);
+        $('#chatMessageInput').keypress(function(e) {
+            if (e.which === 13) { // Enter key
+                sendMessage();
+            }
+        });
+        
+        async function sendMessage() {
+            const messageText = $('#chatMessageInput').val().trim();
+            if (messageText && connection.state === signalR.HubConnectionState.Connected) {
+                try {
+                    await connection.invoke("SendMessageToGroup", "GeneralChat", userName, messageText);
+                    $('#chatMessageInput').val('');
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+        
+        // Start the connection when the page loads
+        startConnection();
+    });
 </script>

@@ -3,32 +3,84 @@
   "WorkspaceRootPath": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250331131352_Initialization.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250331131352_Initialization.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\users.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\users.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\hub\\chathub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:hub\\chathub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\personalappointment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\personalappointment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\personaldetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\personaldetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\personalappointmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\personalappointmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\users.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\users.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\notificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\notificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\sendnotificationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\sendnotificationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\services\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:services\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250401181436_UpdateChatMessageCascadeBehavior2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250401181436_UpdateChatMessageCascadeBehavior2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250401165500_chatsystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250401165500_chatsystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\personalappointment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\personalappointment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\migrations\\20250331131352_initialization.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:migrations\\20250331131352_initialization.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\personaldetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\personaldetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250330201337_init.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -39,20 +91,12 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250330195325_status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\userhealthmanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\userhealthmanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\submittedhealthdetailscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\submittedhealthdetailscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\sendnotificationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\sendnotificationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\roomappointmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -63,20 +107,8 @@
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\rolesmanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\notificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\notificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\appointmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -103,24 +135,12 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250330120959_freshstart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\views\\shared\\partials\\_loginpartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:views\\shared\\partials\\_loginpartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\services\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:services\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250323194810_AddNotification.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250323194810_AddNotification.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\services\\qrcodeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -129,10 +149,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\healthdetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\healthdetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\usersmanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -153,10 +169,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250323113328_statussubmitted.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250323113328_statussubmitted.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250312173315_lastfix2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -194,17 +206,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 19,
               "Title": "AccountController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
               "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\AccountController.cs",
               "RelativeToolTip": "Controllers\\AccountController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAALAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAM4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-02T19:18:29.312Z",
               "IsPinned": true,
@@ -212,59 +224,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "20250331131352_Initialization.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250331131352_Initialization.cs",
-              "RelativeDocumentMoniker": "Migrations\\20250331131352_Initialization.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250331131352_Initialization.cs",
-              "RelativeToolTip": "Migrations\\20250331131352_Initialization.cs",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-31T13:13:52.647Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "AppDbContext.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Data\\AppDbContext.cs",
-              "RelativeDocumentMoniker": "Data\\AppDbContext.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Data\\AppDbContext.cs",
-              "RelativeToolTip": "Data\\AppDbContext.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAADwvysAAAA4AAAAAAAAAA==",
+              "Title": "ChatHub.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Hub\\ChatHub.cs",
+              "RelativeDocumentMoniker": "Hub\\ChatHub.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Hub\\ChatHub.cs",
+              "RelativeToolTip": "Hub\\ChatHub.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAQwBgAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-31T11:37:50.884Z",
+              "WhenOpened": "2025-04-11T22:21:29.413Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "PersonalAppointment.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\PersonalAppointment.cs",
-              "RelativeDocumentMoniker": "Models\\PersonalAppointment.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\PersonalAppointment.cs",
-              "RelativeToolTip": "Models\\PersonalAppointment.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAGIAAAAAAAAAAAAcwHkAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-30T13:03:54.424Z",
+              "WhenOpened": "2025-03-03T01:14:43.229Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "PersonalAppointmentController.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\PersonalAppointmentController.cs",
-              "RelativeDocumentMoniker": "Controllers\\PersonalAppointmentController.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\PersonalAppointmentController.cs",
-              "RelativeToolTip": "Controllers\\PersonalAppointmentController.cs",
-              "ViewState": "AgIAAA8BAAAAAAAAAAAcwBoBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-30T13:02:18.429Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 0,
               "Title": "Users.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\Users.cs",
               "RelativeDocumentMoniker": "Models\\Users.cs",
@@ -277,20 +263,215 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 5,
+              "Title": "ProfileController.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\ProfileController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ProfileController.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\ProfileController.cs",
+              "RelativeToolTip": "Controllers\\ProfileController.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAAAGYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T08:42:54.98Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "PersonalDetails.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\PersonalDetails.cs",
               "RelativeDocumentMoniker": "Models\\PersonalDetails.cs",
               "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\PersonalDetails.cs",
               "RelativeToolTip": "Models\\PersonalDetails.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAcwBcAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-06T06:04:33.065Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-02-27T17:25:30.548Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PersonalAppointmentController.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\PersonalAppointmentController.cs",
+              "RelativeDocumentMoniker": "Controllers\\PersonalAppointmentController.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\PersonalAppointmentController.cs",
+              "RelativeToolTip": "Controllers\\PersonalAppointmentController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJMBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T13:02:18.429Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 7,
+              "Title": "NotificationsController.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\NotificationsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\NotificationsController.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\NotificationsController.cs",
+              "RelativeToolTip": "Controllers\\NotificationsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-23T19:55:46.281Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "SendNotificationController.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\SendNotificationController.cs",
+              "RelativeDocumentMoniker": "Controllers\\SendNotificationController.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\SendNotificationController.cs",
+              "RelativeToolTip": "Controllers\\SendNotificationController.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAkwDEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-23T20:18:21.162Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "NotificationService.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\NotificationService.cs",
+              "RelativeDocumentMoniker": "Services\\NotificationService.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\NotificationService.cs",
+              "RelativeToolTip": "Services\\NotificationService.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAwwBoAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-23T19:39:18.085Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "EmailService.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\EmailService.cs",
+              "RelativeDocumentMoniker": "Services\\EmailService.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\EmailService.cs",
+              "RelativeToolTip": "Services\\EmailService.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAswEgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-23T19:38:35.504Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAAAYAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-03-08T18:17:56.132Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "20250401181436_UpdateChatMessageCascadeBehavior2.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250401181436_UpdateChatMessageCascadeBehavior2.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250401181436_UpdateChatMessageCascadeBehavior2.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250401181436_UpdateChatMessageCascadeBehavior2.cs",
+              "RelativeToolTip": "Migrations\\20250401181436_UpdateChatMessageCascadeBehavior2.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-01T18:14:36.957Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "Data\\AppDbContext.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "Data\\AppDbContext.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAiwFAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-31T11:37:50.884Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "DashboardController.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\DashboardController.cs",
+              "RelativeDocumentMoniker": "Controllers\\DashboardController.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\DashboardController.cs",
+              "RelativeToolTip": "Controllers\\DashboardController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-03T06:27:03.128Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "20250401165500_chatsystem.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250401165500_chatsystem.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250401165500_chatsystem.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250401165500_chatsystem.cs",
+              "RelativeToolTip": "Migrations\\20250401165500_chatsystem.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-01T16:55:01.01Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ErrorViewModel.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\ErrorViewModel.cs",
+              "RelativeDocumentMoniker": "Models\\ErrorViewModel.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\ErrorViewModel.cs",
+              "RelativeToolTip": "Models\\ErrorViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-08T21:33:41.952Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "PersonalAppointment.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\PersonalAppointment.cs",
+              "RelativeDocumentMoniker": "Models\\PersonalAppointment.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\PersonalAppointment.cs",
+              "RelativeToolTip": "Models\\PersonalAppointment.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T13:03:54.424Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "20250331131352_Initialization.cs",
+              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250331131352_Initialization.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250331131352_Initialization.cs",
+              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250331131352_Initialization.cs",
+              "RelativeToolTip": "Migrations\\20250331131352_Initialization.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-31T13:13:52.647Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
               "Title": "20250330201337_init.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250330201337_init.cs",
               "RelativeDocumentMoniker": "Migrations\\20250330201337_init.cs",
@@ -303,7 +484,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 21,
               "Title": "20250330195325_status.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250330195325_status.cs",
               "RelativeDocumentMoniker": "Migrations\\20250330195325_status.cs",
@@ -316,7 +497,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 22,
               "Title": "UserHealthManagementController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\UserHealthManagementController.cs",
               "RelativeDocumentMoniker": "Controllers\\UserHealthManagementController.cs",
@@ -328,19 +509,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAHQAAAAAAAAAAAAmwJMAAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-03T01:14:43.229Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 23,
               "Title": "SubmittedHealthDetailsController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\SubmittedHealthDetailsController.cs",
               "RelativeDocumentMoniker": "Controllers\\SubmittedHealthDetailsController.cs",
@@ -352,19 +521,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "SendNotificationController.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\SendNotificationController.cs",
-              "RelativeDocumentMoniker": "Controllers\\SendNotificationController.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\SendNotificationController.cs",
-              "RelativeToolTip": "Controllers\\SendNotificationController.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAkwDEAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-23T20:18:21.162Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 24,
               "Title": "RoomAppointmentController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\RoomAppointmentController.cs",
               "RelativeDocumentMoniker": "Controllers\\RoomAppointmentController.cs",
@@ -376,7 +533,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 25,
               "Title": "RolesManagementController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\RolesManagementController.cs",
               "RelativeDocumentMoniker": "Controllers\\RolesManagementController.cs",
@@ -388,31 +545,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "ProfileController.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\ProfileController.cs",
-              "RelativeDocumentMoniker": "Controllers\\ProfileController.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\ProfileController.cs",
-              "RelativeToolTip": "Controllers\\ProfileController.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAGQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-06T08:42:54.98Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "NotificationsController.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\NotificationsController.cs",
-              "RelativeDocumentMoniker": "Controllers\\NotificationsController.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\NotificationsController.cs",
-              "RelativeToolTip": "Controllers\\NotificationsController.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAxwBAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-23T19:55:46.281Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 26,
               "Title": "HomeController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
@@ -424,19 +557,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "DashboardController.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\DashboardController.cs",
-              "RelativeDocumentMoniker": "Controllers\\DashboardController.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\DashboardController.cs",
-              "RelativeToolTip": "Controllers\\DashboardController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-03T06:27:03.128Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 27,
               "Title": "AppointmentController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\AppointmentController.cs",
               "RelativeDocumentMoniker": "Controllers\\AppointmentController.cs",
@@ -448,7 +569,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 28,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Views\\PersonalAppointment\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\PersonalAppointment\\Index.cshtml",
@@ -460,7 +581,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 30,
               "Title": "RoomAppointment.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\RoomAppointment.cs",
               "RelativeDocumentMoniker": "Models\\RoomAppointment.cs",
@@ -472,7 +593,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 29,
               "Title": "Notification.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\Notification.cs",
               "RelativeDocumentMoniker": "Models\\Notification.cs",
@@ -484,7 +605,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 31,
               "Title": "SubmittedHealthDetails.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\SubmittedHealthDetails.cs",
               "RelativeDocumentMoniker": "Models\\SubmittedHealthDetails.cs",
@@ -496,7 +617,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 32,
               "Title": "20250330120959_freshstart.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250330120959_freshstart.cs",
               "RelativeDocumentMoniker": "Migrations\\20250330120959_freshstart.cs",
@@ -508,19 +629,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAIwCEAAAAPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-02-27T17:25:30.548Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 33,
               "Title": "_LoginPartial.cshtml",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Views\\Shared\\Partials\\_LoginPartial.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\Partials\\_LoginPartial.cshtml",
@@ -532,19 +641,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
-              "Title": "NotificationService.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\NotificationService.cs",
-              "RelativeDocumentMoniker": "Services\\NotificationService.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\NotificationService.cs",
-              "RelativeToolTip": "Services\\NotificationService.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABgAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-23T19:39:18.085Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 34,
               "Title": "20250323194810_AddNotification.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250323194810_AddNotification.cs",
               "RelativeDocumentMoniker": "Migrations\\20250323194810_AddNotification.cs",
@@ -556,19 +653,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
-              "Title": "EmailService.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\EmailService.cs",
-              "RelativeDocumentMoniker": "Services\\EmailService.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\EmailService.cs",
-              "RelativeToolTip": "Services\\EmailService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-23T19:38:35.504Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 36,
               "Title": "HealthDetails.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\HealthDetails.cs",
               "RelativeDocumentMoniker": "Models\\HealthDetails.cs",
@@ -580,7 +665,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 35,
               "Title": "QRCodeService.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Services\\QRCodeService.cs",
               "RelativeDocumentMoniker": "Services\\QRCodeService.cs",
@@ -592,19 +677,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
-              "Title": "launchSettings.json",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Properties\\launchSettings.json",
-              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Properties\\launchSettings.json",
-              "RelativeToolTip": "Properties\\launchSettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-03-08T18:17:56.132Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 37,
               "Title": "UsersManagementController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\UsersManagementController.cs",
               "RelativeDocumentMoniker": "Controllers\\UsersManagementController.cs",
@@ -616,7 +689,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 38,
               "Title": "SubmittedHealthDetailsViewModel.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\ViewModels\\SubmittedHealthDetailsViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\SubmittedHealthDetailsViewModel.cs",
@@ -628,7 +701,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 39,
               "Title": "RegisterViewModel.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\ViewModels\\RegisterViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\RegisterViewModel.cs",
@@ -640,7 +713,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 40,
               "Title": "20250323141108_init.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250323141108_init.cs",
               "RelativeDocumentMoniker": "Migrations\\20250323141108_init.cs",
@@ -652,7 +725,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 41,
               "Title": "20250323113328_statussubmitted.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250323113328_statussubmitted.cs",
               "RelativeDocumentMoniker": "Migrations\\20250323113328_statussubmitted.cs",
@@ -664,19 +737,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
-              "Title": "ErrorViewModel.cs",
-              "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\ErrorViewModel.cs",
-              "RelativeDocumentMoniker": "Models\\ErrorViewModel.cs",
-              "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\ErrorViewModel.cs",
-              "RelativeToolTip": "Models\\ErrorViewModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-08T21:33:41.952Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 42,
               "Title": "20250312173315_lastfix2.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250312173315_lastfix2.cs",
               "RelativeDocumentMoniker": "Migrations\\20250312173315_lastfix2.cs",
@@ -688,7 +749,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 48,
               "Title": "QRScannerController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\QRScannerController.cs",
               "RelativeDocumentMoniker": "Controllers\\QRScannerController.cs",
@@ -700,7 +761,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 43,
               "Title": "VerifyEmailViewModel.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\ViewModels\\VerifyEmailViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\VerifyEmailViewModel.cs",
@@ -712,7 +773,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 44,
               "Title": "ProfileViewModel.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\ViewModels\\ProfileViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\ProfileViewModel.cs",
@@ -724,7 +785,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 45,
               "Title": "ChangePasswordViewModel.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\ViewModels\\ChangePasswordViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\ChangePasswordViewModel.cs",
@@ -736,7 +797,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 46,
               "Title": "LoginViewModel.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\ViewModels\\LoginViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\LoginViewModel.cs",
@@ -748,7 +809,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 47,
               "Title": "account.css",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\wwwroot\\css\\account.css",
               "RelativeDocumentMoniker": "wwwroot\\css\\account.css",
