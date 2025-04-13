@@ -41,18 +41,18 @@
                 </div>
             </div>
             <div class="modal-body p-0">
-                <div class="d-flex" style="height: 400px;">
-                    <!-- Contacts List -->
-                    <div class="contacts-list" style="width: 120px; border-right: 1px solid #dee2e6; overflow-y: auto;">
+                <div class="d-flex" style="height: calc(100vh - 140px);">
+                    <!-- Contacts List - Wider now -->
+                    <div class="contacts-list" style="width: 300px; border-right: 1px solid #dee2e6; overflow-y: auto; background-color: #f8f9fa;">
                         <div class="list-group list-group-flush">
                             <!-- Contacts will be loaded here -->
                         </div>
                     </div>
                     
-                    <!-- Chat Area -->
-                    <div class="chat-area flex-grow-1 d-flex flex-column">
+                    <!-- Chat Area - Takes remaining space -->
+                    <div class="chat-area flex-grow-1 d-flex flex-column" style="background-color: #f0f2f5;">
                         <!-- Chat Header -->
-                        <div class="chat-header p-2 border-bottom d-flex align-items-center" style="display: none;">
+                        <div class="chat-header p-2 border-bottom d-flex align-items-center" style="display: none; background-color: white;">
                             <img id="currentContactAvatar" src="" class="rounded-circle me-2" width="40" height="40">
                             <div>
                                 <h6 id="currentContactName" class="mb-0"></h6>
@@ -60,13 +60,13 @@
                             </div>
                         </div>
                         
-                        <!-- Messages -->
-                        <div id="chatMessages" class="flex-grow-1 p-3" style="overflow-y: auto;">
+                        <!-- Messages - Takes all available space -->
+                        <div id="chatMessages" class="flex-grow-1 p-3" style="overflow-y: auto; height: calc(100% - 120px);">
                             <!-- Messages will appear here -->
                         </div>
                         
                         <!-- Message Input -->
-                        <div class="message-input p-2 border-top">
+                        <div class="message-input p-3 border-top" style="background-color: white;">
                             <div class="input-group">
                                 <input type="text" class="form-control" placeholder="Type your message..." id="chatMessageInput" disabled>
                                 <button class="btn btn-primary" type="button" id="sendMessageBtn" disabled>
@@ -95,7 +95,6 @@
             .withUrl("/chatHub")
             .withAutomaticReconnect({
                 nextRetryDelayInMilliseconds: retryContext => {
-                    // Exponential backoff: 1s, 2s, 4s, 8s, 16s, then 30s max
                     return Math.min(retryContext.elapsedMilliseconds * 2, 30000);
                 }
             })
@@ -137,14 +136,11 @@
                 updateConnectionStatus(true);
                 console.log("SignalR Connected.");
                 
-                // Get initial online users
                 const onlineUserIds = await connection.invoke("GetOnlineUsers");
                 onlineUsers = onlineUserIds;
                 
-                // Load contacts after connection is established
                 loadContacts();
                 
-                // Start ping every 30 seconds to keep connection alive
                 setInterval(() => {
                     if (connection.state === signalR.HubConnectionState.Connected) {
                         connection.invoke("Ping").catch(err => console.error('Ping failed:', err));
@@ -158,22 +154,18 @@
             }
         }
         
-        // Connection closed handler
         connection.onclose(async (error) => {
             updateConnectionStatus(false);
             console.log('Connection closed. Attempting to reconnect...', error);
         });
         
-        // Reconnected handler
         connection.onreconnected(async (connectionId) => {
             updateConnectionStatus(true);
             console.log('Reconnected successfully');
             
-            // Refresh online statuses after reconnection
             const onlineUserIds = await connection.invoke("GetOnlineUsers");
             onlineUsers = onlineUserIds;
             
-            // Update all contact statuses
             $('.contact-item').each(function() {
                 const userId = $(this).data('id');
                 const isOnline = onlineUsers.includes(userId);
@@ -181,30 +173,31 @@
             });
         });
         
-        // Load contacts from server
         async function loadContacts() {
             try {
                 const response = await fetch('/Chat/GetRecentContacts');
                 if (response.ok) {
-                    const contacts = await response.json();
-                    renderContacts(contacts);
+                    const data = await response.json();
+                    renderContacts(data.recentContacts, data.allUsers);
                 }
             } catch (error) {
                 console.error('Failed to load contacts:', error);
             }
         }
-        
-        // Render contacts list
-        function renderContacts(contacts) {
+
+        function renderContacts(recentContacts, allUsers) {
             const contactsList = $('.contacts-list .list-group');
             contactsList.empty();
             
-            contacts.forEach(contact => {
+            recentContacts.forEach(contact => {
                 const isOnline = onlineUsers.includes(contact.id);
                 const contactElement = $(`
                     <a href="#" class="list-group-item list-group-item-action contact-item" data-id="${contact.id}">
-                        <img src="${contact.profilePic}" class="rounded-circle me-1" width="30" height="30">
-                        <div class="online-status ${isOnline ? 'online' : 'offline'}"></div>
+                        <div class="d-flex align-items-center">
+                            <img src="${contact.profilePic}" class="rounded-circle me-2" width="30" height="30">
+                            <div class="online-status ${isOnline ? 'online' : 'offline'} me-2"></div>
+                            <span class="text-truncate">${contact.name}</span>
+                        </div>
                     </a>
                 `);
                 
@@ -214,13 +207,30 @@
                 
                 contactsList.append(contactElement);
             });
+            
+            allUsers.forEach(user => {
+                const isOnline = onlineUsers.includes(user.id);
+                const userElement = $(`
+                    <a href="#" class="list-group-item list-group-item-action contact-item" data-id="${user.id}">
+                        <div class="d-flex align-items-center">
+                            <img src="${user.profilePic}" class="rounded-circle me-2" width="30" height="30">
+                            <div class="online-status ${isOnline ? 'online' : 'offline'} me-2"></div>
+                            <span class="text-truncate">${user.name}</span>
+                        </div>
+                    </a>
+                `);
+                
+                userElement.on('click', function() {
+                    loadConversation(user.id, user.name, user.profilePic, isOnline);
+                });
+                
+                contactsList.append(userElement);
+            });
         }
         
-        // Load conversation with a contact
         async function loadConversation(contactId, contactName, contactProfilePic, isOnline) {
             currentContactId = contactId;
             
-            // Update chat header
             $('.chat-header').show();
             $('#currentContactName').text(contactName);
             $('#currentContactAvatar').attr('src', contactProfilePic);
@@ -228,7 +238,6 @@
             $('#currentContactStatus').toggleClass('text-success', isOnline);
             $('#currentContactStatus').toggleClass('text-muted', !isOnline);
             
-            // Enable message input
             $('#chatMessageInput').prop('disabled', false);
             $('#sendMessageBtn').prop('disabled', false);
             $('#chatMessageInput').focus();
@@ -239,7 +248,6 @@
                     const messages = await response.json();
                     renderMessages(messages);
                     
-                    // Mark messages as read
                     if (connection.state === signalR.HubConnectionState.Connected) {
                         await connection.invoke("MarkMessagesAsRead", contactId);
                     }
@@ -249,14 +257,11 @@
             }
         }
         
-        // Render messages in the chat area
         function renderMessages(messages) {
             const chatMessages = $('#chatMessages');
+            chatMessages.empty();
             
-            // Only clear if we have messages to render
             if (messages && messages.length > 0) {
-                chatMessages.empty();
-                
                 messages.forEach(message => {
                     const isCurrentUser = message.senderId === currentUserId;
                     const messageClass = isCurrentUser ? "sent" : "received";
@@ -288,13 +293,23 @@
                 });
                 
                 chatMessages.scrollTop(chatMessages[0].scrollHeight);
+            } else {
+                // Add this block to show a "no messages" indicator
+                const noMessagesElement = $(`
+                    <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                        <div class="text-center p-4">
+                            <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No messages yet</h5>
+                            <p class="text-muted">Send a message to start the conversation</p>
+                        </div>
+                    </div>
+                `);
+                chatMessages.append(noMessagesElement);
             }
         }
         
-        // Receive private messages
         connection.on("ReceivePrivateMessage", (message) => {
             if (currentContactId && (message.senderId === currentContactId || message.senderId === currentUserId)) {
-                // Instead of replacing all messages, just append the new one
                 const isCurrentUser = message.senderId === currentUserId;
                 const messageClass = isCurrentUser ? "sent" : "received";
                 const profilePic = isCurrentUser ? currentUserProfilePic : message.senderProfilePic;
@@ -324,14 +339,12 @@
                 $('#chatMessages').append(messageElement);
                 $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
                 
-                // If this is a received message, mark it as read
                 if (message.senderId === currentContactId && !message.readAt) {
                     connection.invoke("MarkMessagesAsRead", currentContactId);
                 }
             }
         });
         
-        // Update online status
         connection.on("UserOnlineStatusChanged", (userId, isOnline) => {
             if (isOnline) {
                 if (!onlineUsers.includes(userId)) {
@@ -343,26 +356,23 @@
             updateContactOnlineStatus(userId, isOnline);
         });
         
-        // Format time to HH:MM AM/PM
         function formatTime(timestamp) {
             const date = new Date(timestamp);
             let hours = date.getHours();
             const minutes = date.getMinutes().toString().padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
+            hours = hours ? hours : 12;
             return `${hours}:${minutes} ${ampm}`;
         }
         
-        // Initialize chat modal
         $('#chatModal').on('shown.bs.modal', function() {
             $('#chatMessageInput').focus();
         });
         
-        // Send message handler
         $('#sendMessageBtn').click(sendMessage);
         $('#chatMessageInput').keypress(function(e) {
-            if (e.which === 13) { // Enter key
+            if (e.which === 13) {
                 sendMessage();
             }
         });
@@ -371,27 +381,23 @@
             const messageText = $('#chatMessageInput').val().trim();
             if (messageText && currentContactId && connection.state === signalR.HubConnectionState.Connected) {
                 try {
-                    // Disable input while sending
                     $('#chatMessageInput').prop('disabled', true);
                     $('#sendMessageBtn').prop('disabled', true);
                     
                     await connection.invoke("SendPrivateMessage", currentContactId, messageText);
                     $('#chatMessageInput').val('');
                     
-                    // Re-enable input
                     $('#chatMessageInput').prop('disabled', false);
                     $('#sendMessageBtn').prop('disabled', false);
                     $('#chatMessageInput').focus();
                 } catch (err) {
                     console.error(err);
-                    // Re-enable input on error too
                     $('#chatMessageInput').prop('disabled', false);
                     $('#sendMessageBtn').prop('disabled', false);
                 }
             }
         }
         
-        // Start the connection when the page loads
         startConnection();
     });
 </script>

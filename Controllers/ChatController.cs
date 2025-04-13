@@ -51,6 +51,7 @@ public class ChatController : Controller
     }
 
     [HttpGet]
+    [HttpGet]
     public async Task<IActionResult> GetRecentContacts()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -67,7 +68,6 @@ public class ChatController : Controller
             .OrderByDescending(m => m.SentAt)
             .Select(m => m.Receiver)
             .Distinct()
-            .Take(5)
             .ToListAsync();
 
         var receivedFrom = await _context.PersonalMessages
@@ -75,7 +75,6 @@ public class ChatController : Controller
             .OrderByDescending(m => m.SentAt)
             .Select(m => m.Sender)
             .Distinct()
-            .Take(5)
             .ToListAsync();
 
         var recentContacts = sentTo.Union(receivedFrom)
@@ -85,19 +84,34 @@ public class ChatController : Controller
                 .Where(m => (m.SenderId == userId && m.ReceiverId == u.Id) ||
                            (m.SenderId == u.Id && m.ReceiverId == userId))
                 .Max(m => m.SentAt))
-            .Take(10)
             .ToList();
 
-        // If no recent contacts, return all users
-        var contacts = recentContacts.Any() ? recentContacts : allUsers.Take(10).ToList();
-
-        return Ok(contacts.Select(c => new
+        return Ok(new
         {
-            Id = c.Id,
-            Name = c.FullName ?? c.UserName,
-            ProfilePic = c.ProfilePictureUrl ?? "/images/default-profile.png",
-            IsOnline = false // You would implement online status tracking
-        }));
+            RecentContacts = recentContacts.Select(c => new
+            {
+                Id = c.Id,
+                Name = c.FullName ?? c.UserName,
+                ProfilePic = c.ProfilePictureUrl ?? "/images/default-profile.png",
+                IsRecent = true,
+                IsOnline = false,
+                LastMessageTime = _context.PersonalMessages
+                    .Where(m => (m.SenderId == userId && m.ReceiverId == c.Id) ||
+                               (m.SenderId == c.Id && m.ReceiverId == userId))
+                    .Max(m => (DateTime?)m.SentAt)
+            }),
+            AllUsers = allUsers
+                .Where(u => !recentContacts.Any(rc => rc.Id == u.Id))
+                .Select(u => new
+                {
+                    Id = u.Id,
+                    Name = u.FullName ?? u.UserName,
+                    ProfilePic = u.ProfilePictureUrl ?? "/images/default-profile.png",
+                    IsRecent = false,
+                    IsOnline = false,
+                    LastMessageTime = (DateTime?)null
+                })
+        });
     }
 
     [HttpGet]
