@@ -24,6 +24,8 @@ builder.Services.AddScoped<NotificationService>();
 // ✅ Add SignalR services
 builder.Services.AddSignalR();
 
+builder.Services.AddScoped<ChatService>();
+
 // ✅ Configure Identity with Google Authentication
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
 {

@@ -6,6 +6,7 @@
     var user = await userManager.GetUserAsync(User);
     var name = user?.FullName ?? user?.UserName ?? "Guest";
     var profilePicture = user?.ProfilePictureUrl ?? "/images/default-profile.png";
+    var userId = user?.Id;
 
     var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
     var role = roles.Any() ? roles.First() : "User";
@@ -29,7 +30,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Group Chat <span id="connectionStatus" class="badge bg-secondary">Disconnected</span></h5>
+                <h5 class="modal-title">Messages <span id="connectionStatus" class="badge bg-secondary">Disconnected</span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="alert alert-info d-flex align-items-center m-2" role="alert">
@@ -40,16 +41,40 @@
                 </div>
             </div>
             <div class="modal-body p-0">
-                <div id="chatMessages" style="height: 300px; overflow-y: auto; padding: 10px;">
-                    <!-- Messages will appear here -->
-                </div>
-            </div>
-            <div class="modal-footer p-2">
-                <div class="input-group w-100">
-                    <input type="text" class="form-control" placeholder="Type your message..." id="chatMessageInput">
-                    <button class="btn btn-primary" type="button" id="sendMessageBtn">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+                <div class="d-flex" style="height: 400px;">
+                    <!-- Contacts List -->
+                    <div class="contacts-list" style="width: 120px; border-right: 1px solid #dee2e6; overflow-y: auto;">
+                        <div class="list-group list-group-flush">
+                            <!-- Contacts will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Area -->
+                    <div class="chat-area flex-grow-1 d-flex flex-column">
+                        <!-- Chat Header -->
+                        <div class="chat-header p-2 border-bottom d-flex align-items-center" style="display: none;">
+                            <img id="currentContactAvatar" src="" class="rounded-circle me-2" width="40" height="40">
+                            <div>
+                                <h6 id="currentContactName" class="mb-0"></h6>
+                                <small id="currentContactStatus" class="text-muted">Offline</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Messages -->
+                        <div id="chatMessages" class="flex-grow-1 p-3" style="overflow-y: auto;">
+                            <!-- Messages will appear here -->
+                        </div>
+                        
+                        <!-- Message Input -->
+                        <div class="message-input p-2 border-top">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Type your message..." id="chatMessageInput" disabled>
+                                <button class="btn btn-primary" type="button" id="sendMessageBtn" disabled>
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -59,14 +84,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Get the user's info from the server-side variables
-        const userName = '@name';
-        const userProfilePic = '@profilePicture';
-        const userRole = '@role';
+        const currentUserId = '@userId';
+        const currentUserName = '@name';
+        const currentUserProfilePic = '@profilePicture';
+        let currentContactId = null;
+        let onlineUsers = [];
         
         // Initialize SignalR connection
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/chatHub")
+            .withAutomaticReconnect({
+                nextRetryDelayInMilliseconds: retryContext => {
+                    // Exponential backoff: 1s, 2s, 4s, 8s, 16s, then 30s max
+                    return Math.min(retryContext.elapsedMilliseconds * 2, 30000);
+                }
+            })
             .configureLogging(signalR.LogLevel.Information)
             .build();
         
@@ -84,6 +116,19 @@
             }
         }
         
+        // Update contact online status
+        function updateContactOnlineStatus(userId, isOnline) {
+            $(`.contact-item[data-id="${userId}"] .online-status`)
+                .toggleClass('online', isOnline)
+                .toggleClass('offline', !isOnline);
+                
+            if (currentContactId === userId) {
+                $('#currentContactStatus').text(isOnline ? 'Online' : 'Offline');
+                $('#currentContactStatus').toggleClass('text-success', isOnline);
+                $('#currentContactStatus').toggleClass('text-muted', !isOnline);
+            }
+        }
+        
         // Start the connection
         async function startConnection() {
             updateConnectionStatus(null);
@@ -92,8 +137,19 @@
                 updateConnectionStatus(true);
                 console.log("SignalR Connected.");
                 
-                // Join the group chat with the user's name
-                await connection.invoke("JoinGroup", "GeneralChat", userName);
+                // Get initial online users
+                const onlineUserIds = await connection.invoke("GetOnlineUsers");
+                onlineUsers = onlineUserIds;
+                
+                // Load contacts after connection is established
+                loadContacts();
+                
+                // Start ping every 30 seconds to keep connection alive
+                setInterval(() => {
+                    if (connection.state === signalR.HubConnectionState.Connected) {
+                        connection.invoke("Ping").catch(err => console.error('Ping failed:', err));
+                    }
+                }, 30000);
                 
             } catch (err) {
                 updateConnectionStatus(false);
@@ -103,64 +159,188 @@
         }
         
         // Connection closed handler
-        connection.onclose(async () => {
+        connection.onclose(async (error) => {
             updateConnectionStatus(false);
-            await startConnection();
+            console.log('Connection closed. Attempting to reconnect...', error);
         });
         
-        // Receive messages from the hub
-        connection.on("ReceiveMessage", (user, message, timestamp, profilePic) => {
-            const isCurrentUser = user === userName;
-            const messageClass = isCurrentUser ? "sent" : "received";
+        // Reconnected handler
+        connection.onreconnected(async (connectionId) => {
+            updateConnectionStatus(true);
+            console.log('Reconnected successfully');
             
-            const getRoleBadgeClass = (role) => {
-                switch(role.toLowerCase()) {
-                    case 'admin': return 'bg-danger';
-                    case 'superadmin': return 'bg-warning text-dark';
-                    case 'medicalstaff': return 'bg-info text-dark';
-                    case 'student': return 'bg-primary';
-                    default: return 'bg-secondary';
+            // Refresh online statuses after reconnection
+            const onlineUserIds = await connection.invoke("GetOnlineUsers");
+            onlineUsers = onlineUserIds;
+            
+            // Update all contact statuses
+            $('.contact-item').each(function() {
+                const userId = $(this).data('id');
+                const isOnline = onlineUsers.includes(userId);
+                updateContactOnlineStatus(userId, isOnline);
+            });
+        });
+        
+        // Load contacts from server
+        async function loadContacts() {
+            try {
+                const response = await fetch('/Chat/GetRecentContacts');
+                if (response.ok) {
+                    const contacts = await response.json();
+                    renderContacts(contacts);
                 }
-            };
+            } catch (error) {
+                console.error('Failed to load contacts:', error);
+            }
+        }
+        
+        // Render contacts list
+        function renderContacts(contacts) {
+            const contactsList = $('.contacts-list .list-group');
+            contactsList.empty();
             
-            const roleBadge = isCurrentUser 
-                ? `<span class="badge ${getRoleBadgeClass(userRole)} ms-2">${userRole}</span>`
-                : `<span class="badge bg-secondary ms-2">User</span>`;
+            contacts.forEach(contact => {
+                const isOnline = onlineUsers.includes(contact.id);
+                const contactElement = $(`
+                    <a href="#" class="list-group-item list-group-item-action contact-item" data-id="${contact.id}">
+                        <img src="${contact.profilePic}" class="rounded-circle me-1" width="30" height="30">
+                        <div class="online-status ${isOnline ? 'online' : 'offline'}"></div>
+                    </a>
+                `);
+                
+                contactElement.on('click', function() {
+                    loadConversation(contact.id, contact.name, contact.profilePic, isOnline);
+                });
+                
+                contactsList.append(contactElement);
+            });
+        }
+        
+        // Load conversation with a contact
+        async function loadConversation(contactId, contactName, contactProfilePic, isOnline) {
+            currentContactId = contactId;
             
-            const messageElement = `
-                <div class="chat-message ${messageClass}">
-                    <div class="message-container">
-                        ${!isCurrentUser ? `<img src="${profilePic || '/images/default-profile.png'}" class="message-avatar" alt="${user}'s profile picture">` : ''}
-                        <div class="message-content">
-                            <div class="message-header">
-                                <span class="message-user">${user}</span>
-                                ${roleBadge}
-                            </div>
-                            <div class="message-bubble">
-                                <div class="message-text">${message}</div>
-                            </div>
-                            <div class="message-footer">
-                                <span class="message-time">${formatTime(timestamp)}</span>
+            // Update chat header
+            $('.chat-header').show();
+            $('#currentContactName').text(contactName);
+            $('#currentContactAvatar').attr('src', contactProfilePic);
+            $('#currentContactStatus').text(isOnline ? 'Online' : 'Offline');
+            $('#currentContactStatus').toggleClass('text-success', isOnline);
+            $('#currentContactStatus').toggleClass('text-muted', !isOnline);
+            
+            // Enable message input
+            $('#chatMessageInput').prop('disabled', false);
+            $('#sendMessageBtn').prop('disabled', false);
+            $('#chatMessageInput').focus();
+            
+            try {
+                const response = await fetch(`/Chat/GetConversation?contactId=${contactId}`);
+                if (response.ok) {
+                    const messages = await response.json();
+                    renderMessages(messages);
+                    
+                    // Mark messages as read
+                    if (connection.state === signalR.HubConnectionState.Connected) {
+                        await connection.invoke("MarkMessagesAsRead", contactId);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load conversation:', error);
+            }
+        }
+        
+        // Render messages in the chat area
+        function renderMessages(messages) {
+            const chatMessages = $('#chatMessages');
+            
+            // Only clear if we have messages to render
+            if (messages && messages.length > 0) {
+                chatMessages.empty();
+                
+                messages.forEach(message => {
+                    const isCurrentUser = message.senderId === currentUserId;
+                    const messageClass = isCurrentUser ? "sent" : "received";
+                    const profilePic = isCurrentUser ? currentUserProfilePic : message.senderProfilePic;
+                    const senderName = isCurrentUser ? currentUserName : message.senderName;
+                    
+                    const messageElement = $(`
+                        <div class="chat-message ${messageClass}">
+                            <div class="message-container">
+                                ${!isCurrentUser ? `<img src="${profilePic}" class="message-avatar" alt="${senderName}'s profile picture">` : ''}
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <span class="message-user">${senderName}</span>
+                                    </div>
+                                    <div class="message-bubble">
+                                        <div class="message-text">${message.content}</div>
+                                    </div>
+                                    <div class="message-footer">
+                                        <span class="message-time">${formatTime(message.sentAt)}</span>
+                                        ${isCurrentUser ? `<span class="message-status ${message.readAt ? 'read' : 'sent'}"></span>` : ''}
+                                    </div>
+                                </div>
+                                ${isCurrentUser ? `<img src="${profilePic}" class="message-avatar" alt="Your profile picture">` : ''}
                             </div>
                         </div>
-                        ${isCurrentUser ? `<img src="${userProfilePic}" class="message-avatar" alt="Your profile picture">` : ''}
+                    `);
+                    
+                    chatMessages.append(messageElement);
+                });
+                
+                chatMessages.scrollTop(chatMessages[0].scrollHeight);
+            }
+        }
+        
+        // Receive private messages
+        connection.on("ReceivePrivateMessage", (message) => {
+            if (currentContactId && (message.senderId === currentContactId || message.senderId === currentUserId)) {
+                // Instead of replacing all messages, just append the new one
+                const isCurrentUser = message.senderId === currentUserId;
+                const messageClass = isCurrentUser ? "sent" : "received";
+                const profilePic = isCurrentUser ? currentUserProfilePic : message.senderProfilePic;
+                const senderName = isCurrentUser ? currentUserName : message.senderName;
+                
+                const messageElement = $(`
+                    <div class="chat-message ${messageClass}">
+                        <div class="message-container">
+                            ${!isCurrentUser ? `<img src="${profilePic}" class="message-avatar" alt="${senderName}'s profile picture">` : ''}
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-user">${senderName}</span>
+                                </div>
+                                <div class="message-bubble">
+                                    <div class="message-text">${message.content}</div>
+                                </div>
+                                <div class="message-footer">
+                                    <span class="message-time">${formatTime(message.sentAt)}</span>
+                                    ${isCurrentUser ? `<span class="message-status ${message.readAt ? 'read' : 'sent'}"></span>` : ''}
+                                </div>
+                            </div>
+                            ${isCurrentUser ? `<img src="${profilePic}" class="message-avatar" alt="Your profile picture">` : ''}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            $('#chatMessages').append(messageElement);
-            $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+                `);
+                
+                $('#chatMessages').append(messageElement);
+                $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+                
+                // If this is a received message, mark it as read
+                if (message.senderId === currentContactId && !message.readAt) {
+                    connection.invoke("MarkMessagesAsRead", currentContactId);
+                }
+            }
         });
         
-        // User joined notification
-        connection.on("UserJoined", (user) => {
-            const notificationElement = `
-                <div class="user-joined-notification">
-                    ${user} has joined the chat
-                </div>
-            `;
-            $('#chatMessages').append(notificationElement);
-            $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+        // Update online status
+        connection.on("UserOnlineStatusChanged", (userId, isOnline) => {
+            if (isOnline) {
+                if (!onlineUsers.includes(userId)) {
+                    onlineUsers.push(userId);
+                }
+            } else {
+                onlineUsers = onlineUsers.filter(id => id !== userId);
+            }
+            updateContactOnlineStatus(userId, isOnline);
         });
         
         // Format time to HH:MM AM/PM
@@ -189,12 +369,24 @@
         
         async function sendMessage() {
             const messageText = $('#chatMessageInput').val().trim();
-            if (messageText && connection.state === signalR.HubConnectionState.Connected) {
+            if (messageText && currentContactId && connection.state === signalR.HubConnectionState.Connected) {
                 try {
-                    await connection.invoke("SendMessageToGroup", "GeneralChat", userName, messageText);
+                    // Disable input while sending
+                    $('#chatMessageInput').prop('disabled', true);
+                    $('#sendMessageBtn').prop('disabled', true);
+                    
+                    await connection.invoke("SendPrivateMessage", currentContactId, messageText);
                     $('#chatMessageInput').val('');
+                    
+                    // Re-enable input
+                    $('#chatMessageInput').prop('disabled', false);
+                    $('#sendMessageBtn').prop('disabled', false);
+                    $('#chatMessageInput').focus();
                 } catch (err) {
                     console.error(err);
+                    // Re-enable input on error too
+                    $('#chatMessageInput').prop('disabled', false);
+                    $('#sendMessageBtn').prop('disabled', false);
                 }
             }
         }

@@ -20,6 +20,10 @@ namespace WebApp.Data
         public DbSet<SubmittedHealthDetails> SubmittedHealthDetails { get; set; }
         public DbSet<PersonalAppointment> PersonalAppointments { get; set; }
 
+        // New table for chat
+
+        public DbSet<PersonalMessage> PersonalMessages { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder); // Call this once at the beginning
@@ -76,6 +80,19 @@ namespace WebApp.Data
                .HasOne(a => a.User)
                .WithMany()
                .HasForeignKey(a => a.UserId);
+
+            // Add this configuration for PersonalMessage
+            modelBuilder.Entity<PersonalMessage>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PersonalMessage>()
+                .HasOne(m => m.Receiver)
+                .WithMany()
+                .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

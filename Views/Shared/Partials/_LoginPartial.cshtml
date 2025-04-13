@@ -39,11 +39,18 @@
 
 	<!-- Notification and Profile Dropdown Container -->
 	<div class="d-flex align-items-center gap-2">
-		<!-- Chat Link -->
-		<a class="d-flex align-items-center gap-2 text-white text-decoration-none bg-primary p-2 rounded"
-		href="#" style="height: 40px;" data-bs-toggle="modal" data-bs-target="#chatModal">
-			<i class="fas fa-comment"></i>
-		</a>
+		<!-- Chat Link - Updated with badge for unread messages -->
+		<div class="position-relative">
+			<a class="d-flex align-items-center gap-2 text-white text-decoration-none bg-primary p-2 rounded"
+			   href="#" style="height: 40px;" data-bs-toggle="modal" data-bs-target="#chatModal"
+			   id="chatButton">
+				<i class="fas fa-comment"></i>
+			</a>
+			<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+				  id="unreadMessageCount" style="display: none;">
+				0
+			</span>
+		</div>
 
 		<!-- Include Notification Partial View -->
 		@await Html.PartialAsync("Partials/_NotificationPartial")
@@ -162,5 +169,45 @@ else
 	</a>
 }
 
+<script>
+    // Load unread message count when page loads
+    $(document).ready(function() {
+        loadUnreadMessageCount();
+        
+        // Set up SignalR connection for real-time updates
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
 
+        connection.on("ReceivePrivateMessage", () => {
+            // When a new message is received, update the count
+            loadUnreadMessageCount();
+        });
 
+        connection.on("MessagesRead", () => {
+            // When messages are read, update the count
+            loadUnreadMessageCount();
+        });
+
+        connection.start().catch(err => console.error(err));
+    });
+
+    function loadUnreadMessageCount() {
+        $.get('/Chat/GetUnreadCount', function(data) {
+            const count = data.count;
+            const badge = $('#unreadMessageCount');
+            
+            if (count > 0) {
+                badge.text(count).show();
+            } else {
+                badge.hide();
+            }
+        });
+    }
+
+    // When chat modal is closed, update the unread count
+    $('#chatModal').on('hidden.bs.modal', function() {
+        loadUnreadMessageCount();
+    });
+</script>
