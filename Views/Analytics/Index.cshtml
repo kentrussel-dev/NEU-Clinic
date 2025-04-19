@@ -1,0 +1,415 @@
+@model WebApp.Models.ViewModels.HealthAnalyticsViewModel
+@{
+    ViewData["Title"] = "Health Requirements Analytics";
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+<div class="container-fluid my-4">
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
+        <i class="fas fa-heartbeat me-2"></i>Health Requirements Analytics Dashboard
+    </h2>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Students</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalStudents</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Medical Staff</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalMedicalStaff</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-md fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Health Alerts</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalHealthAlerts</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Average Completion Rate</div>
+                            @{
+                                var avgCompletionRate = Model.RequirementStats.Values.Average(s => s.CompletionRate);
+                            }
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@avgCompletionRate.ToString("F2")%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Requirements Progress -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Health Requirements Completion Rate</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:40vh;">
+                        <canvas id="requirementsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Blood Type Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:40vh;">
+                        <canvas id="bloodTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Analytics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Department Health Requirements Completion</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:40vh;">
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Requirements Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4 user-table">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Health Requirements Status</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="requirementsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Requirement</th>
+                                    <th>Completed</th>
+                                    <th>Pending</th>
+                                    <th>Completion Rate</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var req in Model.RequirementStats)
+                                {
+                                    <tr>
+                                        <td>@req.Key</td>
+                                        <td>@req.Value.Completed</td>
+                                        <td>@(req.Value.Total - req.Value.Completed)</td>
+                                        <td>@req.Value.CompletionRate.ToString("F2")%</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                     style="width: @req.Value.CompletionRate%"
+                                                     aria-valuenow="@req.Value.CompletionRate" aria-valuemin="0" 
+                                                     aria-valuemax="100">@req.Value.CompletionRate.ToString("F2")%</div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Alerts Distribution -->
+    @if (Model.HealthAlertsDistribution.Any())
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Health Alerts Distribution</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="position: relative; height:40vh;">
+                            <canvas id="healthAlertsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    
+    <!-- Actions Buttons -->
+    <div class="row mt-4">
+        <div class="col-md-12 text-center">
+            <a href="#" class="btn btn-primary btn-modern mx-2">
+                <i class="fas fa-download"></i> Export Report
+            </a>
+            <a href="#" class="btn btn-success btn-modern mx-2">
+                <i class="fas fa-envelope"></i> Email Notifications
+            </a>
+            <a href="#" class="btn btn-danger btn-modern mx-2">
+                <i class="fas fa-exclamation-triangle"></i> View Critical Cases
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Helper function to generate random colors
+        function generateColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                const r = Math.floor(Math.random() * 200);
+                const g = Math.floor(Math.random() * 200);
+                const b = Math.floor(Math.random() * 200);
+                colors.push(`rgba(${r}, ${g}, ${b}, 0.7)`);
+            }
+            return colors;
+        }
+
+        // Requirements Chart
+        const reqCtx = document.getElementById('requirementsChart').getContext('2d');
+        const reqLabels = @Html.Raw(Json.Serialize(Model.RequirementStats.Keys));
+        const reqCompletionData = @Html.Raw(Json.Serialize(Model.RequirementStats.Values.Select(v => v.CompletionRate)));
+        const reqPendingData = @Html.Raw(Json.Serialize(Model.RequirementStats.Values.Select(v => v.PendingRate)));
+        
+        const reqColors = generateColors(reqLabels.length);
+        
+        new Chart(reqCtx, {
+            type: 'bar',
+            data: {
+                labels: reqLabels,
+                datasets: [
+                    {
+                        label: 'Completed (%)',
+                        data: reqCompletionData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Pending (%)',
+                        data: reqPendingData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        max: 100
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+
+        // Blood Type Chart
+        const bloodTypeCtx = document.getElementById('bloodTypeChart').getContext('2d');
+        const bloodTypeLabels = @Html.Raw(Json.Serialize(Model.BloodTypeDistribution.Keys));
+        const bloodTypeData = @Html.Raw(Json.Serialize(Model.BloodTypeDistribution.Values));
+        const bloodTypeColors = generateColors(bloodTypeLabels.length);
+        
+        new Chart(bloodTypeCtx, {
+            type: 'pie',
+            data: {
+                labels: bloodTypeLabels,
+                datasets: [{
+                    data: bloodTypeData,
+                    backgroundColor: bloodTypeColors,
+                    borderColor: bloodTypeColors.map(c => c.replace('0.7', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // Department Chart
+        const deptCtx = document.getElementById('departmentChart').getContext('2d');
+        const deptLabels = @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Keys));
+        const deptTotalData = @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Values.Select(v => v.TotalStudents)));
+        const deptCompletedData = @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Values.Select(v => v.CompletedHealthRequirements)));
+        const deptCompletionRateData = @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Values.Select(v => v.CompletionRate)));
+        
+        new Chart(deptCtx, {
+            type: 'bar',
+            data: {
+                labels: deptLabels,
+                datasets: [
+                    {
+                        label: 'Total Students',
+                        data: deptTotalData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        order: 2
+                    },
+                    {
+                        label: 'Completed Requirements',
+                        data: deptCompletedData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        order: 1
+                    },
+                    {
+                        label: 'Completion Rate (%)',
+                        data: deptCompletionRateData,
+                        type: 'line',
+                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 2,
+                        yAxisID: 'y1',
+                        order: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Students'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Completion Rate (%)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Health Alerts Chart
+        @if (Model.HealthAlertsDistribution.Any())
+        {
+            <text>
+            const alertsCtx = document.getElementById('healthAlertsChart').getContext('2d');
+            const alertsLabels = @Html.Raw(Json.Serialize(Model.HealthAlertsDistribution.Keys));
+            const alertsData = @Html.Raw(Json.Serialize(Model.HealthAlertsDistribution.Values));
+            const alertsColors = generateColors(alertsLabels.length);
+            
+            new Chart(alertsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: alertsLabels,
+                    datasets: [{
+                        data: alertsData,
+                        backgroundColor: alertsColors,
+                        borderColor: alertsColors.map(c => c.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+            </text>
+        }
+
+        // Apply custom styles to tables with animation
+        $(document).ready(function() {
+            $('#requirementsTable').addClass('user-table');
+            
+            // Add animation to the cards
+            $('.card').addClass('animate__animated animate__fadeIn');
+            
+            // Initialize DataTable for better sorting/filtering
+            $('#requirementsTable').DataTable({
+                "order": [[ 3, "desc" ]],
+                "pageLength": 10,
+                "responsive": true
+            });
+        });
+    </script>
+}
