@@ -1,0 +1,403 @@
+@model WebApp.Models.ViewModels.StudentHealthStatusViewModel
+@{
+    ViewData["Title"] = "Student Health Requirements Status";
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+<div class="container-fluid my-4">
+    <div class="position-relative mb-4">
+        <div class="text-center mb-4">
+            <h2 class="d-inline-block p-4 border rounded shadow-sm bg-light">
+                <i class="fas fa-heartbeat me-2"></i>Student Health Requirements Status
+            </h2>
+        </div>
+        <a href="@Url.Action("Index", "Analytics")" class="btn btn-primary btn-modern position-absolute top-0 end-0">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Filter Options</h6>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-primary text-white border-0">
+                            <i class="fas fa-filter"></i>
+                        </span>
+                        <select id="requirementFilter" class="form-select">
+                            <option value="">All Requirements</option>
+                            <option value="BloodType" selected="@(Model.FilterRequirement == "BloodType")">Blood Type</option>
+                            <option value="EmergencyContact" selected="@(Model.FilterRequirement == "EmergencyContact")">Emergency Contact</option>
+                            <option value="XRay" selected="@(Model.FilterRequirement == "XRay")">X-Ray</option>
+                            <option value="MedicalCertificate" selected="@(Model.FilterRequirement == "MedicalCertificate")">Medical Certificate</option>
+                            <option value="VaccinationRecord" selected="@(Model.FilterRequirement == "VaccinationRecord")">Vaccination Record</option>
+                            <option value="Critical" selected="@(Model.FilterRequirement == "Critical")">Incomplete Records</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-primary text-white border-0">
+                            <i class="fas fa-university"></i>
+                        </span>
+                        <select id="departmentFilter" class="form-select">
+                            <option value="">All Departments</option>
+                            @{
+                                var departments = Model.Students
+                                    .Where(s => !string.IsNullOrEmpty(s.Department))
+                                    .Select(s => s.Department)
+                                    .Distinct()
+                                    .OrderBy(d => d);
+                                
+                                foreach (var dept in departments)
+                                {
+                                    <option value="@dept">@dept</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-primary text-white border-0">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search students...">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button id="resetFilters" class="btn btn-secondary btn-modern w-100">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Students</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalStudentsCount">@Model.Students.Count</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Complete Records (100%)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="completeCount">@Model.Students.Count(s => s.CompletionPercentage == 100)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Incomplete Records (<100%)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="incompleteCount">@Model.Students.Count(s => s.CompletionPercentage < 100)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="card shadow mb-4 user-table">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Student Health Requirements Status</h6>
+            <div>
+                <button class="btn btn-success btn-modern" id="exportToExcel">
+                    <i class="fas fa-file-excel"></i> Export to Excel
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="studentsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Department</th>
+                            <th>Blood Type</th>
+                            <th>Emergency Contact</th>
+                            <th>X-Ray</th>
+                            <th>Medical Certificate</th>
+                            <th>Vaccination Record</th>
+                            <th>Health Alerts</th>
+                            <th>Completion</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in Model.Students)
+                        {
+                            <tr data-department="@student.Department" data-completion="@student.CompletionPercentage">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="@student.ProfilePictureUrl" class="profile-img rounded-circle me-2" alt="Profile">
+                                        <div>
+                                            <div class="fw-bold">@student.FullName</div>
+                                            <div class="small text-muted">@student.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@(string.IsNullOrEmpty(student.Department) ? "Not Specified" : student.Department)</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(student.BloodType))
+                                    {
+                                        <span class="badge bg-success">@student.BloodType</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Missing</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (student.HasEmergencyContact)
+                                    {
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-times-circle text-danger"></i>
+                                    }
+                                </td>
+                                <td>
+                                    @if (student.HasXRay)
+                                    {
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-times-circle text-danger"></i>
+                                    }
+                                </td>
+                                <td>
+                                    @if (student.HasMedicalCertificate)
+                                    {
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-times-circle text-danger"></i>
+                                    }
+                                </td>
+                                <td>
+                                    @if (student.HasVaccinationRecord)
+                                    {
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-times-circle text-danger"></i>
+                                    }
+                                </td>
+                                <td>
+                                    @if (student.HealthAlerts.Any())
+                                    {
+                                        <span class="badge bg-warning text-dark">@student.HealthAlerts.Count</span>
+                                        <button class="btn btn-sm btn-outline-info" onclick="showHealthAlerts('@string.Join(", ", student.HealthAlerts)')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">None</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        @{
+                                            var colorClass = student.CompletionPercentage == 100 ? "bg-success" : 
+                                                            student.CompletionPercentage >= 70 ? "bg-info" :
+                                                            student.CompletionPercentage >= 40 ? "bg-warning" : "bg-danger";
+                                        }
+                                        <div class="progress-bar @colorClass" role="progressbar" 
+                                             style="width: @student.CompletionPercentage%;" 
+                                             aria-valuenow="@student.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                                            @student.CompletionPercentage%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        <a href="#" class="btn btn-primary btn-sm btn-modern me-2" data-bs-toggle="tooltip" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-warning btn-sm btn-modern me-2" data-bs-toggle="tooltip" title="Send Reminder">
+                                            <i class="fas fa-bell"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-success btn-sm btn-modern" data-bs-toggle="tooltip" title="Schedule Appointment">
+                                            <i class="fas fa-calendar-plus"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Alerts Modal -->
+<div class="modal fade" id="healthAlertsModal" tabindex="-1" aria-labelledby="healthAlertsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="healthAlertsModalLabel">Health Alerts</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="healthAlertsList" class="list-group">
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+            
+            // Initialize DataTable
+            var table = $('#studentsTable').DataTable({
+                "pageLength": 15,
+                "order": [[ 9, "asc" ]],
+                "responsive": true,
+                "language": {
+                    "search": "Quick search:",
+                    "zeroRecords": "No matching students found"
+                },
+                "dom": '<"top"lf>rt<"bottom"ip>'
+            });
+            
+            // Filter functionality
+            $('#requirementFilter').change(function() {
+                var requirement = $(this).val();
+                window.location.href = '@Url.Action("StudentHealthStatus")' + (requirement ? '?requirement=' + requirement : '');
+            });
+            
+            // Department filter
+            $('#departmentFilter').change(function() {
+                var department = $(this).val();
+                table.column(1).search(department).draw();
+                updateStats();
+            });
+            
+            // Search input
+            $('#searchInput').keyup(function() {
+                table.search($(this).val()).draw();
+                updateStats();
+            });
+            
+            // Reset filters
+            $('#resetFilters').click(function() {
+                $('#requirementFilter').val('');
+                $('#departmentFilter').val('');
+                $('#searchInput').val('');
+                table.search('').columns().search('').draw();
+                updateStats();
+            });
+            
+            // Update statistics based on filtered data
+            function updateStats() {
+                var filteredData = table.rows({ search: 'applied' }).data();
+                var totalStudents = filteredData.length;
+                var completeCount = 0;
+                var incompleteCount = 0;
+                
+                table.rows({ search: 'applied' }).every(function() {
+                    var row = this.node();
+                    var completion = parseInt($(row).data('completion'));
+                    
+                    if (completion === 100) completeCount++;
+                    else incompleteCount++;
+                });
+                
+                // Update stats cards
+                $('#totalStudentsCount').text(totalStudents);
+                $('#completeCount').text(completeCount);
+                $('#incompleteCount').text(incompleteCount);
+            }
+            
+            // Export to Excel functionality
+            $('#exportToExcel').click(function() {
+                var wb = XLSX.utils.table_to_book(document.getElementById('studentsTable'), {sheet: "Student Health Status"});
+                var wbout = XLSX.write(wb, {bookType:'xlsx', type: 'binary'});
+                
+                function s2ab(s) {
+                    var buf = new ArrayBuffer(s.length);
+                    var view = new Uint8Array(buf);
+                    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                    return buf;
+                }
+                
+                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), "student_health_status.xlsx");
+            });
+        });
+        
+        // Show health alerts in modal
+        function showHealthAlerts(alerts) {
+            var alertsList = $('#healthAlertsList');
+            alertsList.empty();
+            
+            if (alerts && alerts.length > 0) {
+                alerts.split(', ').forEach(function(alert) {
+                    alertsList.append('<li class="list-group-item"><i class="fas fa-exclamation-triangle text-warning me-2"></i>' + alert + '</li>');
+                });
+            } else {
+                alertsList.append('<li class="list-group-item">No health alerts found</li>');
+            }
+            
+            var healthAlertsModal = new bootstrap.Modal(document.getElementById('healthAlertsModal'));
+            healthAlertsModal.show();
+        }
+    </script>
+}

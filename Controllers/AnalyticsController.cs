@@ -54,8 +54,6 @@ namespace WebApp.Controllers
             viewModel.TotalMedicalStaff = medicalStaff.Count;
             viewModel.TotalUsers = users.Count;
 
-            // Calculate all statistics
-            CalculateVaccinationStats(viewModel, students);
             CalculateEmergencyContactStats(viewModel, students);
             CalculateBloodTypeStats(viewModel, students);
             CalculateHealthAlertsStats(viewModel, students);
@@ -68,16 +66,6 @@ namespace WebApp.Controllers
                 .ToDictionary(g => g.Key, g => g.Count());
 
             return viewModel;
-        }
-
-        private void CalculateVaccinationStats(HealthAnalyticsViewModel viewModel, List<Users> students)
-        {
-            var stat = new RequirementStatistic
-            {
-                Total = students.Count,
-                Completed = students.Count(s => s.HealthDetails != null && !string.IsNullOrEmpty(s.HealthDetails.ImmunizationHistory))
-            };
-            viewModel.RequirementStats["Vaccination"] = stat;
         }
 
         private void CalculateEmergencyContactStats(HealthAnalyticsViewModel viewModel, List<Users> students)
@@ -178,6 +166,67 @@ namespace WebApp.Controllers
                     });
 
             viewModel.DepartmentStatistics = departmentGroups;
+        }
+
+        // Action to show detailed student health requirement status
+        public async Task<IActionResult> StudentHealthStatus(string requirement = null)
+        {
+            var users = await _context.Users
+                .Include(u => u.HealthDetails)
+                .Include(u => u.PersonalDetails)
+                .ToListAsync();
+
+            var userRoles = new Dictionary<string, List<string>>();
+            foreach (var user in users)
+            {
+                userRoles[user.Id] = (await _userManager.GetRolesAsync(user)).ToList();
+            }
+
+            var students = users.Where(u => userRoles.ContainsKey(u.Id) && userRoles[u.Id].Contains("Student")).ToList();
+
+            // Build view model
+            var viewModel = new StudentHealthStatusViewModel
+            {
+                Students = students.Select(s => new StudentHealthStatusModel
+                {
+                    Id = s.Id,
+                    FullName = s.FullName ?? s.UserName,
+                    Email = s.Email,
+                    Department = s.PersonalDetails?.Department,
+                    ProfilePictureUrl = s.ProfilePictureUrl ?? "/default-profile.png",
+                    BloodType = s.HealthDetails?.BloodType,
+                    HasEmergencyContact = !string.IsNullOrEmpty(s.HealthDetails?.EmergencyContactName) &&
+                                         !string.IsNullOrEmpty(s.HealthDetails?.EmergencyContactPhone),
+                    HasXRay = !string.IsNullOrEmpty(s.HealthDetails?.XRayFileUrl),
+                    HasMedicalCertificate = !string.IsNullOrEmpty(s.HealthDetails?.MedicalCertificateUrl),
+                    HasVaccinationRecord = !string.IsNullOrEmpty(s.HealthDetails?.VaccinationRecordUrl),
+                    HealthAlerts = s.HealthDetails?.HealthAlertsList ?? new List<string>(),
+                    CompletionPercentage = CalculateCompletionPercentage(s.HealthDetails)
+                }).ToList(),
+                FilterRequirement = requirement
+            };
+
+            return View(viewModel);
+        }
+
+        private int CalculateCompletionPercentage(HealthDetails healthDetails)
+        {
+            if (healthDetails == null)
+                return 0;
+
+            int totalFields = 5; // Number of key health requirements we're tracking
+            int completedFields = 0;
+
+            // Check each required field
+            if (!string.IsNullOrEmpty(healthDetails.BloodType)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.EmergencyContactName) &&
+                !string.IsNullOrEmpty(healthDetails.EmergencyContactPhone)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.ImmunizationHistory)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.XRayFileUrl)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.MedicalCertificateUrl)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.VaccinationRecordUrl)) completedFields++;
+
+            return (int)((double)completedFields / totalFields * 100);
         }
     }
 }
