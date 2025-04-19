@@ -12,6 +12,8 @@
         <i class="fas fa-heartbeat me-2"></i>Health Requirements Analytics Dashboard
     </h2>
 
+    
+
     <!-- Summary Cards -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
@@ -194,8 +196,108 @@
         </div>
     }
     
+    <!-- Document Expiration Tracker Section -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Document Expiration Tracker</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="card border-left-danger shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                Medical Certificates</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SoonToExpireMedicalCertificates</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-file-medical fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Vaccination Records</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SoonToExpireVaccinationRecords</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-syringe fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                X-Ray Records</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SoonToExpireXRays</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-x-ray fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container" style="position: relative; height:30vh;">
+                        <canvas id="expiringDocumentsChart"></canvas>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">* Documents expiring within the next 12 months</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Document Submission Timeline</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:30vh;">
+                        <canvas id="submissionTimelineChart"></canvas>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">* Submissions over the past 12 months</small>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="font-weight-bold">Submission Insights</h6>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Based on historical data, prepare for peak submissions in 
+                            @{
+                                var peakMonth = Model.SubmissionsByMonth.OrderByDescending(x => x.Value).FirstOrDefault();
+                                @(peakMonth.Key ?? "beginning of semester")
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Actions Buttons -->
-    <div class="row mt-4">
+    <div class="row my-4">
         <div class="col-md-12 text-center">
             <a href="#" class="btn btn-primary btn-modern mx-2">
                 <i class="fas fa-download"></i> Export Report
@@ -274,36 +376,71 @@
         const bloodTypeLabels = @Html.Raw(Json.Serialize(Model.BloodTypeDistribution.Keys));
         const bloodTypeData = @Html.Raw(Json.Serialize(Model.BloodTypeDistribution.Values));
         const bloodTypeColors = generateColors(bloodTypeLabels.length);
-        
-        new Chart(bloodTypeCtx, {
-            type: 'pie',
-            data: {
-                labels: bloodTypeLabels,
-                datasets: [{
-                    data: bloodTypeData,
-                    backgroundColor: bloodTypeColors,
-                    borderColor: bloodTypeColors.map(c => c.replace('0.7', '1')),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right'
+
+        // Check if there's no data and provide a default
+        if (!bloodTypeLabels.length || bloodTypeLabels.every(label => !label)) {
+            // Create empty chart with "No Data Available" message
+            new Chart(bloodTypeCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['No Data Available'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['rgba(200, 200, 200, 0.7)'],
+                        borderColor: ['rgba(200, 200, 200, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function() {
+                                    return 'No blood type data available';
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            // Normal chart with data
+            new Chart(bloodTypeCtx, {
+                type: 'pie',
+                data: {
+                    labels: bloodTypeLabels,
+                    datasets: [{
+                        data: bloodTypeData,
+                        backgroundColor: bloodTypeColors,
+                        borderColor: bloodTypeColors.map(c => c.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
 
         // Department Chart
         const deptCtx = document.getElementById('departmentChart').getContext('2d');
         const deptLabels = @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Keys));
         const deptTotalData = @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Values.Select(v => v.TotalStudents)));
         const deptCompletedData = @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Values.Select(v => v.CompletedHealthRequirements)));
+        // Handle departments with zero students for completion rate
         const deptCompletionRateData = @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Values.Select(v => v.CompletionRate)));
-        
+
         new Chart(deptCtx, {
             type: 'bar',
             data: {
@@ -362,8 +499,7 @@
                     }
                 }
             }
-        });
-
+});
         // Health Alerts Chart
         @if (Model.HealthAlertsDistribution.Any())
         {
@@ -410,6 +546,133 @@
                 "pageLength": 10,
                 "responsive": true
             });
+        });
+
+
+        // Expiring Documents Chart
+        const expiringDocsCtx = document.getElementById('expiringDocumentsChart').getContext('2d');
+        const expiringDocsLabels = @Html.Raw(Json.Serialize(Model.ExpiringDocumentsByMonth.Keys));
+        const expiringDocsData = @Html.Raw(Json.Serialize(Model.ExpiringDocumentsByMonth.Values));
+
+        new Chart(expiringDocsCtx, {
+            type: 'bar',
+            data: {
+                labels: expiringDocsLabels,
+                datasets: [{
+                    label: 'Documents Expiring',
+                    data: expiringDocsData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Documents'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return 'Expiring in: ' + context[0].label;
+                            },
+                            label: function(context) {
+                                return context.parsed.y + ' documents need renewal';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Document Submission Timeline Chart
+        const submissionCtx = document.getElementById('submissionTimelineChart').getContext('2d');
+        const submissionLabels = @Html.Raw(Json.Serialize(Model.SubmissionsByMonth.Keys));
+        const submissionData = @Html.Raw(Json.Serialize(Model.SubmissionsByMonth.Values));
+
+        new Chart(submissionCtx, {
+            type: 'line',
+            data: {
+                labels: submissionLabels,
+                datasets: [{
+                    label: 'Document Submissions',
+                    data: submissionData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Submissions'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' submissions in ' + context.label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Add expiration notification badge to the top nav
+        $(document).ready(function() {
+            const totalExpiring = @(Model.SoonToExpireMedicalCertificates + Model.SoonToExpireVaccinationRecords + Model.SoonToExpireXRays);
+            
+            if (totalExpiring > 0) {
+                // Find alert dropdown in navbar and add badge (assuming there's a notification dropdown)
+                $('.nav-item.dropdown .fa-bell').after(`<span class="badge badge-danger badge-counter">${totalExpiring}</span>`);
+                
+                // Add notification to dropdown menu
+                $('.dropdown-menu-right').prepend(`
+                    <a class="dropdown-item d-flex align-items-center" href="#expiringDocumentsChart">
+                        <div class="mr-3">
+                            <div class="icon-circle bg-warning">
+                                <i class="fas fa-exclamation-triangle text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="small text-gray-500">@DateTime.Now.ToString("MMMM dd, yyyy")</div>
+                            <span class="font-weight-bold">${totalExpiring} documents expiring soon</span>
+                        </div>
+                    </a>
+                `);
+            }
         });
     </script>
 }

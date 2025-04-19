@@ -178,6 +178,9 @@ namespace WebApp.Migrations
                     b.Property<string>("DietaryRestrictions")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DocumentSubmissionDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("EmergencyContactName")
                         .HasColumnType("nvarchar(max)");
 
@@ -193,6 +196,9 @@ namespace WebApp.Migrations
 
                     b.Property<string>("ImmunizationHistory")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("MedicalCertificateExpiryDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("MedicalCertificateUrl")
                         .HasColumnType("nvarchar(max)");
@@ -216,8 +222,14 @@ namespace WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime?>("VaccinationRecordExpiryDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("VaccinationRecordUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("XRayExpiryDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("XRayFileUrl")
                         .HasColumnType("nvarchar(max)");
@@ -338,6 +350,41 @@ namespace WebApp.Migrations
                     b.ToTable("PersonalDetails");
                 });
 
+            modelBuilder.Entity("WebApp.Models.PersonalMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("PersonalMessages");
+                });
+
             modelBuilder.Entity("WebApp.Models.RoomAppointment", b =>
                 {
                     b.Property<int>("Id")
@@ -447,6 +494,9 @@ namespace WebApp.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasDefaultValue("Pending");
 
+                    b.Property<DateTime?>("MedicalCertificateExpiryDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("MedicalCertificateStatus")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -472,6 +522,9 @@ namespace WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime?>("VaccinationRecordExpiryDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("VaccinationRecordStatus")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -480,6 +533,9 @@ namespace WebApp.Migrations
 
                     b.Property<string>("VaccinationRecordUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("XRayExpiryDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("XRayFileStatus")
                         .IsRequired()
@@ -667,6 +723,25 @@ namespace WebApp.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApp.Models.PersonalMessage", b =>
+                {
+                    b.HasOne("WebApp.Models.Users", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebApp.Models.Users", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("WebApp.Models.RoomAppointmentUser", b =>

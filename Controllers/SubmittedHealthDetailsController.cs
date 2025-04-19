@@ -153,6 +153,23 @@ namespace WebApp.Controllers
                 return Json(new { success = false, message = "Record not found." });
             }
 
+            // Calculate expiry date logic - end of academic year (June 30) or 1 year from now, whichever is later
+            DateTime now = DateTime.UtcNow;
+            int currentYear = now.Year;
+            int nextYear = currentYear + 1;
+
+            // If we're past June 30 of the current year, expiry should be June 30 of next year
+            // Otherwise, expiry should be June 30 of the current year
+            DateTime academicYearEnd = now.Month > 6 ?
+                new DateTime(nextYear, 6, 30) :
+                new DateTime(currentYear, 6, 30);
+
+            // One year from submission date
+            DateTime oneYearLater = now.AddYears(1);
+
+            // Use the later of the two dates
+            DateTime expiryDate = academicYearEnd > oneYearLater ? academicYearEnd : oneYearLater;
+
             switch (fieldName)
             {
                 case "BloodType":
@@ -177,15 +194,27 @@ namespace WebApp.Controllers
                     break;
                 case "XRayFile":
                     record.XRayFileStatus = "Approved";
-                    await UpdateHealthDetails(record.UserId, h => h.XRayFileUrl = record.XRayFileUrl);
+                    record.XRayExpiryDate = expiryDate;
+                    await UpdateHealthDetails(record.UserId, h => {
+                        h.XRayFileUrl = record.XRayFileUrl;
+                        h.XRayExpiryDate = expiryDate;
+                    });
                     break;
                 case "MedicalCertificate":
                     record.MedicalCertificateStatus = "Approved";
-                    await UpdateHealthDetails(record.UserId, h => h.MedicalCertificateUrl = record.MedicalCertificateUrl);
+                    record.MedicalCertificateExpiryDate = expiryDate;
+                    await UpdateHealthDetails(record.UserId, h => {
+                        h.MedicalCertificateUrl = record.MedicalCertificateUrl;
+                        h.MedicalCertificateExpiryDate = expiryDate;
+                    });
                     break;
                 case "VaccinationRecord":
                     record.VaccinationRecordStatus = "Approved";
-                    await UpdateHealthDetails(record.UserId, h => h.VaccinationRecordUrl = record.VaccinationRecordUrl);
+                    record.VaccinationRecordExpiryDate = expiryDate;
+                    await UpdateHealthDetails(record.UserId, h => {
+                        h.VaccinationRecordUrl = record.VaccinationRecordUrl;
+                        h.VaccinationRecordExpiryDate = expiryDate;
+                    });
                     break;
                 case "OtherDocuments":
                     record.OtherDocumentsStatus = "Approved";
@@ -198,8 +227,16 @@ namespace WebApp.Controllers
             _context.SubmittedHealthDetails.Update(record);
             await _context.SaveChangesAsync();
 
-            // Send notification to the user
-            await SendSystemNotification(record.UserId, $"{fieldName} in your health record has been approved.");
+            // Send notification to the user with expiry date information for document fields
+            string notificationMessage = $"{fieldName} in your health record has been approved.";
+
+            // Add expiry date info to notification for document fields
+            if (fieldName == "XRayFile" || fieldName == "MedicalCertificate" || fieldName == "VaccinationRecord")
+            {
+                notificationMessage += $" It is valid until {expiryDate.ToString("MMMM d, yyyy")}.";
+            }
+
+            await SendSystemNotification(record.UserId, notificationMessage);
 
             TempData["RecordId"] = id; // Pass the record ID to TempData
 
@@ -207,15 +244,31 @@ namespace WebApp.Controllers
             TempData["Message"] = $"{fieldName} approved successfully!";
             TempData["MessageType"] = "success";
 
-            // Include TempData values in the JSON response
-            return Json(new
+            // Include expiry date in response for document fields
+            var responseData = new
             {
                 success = true,
                 message = TempData["Message"],
                 messageType = TempData["MessageType"],
                 status = "Approved",
                 fieldName
-            });
+            };
+
+            // Add expiry date to response for document fields
+            if (fieldName == "XRayFile" || fieldName == "MedicalCertificate" || fieldName == "VaccinationRecord")
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = TempData["Message"],
+                    messageType = TempData["MessageType"],
+                    status = "Approved",
+                    fieldName,
+                    expiryDate = expiryDate.ToString("yyyy-MM-dd")
+                });
+            }
+
+            return Json(responseData);
         }
 
         [HttpPost]

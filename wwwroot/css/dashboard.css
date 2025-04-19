@@ -88,7 +88,7 @@
 
 /* Welcome Card Styling */
 .welcome-card {
-    background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+    background: var(--bs-primary);
     border: none;
     border-radius: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);

@@ -1,4 +1,5 @@
 ﻿using WebApp.Models;
+using System;
 
 namespace WebApp.Models
 {
@@ -18,7 +19,12 @@ namespace WebApp.Models
         public string? OtherDocumentsUrl { get; set; }
         public DateTime SubmissionDate { get; set; } = DateTime.UtcNow;
 
-        // Add status for each field
+        // Add expiry date properties
+        public DateTime? XRayExpiryDate { get; set; }
+        public DateTime? MedicalCertificateExpiryDate { get; set; }
+        public DateTime? VaccinationRecordExpiryDate { get; set; }
+
+        // Status for each field
         public string BloodTypeStatus { get; set; } = "Pending";
         public string AllergiesStatus { get; set; } = "Pending";
         public string EmergencyContactNameStatus { get; set; } = "Pending";

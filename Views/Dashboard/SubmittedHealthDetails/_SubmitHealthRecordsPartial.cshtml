@@ -29,8 +29,18 @@ else
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="bloodType" class="form-label">Blood Type</label>
-                            <input type="text" class="form-control" id="bloodType" name="BloodType"
-                                value="@Model.BloodType">
+                            <select class="form-select" id="bloodType" name="BloodType">
+                                <option value="" selected="@(string.IsNullOrEmpty(Model.BloodType))">Select Blood Type</option>
+                                <option value="A+" selected="@(Model.BloodType == "A+")">A+</option>
+                                <option value="A-" selected="@(Model.BloodType == "A-")">A-</option>
+                                <option value="B+" selected="@(Model.BloodType == "B+")">B+</option>
+                                <option value="B-" selected="@(Model.BloodType == "B-")">B-</option>
+                                <option value="AB+" selected="@(Model.BloodType == "AB+")">AB+</option>
+                                <option value="AB-" selected="@(Model.BloodType == "AB-")">AB-</option>
+                                <option value="O+" selected="@(Model.BloodType == "O+")">O+</option>
+                                <option value="O-" selected="@(Model.BloodType == "O-")">O-</option>
+                                <option value="Unknown" selected="@(Model.BloodType == "Unknown")">Unknown</option>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label for="allergies" class="form-label">Allergies</label>

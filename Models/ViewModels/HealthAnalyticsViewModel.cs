@@ -18,6 +18,14 @@
         // Health alerts statistics
         public int TotalHealthAlerts { get; set; }
         public Dictionary<string, int> HealthAlertsDistribution { get; set; } = new Dictionary<string, int>();
+
+        public int SoonToExpireMedicalCertificates { get; set; }
+        public int SoonToExpireVaccinationRecords { get; set; }
+        public int SoonToExpireXRays { get; set; }
+        public Dictionary<string, int> ExpiringDocumentsByMonth { get; set; } = new Dictionary<string, int>();
+
+        // Document submission timeline
+        public Dictionary<string, int> SubmissionsByMonth { get; set; } = new Dictionary<string, int>();
     }
 
     public class RequirementStatistic
@@ -34,4 +42,6 @@
         public int CompletedHealthRequirements { get; set; }
         public double CompletionRate => TotalStudents == 0 ? 0 : (double)CompletedHealthRequirements / TotalStudents * 100;
     }
+
+
 }

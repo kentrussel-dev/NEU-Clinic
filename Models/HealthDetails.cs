@@ -57,5 +57,10 @@ namespace WebApp.Models
         public string? MedicalCertificateUrl { get; set; }
         public string? VaccinationRecordUrl { get; set; }
         public string? OtherDocumentsUrl { get; set; }
+
+        public DateTime? MedicalCertificateExpiryDate { get; set; }
+        public DateTime? VaccinationRecordExpiryDate { get; set; }
+        public DateTime? XRayExpiryDate { get; set; }
+        public DateTime? DocumentSubmissionDate { get; set; }
     }
 }
