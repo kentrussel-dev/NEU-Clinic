@@ -173,17 +173,31 @@
             });
         });
         
+        // In your JavaScript code, modify the loadContacts function like this:
         async function loadContacts() {
             try {
                 const response = await fetch('/Chat/GetRecentContacts');
                 if (response.ok) {
                     const data = await response.json();
                     renderContacts(data.recentContacts, data.allUsers);
+                    
+                    // Automatically open the first recent conversation if available
+                    if (data.recentContacts && data.recentContacts.length > 0) {
+                        const firstContact = data.recentContacts[0];
+                        const isOnline = onlineUsers.includes(firstContact.id);
+                        loadConversation(firstContact.id, firstContact.name, firstContact.profilePic, isOnline);
+                    }
                 }
             } catch (error) {
                 console.error('Failed to load contacts:', error);
             }
         }
+
+        // Then modify your modal shown event handler:
+        $('#chatModal').on('shown.bs.modal', function() {
+            loadContacts(); // This will now load contacts AND open first conversation
+            $('#chatMessageInput').focus();
+        });
 
         function renderContacts(recentContacts, allUsers) {
             const contactsList = $('.contacts-list .list-group');
