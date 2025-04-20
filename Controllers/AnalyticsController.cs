@@ -2,11 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using WebApp.Data;
 using WebApp.Models;
 using WebApp.Models.ViewModels;
@@ -60,7 +56,10 @@ namespace WebApp.Controllers
             CalculateMedicalDocumentsStats(viewModel, students);
             CalculateDepartmentStats(viewModel, students);
             CalculateDocumentExpirationStats(viewModel, students);
-            CalculateDocumentSubmissionTimeline(viewModel, students);
+            await CalculateDocumentSubmissionTimeline(viewModel);
+
+            // New method to calculate document statistics
+            await CalculateDocumentStatistics(viewModel);
 
             viewModel.BloodTypeDistribution = students
                 .Where(s => s.HealthDetails != null && !string.IsNullOrEmpty(s.HealthDetails.BloodType))
@@ -207,65 +206,73 @@ namespace WebApp.Controllers
             viewModel.DepartmentStatistics = departmentGroups;
         }
 
-        // Action to show detailed student health requirement status
-        public async Task<IActionResult> StudentHealthStatus(string requirement = null)
+        // New method to calculate document statistics
+        private async Task CalculateDocumentStatistics(HealthAnalyticsViewModel viewModel)
         {
-            var users = await _context.Users
-                .Include(u => u.HealthDetails)
-                .Include(u => u.PersonalDetails)
-                .ToListAsync();
+            // Get all submitted health details
+            var submittedHealthDetails = await _context.SubmittedHealthDetails.ToListAsync();
 
-            var userRoles = new Dictionary<string, List<string>>();
-            foreach (var user in users)
+            // Initialize document stats
+            var docStats = new DocumentStatisticsViewModel();
+
+            // Initialize document type stats
+            var documentTypes = new List<string> { "XRay", "MedicalCertificate", "VaccinationRecord", "OtherDocuments" };
+            foreach (var docType in documentTypes)
             {
-                userRoles[user.Id] = (await _userManager.GetRolesAsync(user)).ToList();
+                docStats.DocumentTypeStatistics[docType] = new DocumentTypeStats { DocumentType = docType };
             }
 
-            var students = users.Where(u => userRoles.ContainsKey(u.Id) && userRoles[u.Id].Contains("Student")).ToList();
+            // Calculate total stats
+            docStats.TotalSubmitted = submittedHealthDetails.Count;
+            docStats.TotalApproved = submittedHealthDetails.Count(d =>
+                d.XRayFileStatus == "Approved" ||
+                d.MedicalCertificateStatus == "Approved" ||
+                d.VaccinationRecordStatus == "Approved" ||
+                d.OtherDocumentsStatus == "Approved");
 
-            // Build view model
-            var viewModel = new StudentHealthStatusViewModel
-            {
-                Students = students.Select(s => new StudentHealthStatusModel
-                {
-                    Id = s.Id,
-                    FullName = s.FullName ?? s.UserName,
-                    Email = s.Email,
-                    Department = s.PersonalDetails?.Department,
-                    ProfilePictureUrl = s.ProfilePictureUrl ?? "/default-profile.png",
-                    BloodType = s.HealthDetails?.BloodType,
-                    HasEmergencyContact = !string.IsNullOrEmpty(s.HealthDetails?.EmergencyContactName) &&
-                                         !string.IsNullOrEmpty(s.HealthDetails?.EmergencyContactPhone),
-                    HasXRay = !string.IsNullOrEmpty(s.HealthDetails?.XRayFileUrl),
-                    HasMedicalCertificate = !string.IsNullOrEmpty(s.HealthDetails?.MedicalCertificateUrl),
-                    HasVaccinationRecord = !string.IsNullOrEmpty(s.HealthDetails?.VaccinationRecordUrl),
-                    HealthAlerts = s.HealthDetails?.HealthAlertsList ?? new List<string>(),
-                    CompletionPercentage = CalculateCompletionPercentage(s.HealthDetails)
-                }).ToList(),
-                FilterRequirement = requirement
-            };
+            docStats.TotalRejected = submittedHealthDetails.Count(d =>
+                d.XRayFileStatus == "Rejected" ||
+                d.MedicalCertificateStatus == "Rejected" ||
+                d.VaccinationRecordStatus == "Rejected" ||
+                d.OtherDocumentsStatus == "Rejected");
 
-            return View(viewModel);
-        }
+            docStats.TotalPending = submittedHealthDetails.Count(d =>
+                d.XRayFileStatus == "Pending" ||
+                d.MedicalCertificateStatus == "Pending" ||
+                d.VaccinationRecordStatus == "Pending" ||
+                d.OtherDocumentsStatus == "Pending");
 
-        private int CalculateCompletionPercentage(HealthDetails healthDetails)
-        {
-            if (healthDetails == null)
-                return 0;
+            // Calculate document type-specific stats
+            // XRay
+            var xrayStats = docStats.DocumentTypeStatistics["XRay"];
+            xrayStats.Submitted = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.XRayFileUrl));
+            xrayStats.Approved = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.XRayFileUrl) && d.XRayFileStatus == "Approved");
+            xrayStats.Rejected = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.XRayFileUrl) && d.XRayFileStatus == "Rejected");
+            xrayStats.Pending = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.XRayFileUrl) && d.XRayFileStatus == "Pending");
 
-            int totalFields = 5; // Number of key health requirements we're tracking
-            int completedFields = 0;
+            // Medical Certificate
+            var medCertStats = docStats.DocumentTypeStatistics["MedicalCertificate"];
+            medCertStats.Submitted = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.MedicalCertificateUrl));
+            medCertStats.Approved = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.MedicalCertificateUrl) && d.MedicalCertificateStatus == "Approved");
+            medCertStats.Rejected = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.MedicalCertificateUrl) && d.MedicalCertificateStatus == "Rejected");
+            medCertStats.Pending = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.MedicalCertificateUrl) && d.MedicalCertificateStatus == "Pending");
 
-            // Check each required field
-            if (!string.IsNullOrEmpty(healthDetails.BloodType)) completedFields++;
-            if (!string.IsNullOrEmpty(healthDetails.EmergencyContactName) &&
-                !string.IsNullOrEmpty(healthDetails.EmergencyContactPhone)) completedFields++;
-            if (!string.IsNullOrEmpty(healthDetails.ImmunizationHistory)) completedFields++;
-            if (!string.IsNullOrEmpty(healthDetails.XRayFileUrl)) completedFields++;
-            if (!string.IsNullOrEmpty(healthDetails.MedicalCertificateUrl)) completedFields++;
-            if (!string.IsNullOrEmpty(healthDetails.VaccinationRecordUrl)) completedFields++;
+            // Vaccination Record
+            var vacRecordStats = docStats.DocumentTypeStatistics["VaccinationRecord"];
+            vacRecordStats.Submitted = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.VaccinationRecordUrl));
+            vacRecordStats.Approved = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.VaccinationRecordUrl) && d.VaccinationRecordStatus == "Approved");
+            vacRecordStats.Rejected = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.VaccinationRecordUrl) && d.VaccinationRecordStatus == "Rejected");
+            vacRecordStats.Pending = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.VaccinationRecordUrl) && d.VaccinationRecordStatus == "Pending");
 
-            return (int)((double)completedFields / totalFields * 100);
+            // Other Documents
+            var otherDocsStats = docStats.DocumentTypeStatistics["OtherDocuments"];
+            otherDocsStats.Submitted = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.OtherDocumentsUrl));
+            otherDocsStats.Approved = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.OtherDocumentsUrl) && d.OtherDocumentsStatus == "Approved");
+            otherDocsStats.Rejected = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.OtherDocumentsUrl) && d.OtherDocumentsStatus == "Rejected");
+            otherDocsStats.Pending = submittedHealthDetails.Count(d => !string.IsNullOrEmpty(d.OtherDocumentsUrl) && d.OtherDocumentsStatus == "Pending");
+
+            // Set the document statistics in the view model
+            viewModel.DocumentStatistics = docStats;
         }
 
         private void CalculateDocumentExpirationStats(HealthAnalyticsViewModel viewModel, List<Users> students)
@@ -326,10 +333,14 @@ namespace WebApp.Controllers
             viewModel.ExpiringDocumentsByMonth = expiringDocsByMonth;
         }
 
-        private void CalculateDocumentSubmissionTimeline(HealthAnalyticsViewModel viewModel, List<Users> students)
+        private async Task CalculateDocumentSubmissionTimeline(HealthAnalyticsViewModel viewModel)
         {
             // Group submissions by month
             var submissionsByMonth = new Dictionary<string, int>();
+            var xraySubmissionsByMonth = new Dictionary<string, int>();
+            var medCertSubmissionsByMonth = new Dictionary<string, int>();
+            var vacRecordSubmissionsByMonth = new Dictionary<string, int>();
+            var otherDocsSubmissionsByMonth = new Dictionary<string, int>();
 
             // Initialize with past 12 months
             DateTime now = DateTime.Today;
@@ -338,46 +349,165 @@ namespace WebApp.Controllers
                 DateTime monthDate = now.AddMonths(i);
                 string monthName = monthDate.ToString("MMM yyyy");
                 submissionsByMonth[monthName] = 0;
+                xraySubmissionsByMonth[monthName] = 0;
+                medCertSubmissionsByMonth[monthName] = 0;
+                vacRecordSubmissionsByMonth[monthName] = 0;
+                otherDocsSubmissionsByMonth[monthName] = 0;
             }
 
-            // Add a submission date update in your application logic when documents are uploaded
-            foreach (var student in students)
+            // Get all submission records from the SubmittedHealthDetails table
+            var submittedHealthDetails = await _context.SubmittedHealthDetails.ToListAsync();
+
+            foreach (var submission in submittedHealthDetails)
             {
-                // Count any document submission that has a value
-                if (student.HealthDetails != null)
+                // Use the appropriate date field from your SubmittedHealthDetails model
+                DateTime submissionDate;
+
+                // Check if your model has a SubmissionDate property and handle it appropriately
+                // This is just an example - use the actual field name from your model
+                if (submission.GetType().GetProperty("SubmissionDate") != null)
                 {
-                    // Try to use the explicit submission date if available
-                    DateTime? submissionDate = student.HealthDetails.DocumentSubmissionDate;
+                    // If it's a nullable DateTime
+                    var dateProperty = submission.GetType().GetProperty("SubmissionDate").GetValue(submission);
+                    if (dateProperty != null)
+                        submissionDate = (DateTime)dateProperty;
+                    else
+                        submissionDate = now; // Default if null
+                }
+                else if (submission.GetType().GetProperty("CreatedDate") != null)
+                {
+                    // Try another common field name
+                    var dateProperty = submission.GetType().GetProperty("CreatedDate").GetValue(submission);
+                    if (dateProperty != null)
+                        submissionDate = (DateTime)dateProperty;
+                    else
+                        submissionDate = now; // Default if null
+                }
+                else
+                {
+                    // If no date field is found, use current date as fallback
+                    submissionDate = now;
+                }
 
-                    if (submissionDate == null)
+                // If we have a submission date within last 12 months, count it
+                if (submissionDate >= now.AddMonths(-11))
+                {
+                    string monthName = submissionDate.ToString("MMM yyyy");
+
+                    // Count total submissions
+                    if (submissionsByMonth.ContainsKey(monthName))
+                        submissionsByMonth[monthName]++;
+                    else
+                        submissionsByMonth[monthName] = 1;
+
+                    // Count submissions by document type
+                    if (!string.IsNullOrEmpty(submission.XRayFileUrl))
                     {
-                        // If no explicit submission date, infer from document URLs (use most recent non-null date)
-                        List<DateTime?> docDates = new List<DateTime?>();
-
-                        // Add logic to parse dates from filenames or last modified dates if available
-                        // For now we'll just add a fallback
-                        if (!string.IsNullOrEmpty(student.HealthDetails.MedicalCertificateUrl) ||
-                            !string.IsNullOrEmpty(student.HealthDetails.VaccinationRecordUrl) ||
-                            !string.IsNullOrEmpty(student.HealthDetails.XRayFileUrl))
-                        {
-                            // If we can't determine exact date but have documents, use 60 days ago as estimate
-                            submissionDate = now.AddDays(-60);
-                        }
+                        if (xraySubmissionsByMonth.ContainsKey(monthName))
+                            xraySubmissionsByMonth[monthName]++;
+                        else
+                            xraySubmissionsByMonth[monthName] = 1;
                     }
 
-                    // If we have a submission date within last 12 months, count it
-                    if (submissionDate.HasValue && submissionDate.Value >= now.AddMonths(-11))
+                    if (!string.IsNullOrEmpty(submission.MedicalCertificateUrl))
                     {
-                        string monthName = submissionDate.Value.ToString("MMM yyyy");
-                        if (submissionsByMonth.ContainsKey(monthName))
-                            submissionsByMonth[monthName]++;
+                        if (medCertSubmissionsByMonth.ContainsKey(monthName))
+                            medCertSubmissionsByMonth[monthName]++;
                         else
-                            submissionsByMonth[monthName] = 1;
+                            medCertSubmissionsByMonth[monthName] = 1;
+                    }
+
+                    if (!string.IsNullOrEmpty(submission.VaccinationRecordUrl))
+                    {
+                        if (vacRecordSubmissionsByMonth.ContainsKey(monthName))
+                            vacRecordSubmissionsByMonth[monthName]++;
+                        else
+                            vacRecordSubmissionsByMonth[monthName] = 1;
+                    }
+
+                    if (!string.IsNullOrEmpty(submission.OtherDocumentsUrl))
+                    {
+                        if (otherDocsSubmissionsByMonth.ContainsKey(monthName))
+                            otherDocsSubmissionsByMonth[monthName]++;
+                        else
+                            otherDocsSubmissionsByMonth[monthName] = 1;
                     }
                 }
             }
 
             viewModel.SubmissionsByMonth = submissionsByMonth;
+            viewModel.XRaySubmissionsByMonth = xraySubmissionsByMonth;
+            viewModel.MedicalCertificateSubmissionsByMonth = medCertSubmissionsByMonth;
+            viewModel.VaccinationRecordSubmissionsByMonth = vacRecordSubmissionsByMonth;
+            viewModel.OtherDocumentsSubmissionsByMonth = otherDocsSubmissionsByMonth;
+        }
+
+        // Action to show detailed student health requirement status
+        public async Task<IActionResult> StudentHealthStatus(string requirement = null)
+        {
+            var users = await _context.Users
+                .Include(u => u.HealthDetails)
+                .Include(u => u.PersonalDetails)
+                .ToListAsync();
+
+            var userRoles = new Dictionary<string, List<string>>();
+            foreach (var user in users)
+            {
+                userRoles[user.Id] = (await _userManager.GetRolesAsync(user)).ToList();
+            }
+
+            var students = users.Where(u => userRoles.ContainsKey(u.Id) && userRoles[u.Id].Contains("Student")).ToList();
+
+            // Build view model
+            var viewModel = new StudentHealthStatusViewModel
+            {
+                Students = students.Select(s => new StudentHealthStatusModel
+                {
+                    Id = s.Id,
+                    FullName = s.FullName ?? s.UserName,
+                    Email = s.Email,
+                    Department = s.PersonalDetails?.Department,
+                    ProfilePictureUrl = s.ProfilePictureUrl ?? "/default-profile.png",
+                    BloodType = s.HealthDetails?.BloodType,
+                    HasEmergencyContact = !string.IsNullOrEmpty(s.HealthDetails?.EmergencyContactName) &&
+                                         !string.IsNullOrEmpty(s.HealthDetails?.EmergencyContactPhone),
+                    HasXRay = !string.IsNullOrEmpty(s.HealthDetails?.XRayFileUrl),
+                    HasMedicalCertificate = !string.IsNullOrEmpty(s.HealthDetails?.MedicalCertificateUrl),
+                    HasVaccinationRecord = !string.IsNullOrEmpty(s.HealthDetails?.VaccinationRecordUrl),
+                    HealthAlerts = s.HealthDetails?.HealthAlertsList ?? new List<string>(),
+                    CompletionPercentage = CalculateCompletionPercentage(s.HealthDetails)
+                }).ToList(),
+                FilterRequirement = requirement
+            };
+
+            return View(viewModel);
+        }
+
+        // New action to view document statistics
+        public async Task<IActionResult> DocumentStatistics()
+        {
+            var viewModel = await GenerateHealthAnalyticsViewModel();
+            return View(viewModel.DocumentStatistics);
+        }
+
+        private int CalculateCompletionPercentage(HealthDetails healthDetails)
+        {
+            if (healthDetails == null)
+                return 0;
+
+            int totalFields = 5; // Number of key health requirements we're tracking
+            int completedFields = 0;
+
+            // Check each required field
+            if (!string.IsNullOrEmpty(healthDetails.BloodType)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.EmergencyContactName) &&
+                !string.IsNullOrEmpty(healthDetails.EmergencyContactPhone)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.ImmunizationHistory)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.XRayFileUrl)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.MedicalCertificateUrl)) completedFields++;
+            if (!string.IsNullOrEmpty(healthDetails.VaccinationRecordUrl)) completedFields++;
+
+            return (int)((double)completedFields / totalFields * 100);
         }
     }
 }

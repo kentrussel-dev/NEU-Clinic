@@ -142,7 +142,6 @@ namespace WebApp.Controllers
 
             return RedirectToAction("Index");
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveField(int id, string fieldName)
@@ -153,22 +152,16 @@ namespace WebApp.Controllers
                 return Json(new { success = false, message = "Record not found." });
             }
 
-            // Calculate expiry date logic - end of academic year (June 30) or 1 year from now, whichever is later
+            // Calculate expiry date logic - end of current academic year (July 25) 
+            // or end of next academic year if we're past July
             DateTime now = DateTime.UtcNow;
             int currentYear = now.Year;
-            int nextYear = currentYear + 1;
 
-            // If we're past June 30 of the current year, expiry should be June 30 of next year
-            // Otherwise, expiry should be June 30 of the current year
-            DateTime academicYearEnd = now.Month > 6 ?
-                new DateTime(nextYear, 6, 30) :
-                new DateTime(currentYear, 6, 30);
-
-            // One year from submission date
-            DateTime oneYearLater = now.AddYears(1);
-
-            // Use the later of the two dates
-            DateTime expiryDate = academicYearEnd > oneYearLater ? academicYearEnd : oneYearLater;
+            // If current date is after July 25, expiry should be July 25 of next year
+            // Otherwise, expiry should be July 25 of the current year
+            DateTime expiryDate = now.Month > 7 || (now.Month == 7 && now.Day > 25) ?
+                new DateTime(currentYear + 1, 7, 25) :
+                new DateTime(currentYear, 7, 25);
 
             switch (fieldName)
             {

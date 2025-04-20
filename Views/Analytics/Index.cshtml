@@ -12,7 +12,14 @@
         <i class="fas fa-heartbeat me-2"></i>Health Requirements Analytics Dashboard
     </h2>
 
-    
+    <!-- Actions Buttons -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="@Url.Action("StudentHealthStatus", "Analytics")" class="btn btn-success float-start">
+                <i class="fas fa-user-md"></i> View Student Health Status
+            </a>
+        </div>
+    </div>
 
     <!-- Summary Cards -->
     <div class="row mb-4">
@@ -296,20 +303,126 @@
         </div>
     </div>
 
-    <!-- Actions Buttons -->
-    <div class="row my-4">
-        <div class="col-md-12 text-center">
-            <a href="#" class="btn btn-primary btn-modern mx-2">
-                <i class="fas fa-download"></i> Export Report
-            </a>
-            <a href="#" class="btn btn-success btn-modern mx-2">
-                <i class="fas fa-envelope"></i> Email Notifications
-            </a>
-            <a href="@Url.Action("StudentHealthStatus", "Analytics")" class="btn btn-danger btn-modern mx-2">
-                <i class="fas fa-exclamation-triangle"></i> View Student Health Status
-            </a>
+    <!-- Document Statistics Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Document Submission Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <!-- Document Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Total Submitted</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.DocumentStatistics.TotalSubmitted</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-file-upload fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Approved</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.DocumentStatistics.TotalApproved</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-danger shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                Rejected</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.DocumentStatistics.TotalRejected</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Pending</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.DocumentStatistics.TotalPending</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Type Chart -->
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="chart-container" style="position: relative; height:40vh;">
+                                <canvas id="documentTypeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="table-responsive">
+                                <table class="table user-table" id="documentTypeTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Document Type</th>
+                                            <th>Submitted</th>
+                                            <th>Approved</th>
+                                            <th>Rejected</th>
+                                            <th>Pending</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var docType in Model.DocumentStatistics.DocumentTypeStatistics)
+                                        {
+                                            <tr>
+                                                <td>@docType.Key</td>
+                                                <td>@docType.Value.Submitted</td>
+                                                <td>@docType.Value.Approved</td>
+                                                <td>@docType.Value.Rejected</td>
+                                                <td>@docType.Value.Pending</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    
 </div>
 
 @section Scripts {
@@ -674,5 +787,82 @@
                 `);
             }
         });
+
+
+        // Document Type Chart
+        const docTypeCtx = document.getElementById('documentTypeChart').getContext('2d');
+        const docTypeLabels = @Html.Raw(Json.Serialize(Model.DocumentStatistics.DocumentTypeStatistics.Keys));
+        const docTypeSubmitted = @Html.Raw(Json.Serialize(Model.DocumentStatistics.DocumentTypeStatistics.Values.Select(v => v.Submitted)));
+        const docTypeApproved = @Html.Raw(Json.Serialize(Model.DocumentStatistics.DocumentTypeStatistics.Values.Select(v => v.Approved)));
+        const docTypeRejected = @Html.Raw(Json.Serialize(Model.DocumentStatistics.DocumentTypeStatistics.Values.Select(v => v.Rejected)));
+        const docTypePending = @Html.Raw(Json.Serialize(Model.DocumentStatistics.DocumentTypeStatistics.Values.Select(v => v.Pending)));
+
+        new Chart(docTypeCtx, {
+            type: 'bar',
+            data: {
+                labels: docTypeLabels,
+                datasets: [
+                    {
+                        label: 'Submitted',
+                        data: docTypeSubmitted,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Approved',
+                        data: docTypeApproved,
+                        backgroundColor: 'rgba(75, 192, 92, 0.7)',
+                        borderColor: 'rgba(75, 192, 92, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Rejected',
+                        data: docTypeRejected,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Pending',
+                        data: docTypePending,
+                        backgroundColor: 'rgba(255, 205, 86, 0.7)',
+                        borderColor: 'rgba(255, 205, 86, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Documents'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Document Type'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Initialize the document type table
+        $(document).ready(function() {
+            $('#documentTypeTable').DataTable({
+                "pageLength": 5,
+                "responsive": true,
+                "searching": false,
+                "paging": false,
+                "info": false
+            });
+        });
+
     </script>
 }
