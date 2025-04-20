@@ -49,18 +49,23 @@
                         </span>
                         <select id="departmentFilter" class="form-select">
                             <option value="">All Departments</option>
-                            @{
-                                var departments = Model.Students
-                                    .Where(s => !string.IsNullOrEmpty(s.Department))
-                                    .Select(s => s.Department)
-                                    .Distinct()
-                                    .OrderBy(d => d);
-                                
-                                foreach (var dept in departments)
-                                {
-                                    <option value="@dept">@dept</option>
-                                }
-                            }
+                            <option value="Not Specified">Not Specified</option>
+                            <option value="College of Accountancy">College of Accountancy</option>
+                            <option value="College of Agriculture">College of Agriculture</option>
+                            <option value="College of Arts and Science">College of Arts and Science</option>
+                            <option value="College of Business Administration">College of Business Administration</option>
+                            <option value="College of Communication">College of Communication</option>
+                            <option value="College of Informatics and Computing Studies">College of Informatics and Computing Studies</option>
+                            <option value="College of Criminology">College of Criminology</option>
+                            <option value="College of Education">College of Education</option>
+                            <option value="College of Engineering and Architecture">College of Engineering and Architecture</option>
+                            <option value="College of Medical Technology">College of Medical Technology</option>
+                            <option value="College of Midwifery">College of Midwifery</option>
+                            <option value="College of Music">College of Music</option>
+                            <option value="College of Nursing">College of Nursing</option>
+                            <option value="College of Physical Therapy">College of Physical Therapy</option>
+                            <option value="College of Respiratory Therapy">College of Respiratory Therapy</option>
+                            <option value="School of International Relations">School of International Relations</option>
                         </select>
                     </div>
                 </div>
@@ -159,13 +164,19 @@
                             <th>Vaccination Record</th>
                             <th>Health Alerts</th>
                             <th>Completion</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var student in Model.Students)
                         {
-                            <tr data-department="@student.Department" data-completion="@student.CompletionPercentage">
+                            <tr data-department="@student.Department" data-completion="@student.CompletionPercentage" 
+                                data-blood-type="@(!string.IsNullOrEmpty(student.BloodType))"
+                                data-emergency-contact="@student.HasEmergencyContact"
+                                data-xray="@student.HasXRay"
+                                data-medical-certificate="@student.HasMedicalCertificate"
+                                data-vaccination-record="@student.HasVaccinationRecord"
+                                data-student-name="@student.FullName.ToLower()"
+                                data-email="@student.Email.ToLower()">
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <img src="@student.ProfilePictureUrl" class="profile-img rounded-circle me-2" alt="Profile">
@@ -253,19 +264,6 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="d-flex justify-content-center">
-                                        <a href="#" class="btn btn-primary btn-sm btn-modern me-2" data-bs-toggle="tooltip" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-warning btn-sm btn-modern me-2" data-bs-toggle="tooltip" title="Send Reminder">
-                                            <i class="fas fa-bell"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-success btn-sm btn-modern" data-bs-toggle="tooltip" title="Schedule Appointment">
-                                            <i class="fas fa-calendar-plus"></i>
-                                        </a>
-                                    </div>
-                                </td>
                             </tr>
                         }
                     </tbody>
@@ -306,70 +304,275 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             });
             
-            // Initialize DataTable
-            var table = $('#studentsTable').DataTable({
-                "pageLength": 15,
-                "order": [[ 9, "asc" ]],
-                "responsive": true,
-                "language": {
-                    "search": "Quick search:",
-                    "zeroRecords": "No matching students found"
-                },
-                "dom": '<"top"lf>rt<"bottom"ip>'
-            });
+            // Skip DataTable initialization to implement custom filtering
+            // Instead, implement direct DOM manipulation for faster and more responsive filtering
             
-            // Filter functionality
-            $('#requirementFilter').change(function() {
-                var requirement = $(this).val();
-                window.location.href = '@Url.Action("StudentHealthStatus")' + (requirement ? '?requirement=' + requirement : '');
-            });
+            // Global variables to track current filter state
+            var currentRequirement = '';
+            var currentDepartment = '';
+            var currentSearch = '';
             
-            // Department filter
-            $('#departmentFilter').change(function() {
-                var department = $(this).val();
-                table.column(1).search(department).draw();
+            // Handle initial URL parameters if present
+            var urlParams = new URLSearchParams(window.location.search);
+            var deptParam = urlParams.get('department');
+            var reqParam = urlParams.get('requirement');
+            
+            if (deptParam) {
+                $('#departmentFilter').val(deptParam);
+                currentDepartment = deptParam;
+            }
+            
+            if (reqParam) {
+                $('#requirementFilter').val(reqParam);
+                currentRequirement = reqParam;
+            }
+            
+            // Apply initial filtering
+            applyFilters();
+            
+            // Function to apply all filters
+            function applyFilters() {
+                var allRows = $('#studentsTable tbody tr');
+                
+                // Reset visibility
+                allRows.show();
+                
+                // Apply requirement filter
+                if (currentRequirement) {
+                    switch (currentRequirement) {
+                        case 'BloodType':
+                            allRows.filter(function() {
+                                return $(this).data('blood-type') !== true;
+                            }).hide();
+                            break;
+                        case 'EmergencyContact':
+                            allRows.filter(function() {
+                                return $(this).data('emergency-contact') !== false;
+                            }).hide();
+                            break;
+                        case 'XRay':
+                            allRows.filter(function() {
+                                return $(this).data('xray') !== false;
+                            }).hide();
+                            break;
+                        case 'MedicalCertificate':
+                            allRows.filter(function() {
+                                return $(this).data('medical-certificate') !== false;
+                            }).hide();
+                            break;
+                        case 'VaccinationRecord':
+                            allRows.filter(function() {
+                                return $(this).data('vaccination-record') !== false;
+                            }).hide();
+                            break;
+                        case 'Critical':
+                            allRows.filter(function() {
+                                return $(this).data('completion') >= 50;
+                            }).hide();
+                            break;
+                    }
+                }
+                
+                // Apply department filter
+                if (currentDepartment) {
+                    allRows.filter(function() {
+                        return $(this).data('department') !== currentDepartment;
+                    }).hide();
+                }
+                
+                // Apply search filter
+                if (currentSearch) {
+                    var searchLower = currentSearch.toLowerCase();
+                    allRows.filter(function() {
+                        var studentName = $(this).data('student-name');
+                        var email = $(this).data('email');
+                        return !studentName.includes(searchLower) && !email.includes(searchLower);
+                    }).hide();
+                }
+                
+                // Update statistics after filtering
                 updateStats();
+                
+                // Update URL without page reload
+                updateURL();
+            }
+            
+            // Update URL based on current filters
+            function updateURL() {
+                var newUrl = '@Url.Action("StudentHealthStatus")';
+                var params = [];
+                
+                if (currentRequirement) params.push('requirement=' + currentRequirement);
+                if (currentDepartment) params.push('department=' + currentDepartment);
+                
+                if (params.length > 0) {
+                    newUrl += '?' + params.join('&');
+                }
+                
+                history.pushState({}, '', newUrl);
+            }
+            
+            // Requirement filter change - real-time
+            $('#requirementFilter').on('change', function() {
+                currentRequirement = $(this).val();
+                applyFilters();
             });
             
-            // Search input
-            $('#searchInput').keyup(function() {
-                table.search($(this).val()).draw();
-                updateStats();
+            // Department filter change - real-time
+            $('#departmentFilter').on('change', function() {
+                currentDepartment = $(this).val();
+                applyFilters();
+            });
+            
+            // Search input - real-time as user types
+            $('#searchInput').on('input', function() {
+                currentSearch = $(this).val();
+                // Use debounce for better performance during rapid typing
+                clearTimeout($(this).data('timeout'));
+                $(this).data('timeout', setTimeout(function() {
+                    applyFilters();
+                }, 200));
             });
             
             // Reset filters
             $('#resetFilters').click(function() {
+                // Reset filter values
                 $('#requirementFilter').val('');
                 $('#departmentFilter').val('');
                 $('#searchInput').val('');
-                table.search('').columns().search('').draw();
+                
+                // Reset filter variables
+                currentRequirement = '';
+                currentDepartment = '';
+                currentSearch = '';
+                
+                // Show all rows
+                $('#studentsTable tbody tr').show();
+                
+                // Update stats
                 updateStats();
+                
+                // Update URL
+                history.pushState({}, '', '@Url.Action("StudentHealthStatus")');
             });
             
-            // Update statistics based on filtered data
+            // Update statistics based on visible rows
             function updateStats() {
-                var filteredData = table.rows({ search: 'applied' }).data();
-                var totalStudents = filteredData.length;
+                var visibleRows = $('#studentsTable tbody tr:visible');
+                var totalStudents = visibleRows.length;
                 var completeCount = 0;
                 var incompleteCount = 0;
                 
-                table.rows({ search: 'applied' }).every(function() {
-                    var row = this.node();
-                    var completion = parseInt($(row).data('completion'));
+                visibleRows.each(function() {
+                    var completion = parseInt($(this).data('completion'));
                     
                     if (completion === 100) completeCount++;
                     else incompleteCount++;
                 });
                 
-                // Update stats cards
-                $('#totalStudentsCount').text(totalStudents);
-                $('#completeCount').text(completeCount);
-                $('#incompleteCount').text(incompleteCount);
+                // Update stats cards with animation
+                animateCounter('#totalStudentsCount', totalStudents);
+                animateCounter('#completeCount', completeCount);
+                animateCounter('#incompleteCount', incompleteCount);
+            }
+            
+            // Animate counter for stats
+            function animateCounter(selector, target) {
+                var $element = $(selector);
+                var current = parseInt($element.text());
+                var increment = (target - current) / 20;
+                var duration = 500; // milliseconds
+                var interval = duration / 20;
+                
+                var timer = setInterval(function() {
+                    current += increment;
+                    if ((increment > 0 && current >= target) || 
+                        (increment < 0 && current <= target)) {
+                        $element.text(target);
+                        clearInterval(timer);
+                    } else {
+                        $element.text(Math.round(current));
+                    }
+                }, interval);
+            }
+            
+            // Add sorting capability without DataTables
+            $('#studentsTable th').click(function() {
+                var table = $(this).parents('table').eq(0);
+                var rows = table.find('tr:gt(0)').toArray().sort(comparator($(this).index()));
+                this.asc = !this.asc;
+                if (!this.asc) {
+                    rows = rows.reverse();
+                }
+                // Remove sort indicators
+                table.find('th').removeClass('sorting_asc sorting_desc');
+                // Add new sort indicator
+                $(this).addClass(this.asc ? 'sorting_asc' : 'sorting_desc');
+                
+                for (var i = 0; i < rows.length; i++) {
+                    table.append(rows[i]);
+                }
+            });
+            
+            // Comparator function for sorting
+            function comparator(index) {
+                return function(a, b) {
+                    var valA = getCellValue(a, index);
+                    var valB = getCellValue(b, index);
+                    if ($.isNumeric(valA) && $.isNumeric(valB)) {
+                        return valA - valB;
+                    } else {
+                        return valA.localeCompare(valB);
+                    }
+                };
+            }
+            
+            // Get cell value for sorting
+            function getCellValue(row, index) {
+                var cell = $(row).children('td').eq(index);
+                // For completion column, extract percentage
+                if (index === 8) {
+                    return parseInt($(cell).find('.progress-bar').attr('aria-valuenow'));
+                }
+                // For other cells, get text content
+                return cell.text().trim();
             }
             
             // Export to Excel functionality
             $('#exportToExcel').click(function() {
-                var wb = XLSX.utils.table_to_book(document.getElementById('studentsTable'), {sheet: "Student Health Status"});
+                // Create a worksheet with visible data only
+                var filteredData = [];
+                var headers = [];
+                
+                // Get headers
+                $('#studentsTable thead th').each(function() {
+                    headers.push($(this).text());
+                });
+                filteredData.push(headers);
+                
+                // Get filtered/visible data
+                $('#studentsTable tbody tr:visible').each(function() {
+                    var rowData = [];
+                    $(this).find('td').each(function() {
+                        // Clean the data (remove HTML tags)
+                        var text = $(this).text().trim();
+                        // Handle completion percentage column
+                        if ($(this).find('.progress-bar').length) {
+                            text = $(this).find('.progress-bar').text().trim();
+                        }
+                        rowData.push(text);
+                    });
+                    filteredData.push(rowData);
+                });
+                
+                // Create workbook and add worksheet
+                var wb = XLSX.utils.book_new();
+                var ws = XLSX.utils.aoa_to_sheet(filteredData);
+                
+                // Add the worksheet to the workbook
+                XLSX.utils.book_append_sheet(wb, ws, "Student Health Status");
+                
+                // Generate file and trigger download
                 var wbout = XLSX.write(wb, {bookType:'xlsx', type: 'binary'});
                 
                 function s2ab(s) {
@@ -379,8 +582,17 @@
                     return buf;
                 }
                 
-                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), "student_health_status.xlsx");
+                // Generate filename with department and requirement if filtered
+                var filename = "student_health_status";
+                if (currentDepartment) filename += "_" + currentDepartment.replace(/\s+/g, "_");
+                if (currentRequirement) filename += "_" + currentRequirement;
+                filename += ".xlsx";
+                
+                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), filename);
             });
+            
+            // Apply initial filtering
+            applyFilters();
         });
         
         // Show health alerts in modal
@@ -400,4 +612,41 @@
             healthAlertsModal.show();
         }
     </script>
+    
+    <style>
+        /* Add sorting indicators */
+        #studentsTable th {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        #studentsTable th:after {
+            content: "\f0dc";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 8px;
+            color: #ccc;
+        }
+        
+        #studentsTable th.sorting_asc:after {
+            content: "\f0de";
+            color: #007bff;
+        }
+        
+        #studentsTable th.sorting_desc:after {
+            content: "\f0dd";
+            color: #007bff;
+        }
+        
+        /* Improve table responsiveness */
+        .table-responsive {
+            padding-bottom: 15px;
+        }
+        
+        /* Animated transitions */
+        #studentsTable tbody tr {
+            transition: opacity 0.2s ease-in-out;
+        }
+    </style>
 }

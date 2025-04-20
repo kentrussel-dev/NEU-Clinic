@@ -509,5 +509,7 @@ namespace WebApp.Controllers
 
             return (int)((double)completedFields / totalFields * 100);
         }
+
+
     }
 }
