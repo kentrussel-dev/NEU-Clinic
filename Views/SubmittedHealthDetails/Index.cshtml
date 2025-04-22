@@ -43,22 +43,21 @@
 
 @if (isAdmin || isMedicalStaff || isSuperAdmin)
 {
-    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
-        <i class="fa-solid fa-file-medical"></i> Submitted Health Records History
-    </h2>
-
-    @if (TempData["Message"] != null)
-    {
-        <div class="alert alert-@TempData["MessageType"] alert-dismissible fade show" role="alert">
-            @TempData["Message"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
     <div id="viewrecords-content">
         @if (Model != null && Model.Any())
         {
-            <div class="container-fluid">
+            <div class="container mt-4 mb-4">
+                <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
+                    <i class="fa-solid fa-file-medical"></i> Submitted Health Records History
+                </h2>
+
+                @if (TempData["Message"] != null)
+                {
+                    <div class="alert alert-@TempData["MessageType"] alert-dismissible fade show" role="alert">
+                        @TempData["Message"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <input type="text" id="searchInput" class="form-control w-25" placeholder="Search by Name or Email...">
 

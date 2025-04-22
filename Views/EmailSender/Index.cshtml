@@ -1,0 +1,443 @@
+@model EmailViewModel
+
+@{
+    ViewData["Title"] = "Email Sender";
+    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+
+<div class="container mt-4 mb-4">
+    <!-- Toast container -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
+        <div class="toast-container"></div>
+    </div>
+
+    <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
+        <i class="fas fa-envelope me-2"></i>Email Sender
+    </h2>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form id="emailForm" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="recipientSearch" class="form-label"><i class="fas fa-search me-2"></i>Search Recipients</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="recipientSearch" placeholder="Search by name, email or username...">
+                        </div>
+                        <div id="searchResults" class="dropdown-menu w-100" style="max-height: 200px; overflow-y: auto;"></div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>You can select multiple recipients
+                        </small>
+                    </div>
+                </div>
+
+                <div id="selectedRecipientsContainer" class="mb-3">
+                    <label class="form-label"><i class="fas fa-users me-2"></i>Selected Recipients <span id="recipientCount" class="badge bg-primary">0</span></label>
+                    <div id="selectedRecipients" class="border rounded p-2" style="min-height: 50px; max-height: 200px; overflow-y: auto;">
+                        <div class="text-muted text-center p-3" id="noRecipientsMsg">No recipients selected</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="subject" class="form-label"><i class="fas fa-heading me-2"></i>Subject</label>
+                    <input type="text" class="form-control" id="subject" name="Subject" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="summernote" class="form-label"><i class="fas fa-edit me-2"></i>Message</label>
+                    <textarea id="summernote" name="Message" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="attachments" class="form-label"><i class="fas fa-paperclip me-2"></i>Attachments</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="attachments" name="Attachments" multiple>
+                        <button class="btn btn-outline-secondary" type="button" id="clearAttachments">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                    <div class="form-text text-muted">
+                        <i class="fas fa-info-circle me-1"></i>Upload images, PDFs, documents (Max 10MB each). No videos allowed.
+                    </div>
+                    <div id="fileList" class="mt-2"></div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-secondary me-md-2" id="resetForm">
+                        <i class="fas fa-undo me-1"></i> Reset
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-modern" id="sendEmail">
+                        <i class="fas fa-paper-plane me-1"></i> <span class="button-text">Send Email</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Email History</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover user-table text-center" id="emailHistoryTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><i class="fas fa-user me-2"></i>Recipients</th>
+                            <th><i class="fas fa-envelope me-2"></i>Subject</th>
+                            <th><i class="fas fa-paperclip me-2"></i>Attachments</th>
+                            <th><i class="fas fa-clock me-2"></i>Sent Date</th>
+                            <th><i class="fas fa-check-circle me-2"></i>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- This would be filled dynamically with the email history data -->
+                        <tr>
+                            <td colspan="5" class="text-center">No email history available</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize Summernote editor
+            $('#summernote').summernote({
+                placeholder: 'Compose your email message here...',
+                height: 300,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+
+            // Auto-search when typing
+            let searchTimeout;
+            $('#recipientSearch').on('input', function() {
+                const searchTerm = $(this).val().trim();
+                clearTimeout(searchTimeout);
+                
+                if (searchTerm.length < 2) {
+                    $('#searchResults').empty().removeClass('show');
+                    return;
+                }
+                
+                searchTimeout = setTimeout(() => {
+                    $.get('/EmailSender/GetUsers', { searchTerm: searchTerm }, function(data) {
+                        const $results = $('#searchResults');
+                        $results.empty();
+                        
+                        if (data.length === 0) {
+                            $results.append(`<div class="dropdown-item text-muted">No users found</div>`);
+                        } else {
+                            data.forEach(user => {
+                                // Skip already selected users
+                                if ($(`#recipient-${user.id}`).length > 0) {
+                                    return;
+                                }
+                                
+                                const $item = $(`
+                                    <a href="#" class="dropdown-item user-item" data-id="${user.id}" data-username="${user.userName}" 
+                                       data-email="${user.email}" data-fullname="${user.fullName || ''}" 
+                                       data-profile="${user.profilePictureUrl || '/default-profile.png'}">
+                                        <div class="d-flex align-items-center">
+                                            <img src="${user.profilePictureUrl || '/default-profile.png'}" 
+                                                 alt="Profile" class="rounded-circle me-2" 
+                                                 style="width: 30px; height: 30px; object-fit: cover;">
+                                            <div>
+                                                <div>${user.fullName || user.userName}</div>
+                                                <small class="text-muted">${user.email}</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                `);
+                                $results.append($item);
+                            });
+                        }
+                        
+                        $results.addClass('show');
+                    });
+                }, 300);
+            });
+
+            // Handle recipient selection
+            $(document).on('click', '.user-item', function(e) {
+                e.preventDefault();
+                
+                const userId = $(this).data('id');
+                const userName = $(this).data('username');
+                const fullName = $(this).data('fullname');
+                const email = $(this).data('email');
+                const profilePic = $(this).data('profile');
+                
+                // Skip if already selected
+                if ($(`#recipient-${userId}`).length > 0) {
+                    return;
+                }
+                
+                // Remove no recipients message if present
+                $('#noRecipientsMsg').hide();
+                
+                // Add recipient to the selected list
+                const recipientItem = $(`
+                    <div id="recipient-${userId}" class="recipient-item mb-1 border rounded p-2">
+                        <div class="d-flex align-items-center">
+                            <input type="hidden" name="UserIds" value="${userId}">
+                            <img src="${profilePic}" alt="Profile" class="rounded-circle me-2" 
+                                 style="width: 30px; height: 30px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <div>${fullName || userName}</div>
+                                <small class="text-muted">${email}</small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-recipient" 
+                                    data-id="${userId}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                
+                $('#selectedRecipients').append(recipientItem);
+                
+                // Update recipient count
+                updateRecipientCount();
+                
+                // Clear search
+                $('#recipientSearch').val('');
+                $('#searchResults').empty().removeClass('show');
+            });
+
+            // Remove selected recipient
+            $(document).on('click', '.remove-recipient', function() {
+                const userId = $(this).data('id');
+                $(`#recipient-${userId}`).remove();
+                
+                // Update recipient count
+                updateRecipientCount();
+                
+                // Show no recipients message if none selected
+                if ($('.recipient-item').length === 0) {
+                    $('#noRecipientsMsg').show();
+                }
+            });
+            
+            // Helper function to update recipient count
+            function updateRecipientCount() {
+                const count = $('.recipient-item').length;
+                $('#recipientCount').text(count);
+            }
+
+            // Handle attachment selection
+            $('#attachments').change(function() {
+                const fileList = $('#fileList');
+                fileList.empty();
+                
+                const files = this.files;
+                if (files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const fileSize = (file.size / 1024 / 1024).toFixed(2); // Convert to MB
+                        
+                        // Check if file is a video
+                        const extension = file.name.split('.').pop().toLowerCase();
+                        const isVideo = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv'].includes(extension);
+                        
+                        const fileItem = $(`
+                            <div class="alert ${isVideo ? 'alert-danger' : fileSize > 10 ? 'alert-warning' : 'alert-info'} d-flex align-items-center p-2 mb-1">
+                                <i class="${getFileIcon(extension)} me-2"></i>
+                                <div class="flex-grow-1">
+                                    <div>${file.name}</div>
+                                    <small>${fileSize} MB</small>
+                                </div>
+                                ${isVideo ? '<div class="badge bg-danger">Video not allowed</div>' : 
+                                           fileSize > 10 ? '<div class="badge bg-warning">File too large</div>' : ''}
+                            </div>
+                        `);
+                        fileList.append(fileItem);
+                    }
+                }
+            });
+
+            // Clear attachment selection
+            $('#clearAttachments').click(function() {
+                $('#attachments').val('');
+                $('#fileList').empty();
+            });
+
+            // Reset form
+            $('#resetForm').click(function() {
+                $('#emailForm')[0].reset();
+                $('#summernote').summernote('reset');
+                $('#selectedRecipients').empty().append('<div class="text-muted text-center p-3" id="noRecipientsMsg">No recipients selected</div>');
+                $('#recipientCount').text('0');
+                $('#fileList').empty();
+            });
+
+            // Send email
+            $('#emailForm').submit(function(e) {
+                e.preventDefault();
+                
+                const $btn = $('#sendEmail');
+                const $btnText = $btn.find('.button-text');
+                const $spinner = $btn.find('.spinner-border');
+                
+                // Validation
+                const recipientCount = $('.recipient-item').length;
+                const subject = $('#subject').val();
+                const message = $('#summernote').summernote('code');
+                
+                if (recipientCount === 0) {
+                    showToast('error', 'Please select at least one recipient');
+                    return;
+                }
+                
+                if (!subject.trim()) {
+                    showToast('error', 'Please enter a subject');
+                    return;
+                }
+                
+                if (!message.trim()) {
+                    showToast('error', 'Please enter a message');
+                    return;
+                }
+                
+                // Check for videos or large files
+                const files = $('#attachments')[0].files;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    
+                    if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv'].includes(extension)) {
+                        showToast('error', 'Video files are not allowed');
+                        return;
+                    }
+                    
+                    if (file.size > 10 * 1024 * 1024) {
+                        showToast('error', 'File size should not exceed 10MB');
+                        return;
+                    }
+                }
+                
+                // Submit form
+                $btn.prop('disabled', true);
+                $btnText.text('Sending...');
+                $spinner.removeClass('d-none');
+                
+                const formData = new FormData(this);
+                
+                $.ajax({
+                    url: '/EmailSender/SendEmail',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('success', response.message);
+                            $('#resetForm').click();
+                        } else {
+                            showToast('error', response.message || 'Failed to send email');
+                        }
+                    },
+                    error: function(xhr) {
+                        showToast('error', xhr.responseJSON?.message || 'Server error');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                        $btnText.text('Send Email');
+                        $spinner.addClass('d-none');
+                    }
+                });
+            });
+
+            // Helper function to get appropriate icon for file type
+            function getFileIcon(extension) {
+                switch(extension.toLowerCase()) {
+                    case 'pdf':
+                        return 'fas fa-file-pdf';
+                    case 'doc':
+                    case 'docx':
+                        return 'fas fa-file-word';
+                    case 'xls':
+                    case 'xlsx':
+                        return 'fas fa-file-excel';
+                    case 'ppt':
+                    case 'pptx':
+                        return 'fas fa-file-powerpoint';
+                    case 'jpg':
+                    case 'jpeg':
+                    case 'png':
+                    case 'gif':
+                        return 'fas fa-file-image';
+                    case 'zip':
+                    case 'rar':
+                        return 'fas fa-file-archive';
+                    case 'mp4':
+                    case 'avi':
+                    case 'mov':
+                    case 'wmv':
+                        return 'fas fa-file-video';
+                    default:
+                        return 'fas fa-file';
+                }
+            }
+
+            // Helper function to show dynamic toasts for JavaScript messages
+            function showToast(type, message) {
+                // Generate unique ID
+                const toastId = 'toast_' + Date.now();
+                
+                // Create toast element
+                const toastHtml = `
+                    <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header bg-${type === 'success' ? 'success' : 'danger'} text-white">
+                            <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle me-2"></i>
+                            <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                
+                // Append and show toast
+                $('.toast-container').append(toastHtml);
+                const toast = new bootstrap.Toast(document.getElementById(toastId), {
+                    autohide: true,
+                    delay: 5000
+                });
+                toast.show();
+                
+                // Remove toast after it's hidden
+                $('#' + toastId).on('hidden.bs.toast', function() {
+                    $(this).remove();
+                });
+            }
+
+            // Close dropdown when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#recipientSearch, #searchResults').length) {
+                    $('#searchResults').removeClass('show');
+                }
+            });
+        });
+    </script>
+}

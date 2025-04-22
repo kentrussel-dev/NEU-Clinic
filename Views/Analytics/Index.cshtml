@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 
-<div class="container-fluid my-4">
+<div class="container mt-4 mb-4">
     <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
         <i class="fas fa-heartbeat me-2"></i>Health Requirements Analytics Dashboard
     </h2>
@@ -188,18 +188,7 @@
     @if (Model.HealthAlertsDistribution.Any())
     {
         <div class="row">
-            <div class="col-12">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Health Alerts Distribution</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container" style="position: relative; height:40vh;">
-                            <canvas id="healthAlertsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
     }
     
@@ -390,32 +379,18 @@
                             </div>
                         </div>
                         <div class="col-lg-6">
-                            <div class="table-responsive">
-                                <table class="table user-table" id="documentTypeTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Document Type</th>
-                                            <th>Submitted</th>
-                                            <th>Approved</th>
-                                            <th>Rejected</th>
-                                            <th>Pending</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var docType in Model.DocumentStatistics.DocumentTypeStatistics)
-                                        {
-                                            <tr>
-                                                <td>@docType.Key</td>
-                                                <td>@docType.Value.Submitted</td>
-                                                <td>@docType.Value.Approved</td>
-                                                <td>@docType.Value.Rejected</td>
-                                                <td>@docType.Value.Pending</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Health Alerts Distribution</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container" style="position: relative; height:40vh;">
+                                        <canvas id="healthAlertsChart"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
