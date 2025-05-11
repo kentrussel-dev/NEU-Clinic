@@ -12,17 +12,20 @@ namespace WebApp.Controllers
         private readonly UserManager<Users> _userManager;
         private readonly EmailService _emailService;
         private readonly NotificationService _notificationService;
+        private readonly ILogger<EmailSenderController> _logger;
 
         public EmailSenderController(
             AppDbContext context,
             UserManager<Users> userManager,
             EmailService emailService,
-            NotificationService notificationService)
+            NotificationService notificationService,
+            ILogger<EmailSenderController> logger)
         {
             _context = context;
             _userManager = userManager;
             _emailService = emailService;
             _notificationService = notificationService;
+            _logger = logger;
         }
 
         public IActionResult Index()
@@ -148,6 +151,218 @@ namespace WebApp.Controllers
             {
                 return Json(new { success = false, message = $"Error sending email: {ex.Message}" });
             }
+        }
+        [HttpGet]
+        public IActionResult GetIncompleteStudentCount()
+        {
+            var count = _context.Users
+                .Join(_context.UserRoles,
+                    user => user.Id,
+                    userRole => userRole.UserId,
+                    (user, userRole) => new { User = user, UserRole = userRole })
+                .Join(_context.Roles,
+                    ur => ur.UserRole.RoleId,
+                    role => role.Id,
+                    (ur, role) => new { ur.User, Role = role })
+                .Where(x => x.Role.Name == "Student")
+                .Select(x => x.User)
+                .Count(u => u.HealthDetails != null &&
+                           (!string.IsNullOrEmpty(u.HealthDetails.EmergencyContactName) ||
+                            !string.IsNullOrEmpty(u.HealthDetails.XRayFileUrl) ||
+                            !string.IsNullOrEmpty(u.HealthDetails.MedicalCertificateUrl) ||
+                            !string.IsNullOrEmpty(u.HealthDetails.VaccinationRecordUrl)) &&
+                           (u.HealthDetails.LastReminderSent == null ||
+                            u.HealthDetails.LastReminderSent < DateTime.Now.AddMinutes(-1)));
+
+            return Json(count);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendReminderBatch([FromForm] int batchSize)
+        {
+            var studentsToNotify = await _context.Users
+                .Join(_context.UserRoles,
+                    user => user.Id,
+                    userRole => userRole.UserId,
+                    (user, userRole) => new { User = user, UserRole = userRole })
+                .Join(_context.Roles,
+                    ur => ur.UserRole.RoleId,
+                    role => role.Id,
+                    (ur, role) => new { ur.User, Role = role })
+                .Where(x => x.Role.Name == "Student")
+                .Select(x => x.User)
+                .Include(u => u.HealthDetails)
+                .Where(u => u.HealthDetails != null &&
+                           !string.IsNullOrEmpty(u.Email) &&
+                           (!string.IsNullOrEmpty(u.HealthDetails.EmergencyContactName) ||
+                            !string.IsNullOrEmpty(u.HealthDetails.XRayFileUrl) ||
+                            !string.IsNullOrEmpty(u.HealthDetails.MedicalCertificateUrl) ||
+                            !string.IsNullOrEmpty(u.HealthDetails.VaccinationRecordUrl)))
+                // Only send to students who haven't been reminded in the last hour
+                .Where(u => u.HealthDetails.LastReminderSent == null ||
+                           u.HealthDetails.LastReminderSent < DateTime.Now.AddMinutes(-1))
+                .Take(batchSize)
+                .ToListAsync();
+
+            int sentCount = 0;
+            int failedCount = 0;
+
+            foreach (var student in studentsToNotify)
+            {
+                try
+                {
+                    var healthDetails = student.HealthDetails;
+                    bool hasEmergency = !string.IsNullOrEmpty(healthDetails.EmergencyContactName) &&
+                                      !string.IsNullOrEmpty(healthDetails.EmergencyContactPhone);
+                    bool hasXRay = !string.IsNullOrEmpty(healthDetails.XRayFileUrl);
+                    bool hasMedicalCert = !string.IsNullOrEmpty(healthDetails.MedicalCertificateUrl);
+                    bool hasVaccination = !string.IsNullOrEmpty(healthDetails.VaccinationRecordUrl);
+
+                    var emailBody = $@"
+                <h3>Dear {student.FullName ?? student.UserName},</h3>
+                <p>Our records show that you haven't completed all required health documents.</p>
+                <p>Please submit the following missing documents as soon as possible:</p>
+                <ul>
+                    {(hasEmergency ? "" : "<li>Emergency Contact Information</li>")}
+                    {(hasXRay ? "" : "<li>X-Ray Results</li>")}
+                    {(hasMedicalCert ? "" : "<li>Medical Certificate</li>")}
+                    {(hasVaccination ? "" : "<li>Vaccination Record</li>")}
+                </ul>
+                <p>Thank you for your cooperation.</p>
+                <p>Sincerely,<br>Health Services</p>
+            ";
+
+                    await _emailService.SendEmailAsync(
+                        student.Email,
+                        "Reminder: Incomplete Health Requirements",
+                        emailBody);
+
+                    await _notificationService.NotifyUserAsync(
+                        student.Id,
+                        User.Identity.Name,
+                        "Reminder: You have incomplete health requirements");
+
+                    // Update the LastReminderSent timestamp
+                    healthDetails.LastReminderSent = DateTime.Now;
+                    sentCount++;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Failed to send reminder to {student.Email}");
+                    failedCount++;
+                }
+            }
+
+            // Save all changes at once
+            await _context.SaveChangesAsync();
+
+            return Json(new { sentCount, failedCount });
+        }
+
+        [HttpGet]
+        public IActionResult GetExpiringDocumentCount()
+        {
+            var count = _context.Users
+                .Join(_context.UserRoles,
+                    user => user.Id,
+                    userRole => userRole.UserId,
+                    (user, userRole) => new { User = user, UserRole = userRole })
+                .Join(_context.Roles,
+                    ur => ur.UserRole.RoleId,
+                    role => role.Id,
+                    (ur, role) => new { ur.User, Role = role })
+                .Where(x => x.Role.Name == "Student")
+                .Select(x => x.User)
+                .Count(u => u.HealthDetails != null &&
+                           (u.HealthDetails.MedicalCertificateExpiryDate.HasValue ||
+                            u.HealthDetails.VaccinationRecordExpiryDate.HasValue ||
+                            u.HealthDetails.XRayExpiryDate.HasValue));
+
+            return Json(count);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendExpiryReminderBatch([FromForm] int batchSize)
+        {
+            var studentsToNotify = await _context.Users
+                .Join(_context.UserRoles,
+                    user => user.Id,
+                    userRole => userRole.UserId,
+                    (user, userRole) => new { User = user, UserRole = userRole })
+                .Join(_context.Roles,
+                    ur => ur.UserRole.RoleId,
+                    role => role.Id,
+                    (ur, role) => new { ur.User, Role = role })
+                .Where(x => x.Role.Name == "Student")
+                .Select(x => x.User)
+                .Include(u => u.HealthDetails)
+                .Where(u => u.HealthDetails != null &&
+                           (u.HealthDetails.MedicalCertificateExpiryDate.HasValue ||
+                            u.HealthDetails.VaccinationRecordExpiryDate.HasValue ||
+                            u.HealthDetails.XRayExpiryDate.HasValue))
+                // Only send to students who haven't received an expiry reminder today
+                .Where(u => u.HealthDetails.LastExpiryReminderSent == null ||
+                           u.HealthDetails.LastExpiryReminderSent.Value.Date < DateTime.Today)
+                .Take(batchSize)
+                .ToListAsync();
+
+            int sentCount = 0;
+            int failedCount = 0;
+
+            foreach (var student in studentsToNotify)
+            {
+                try
+                {
+                    var healthDetails = student.HealthDetails;
+                    var expiringDocuments = new List<string>();
+
+                    if (healthDetails.MedicalCertificateExpiryDate.HasValue)
+                    {
+                        expiringDocuments.Add($"Medical Certificate (Expires: {healthDetails.MedicalCertificateExpiryDate.Value.ToShortDateString()})");
+                    }
+                    if (healthDetails.VaccinationRecordExpiryDate.HasValue)
+                    {
+                        expiringDocuments.Add($"Vaccination Record (Expires: {healthDetails.VaccinationRecordExpiryDate.Value.ToShortDateString()})");
+                    }
+                    if (healthDetails.XRayExpiryDate.HasValue)
+                    {
+                        expiringDocuments.Add($"X-Ray Results (Expires: {healthDetails.XRayExpiryDate.Value.ToShortDateString()})");
+                    }
+
+                    var emailBody = $@"
+                <h3>Dear {student.FullName ?? student.UserName},</h3>
+                <p>This is a reminder about upcoming document expirations in your health records:</p>
+                <ul>
+                    {string.Join("", expiringDocuments.Select(d => $"<li>{d}</li>"))}
+                </ul>
+                <p>Please renew these documents before they expire to maintain your complete health record status.</p>
+                <p>Thank you for your attention to this matter.</p>
+                <p>Sincerely,<br>Health Services</p>
+            ";
+
+                    await _emailService.SendEmailAsync(
+                        student.Email,
+                        "Reminder: Upcoming Document Expirations",
+                        emailBody);
+
+                    // Update the LastExpiryReminderSent timestamp
+                    healthDetails.LastExpiryReminderSent = DateTime.Now;
+                    sentCount++;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Failed to send expiry reminder to {student.Email}");
+                    failedCount++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return Json(new { sentCount, failedCount });
+        }
+
+        public class EmailReminderRequest
+        {
+            public string CustomMessage { get; set; } // Optional custom message to include
         }
     }
 }

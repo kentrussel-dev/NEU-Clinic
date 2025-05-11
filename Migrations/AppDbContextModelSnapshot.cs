@@ -197,6 +197,12 @@ namespace WebApp.Migrations
                     b.Property<string>("ImmunizationHistory")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("LastExpiryReminderSent")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastReminderSent")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("MedicalCertificateExpiryDate")
                         .HasColumnType("datetime2");
 

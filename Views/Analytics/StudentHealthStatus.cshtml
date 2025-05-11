@@ -7,7 +7,144 @@
 <link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 
-<div class="container mt-4 mb-4">
+<style>
+    /* Multi-level dropdown styling */
+    .dropdown-submenu {
+        position: relative;
+    }
+
+    .dropdown-submenu .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -1px;
+    }
+
+    .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-submenu > a:after {
+        display: block;
+        content: " ";
+        float: right;
+        width: 0;
+        height: 0;
+        border-color: transparent;
+        border-style: solid;
+        border-width: 5px 0 5px 5px;
+        border-left-color: #ccc;
+        margin-top: 5px;
+        margin-right: -10px;
+    }
+    
+    /* Filter row styling */
+    .filter-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .filter-group {
+        flex: 1;
+    }
+    
+    .filter-group-centered {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .filter-dropdown {
+        width: 100%;
+    }
+    
+    .filter-dropdown .btn {
+        width: 100%;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .filter-dropdown .dropdown-menu {
+        width: 100%;
+    }
+
+    /* Table modifications */
+    .table {
+        font-size: 0.75rem; /* Smaller font size */
+    }
+
+    .table th {
+        white-space: nowrap; /* Prevent line breaks in headers */
+        padding: 8px 4px; /* Smaller padding */
+    }
+
+    .table td {
+        padding: 8px 4px; /* Smaller padding */
+    }
+
+    /* Equal width for document columns */
+    .document-column {
+        width: 120px !important; /* Fixed width for document columns */
+        min-width: 120px !important;
+        max-width: 120px !important;
+    }
+
+    /* Progress bar adjustments */
+    .progress {
+        height: 18px !important; /* Smaller progress bar */
+    }
+
+    /* Modal Styles */
+    #confirmationModal .modal-header {
+        background-color: #ffc107;
+        color: white;
+    }
+
+    #loadingModal .modal-content {
+        border: none;
+        border-radius: 10px;
+    }
+
+    #loadingModal .modal-header {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    #loadingModal .modal-body {
+        padding-top: 0;
+    }
+
+    #emailProgressBar {
+        transition: width 0.3s ease;
+        height: 20px;
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1100;
+    }
+
+    .toast {
+        margin-bottom: 10px;
+    }
+
+    /* Progress Bar Colors */
+    .bg-success {
+        background-color: #28a745 !important;
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+    }
+</style>
+
+<div class="container my-4">
     <div class="position-relative mb-4">
         <div class="text-center mb-4">
             <h2 class="d-inline-block p-4 border rounded shadow-sm bg-light">
@@ -19,72 +156,14 @@
         </a>
     </div>
 
-    <!-- Filters and Search -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Filter Options</h6>
-        </div>
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-3 mb-3 mb-md-0">
-                    <div class="input-group">
-                        <span class="input-group-text bg-primary text-white border-0">
-                            <i class="fas fa-filter"></i>
-                        </span>
-                        <select id="requirementFilter" class="form-select">
-                            <option value="">All Requirements</option>
-                            <option value="BloodType" selected="@(Model.FilterRequirement == "BloodType")">Blood Type</option>
-                            <option value="EmergencyContact" selected="@(Model.FilterRequirement == "EmergencyContact")">Emergency Contact</option>
-                            <option value="XRay" selected="@(Model.FilterRequirement == "XRay")">X-Ray</option>
-                            <option value="MedicalCertificate" selected="@(Model.FilterRequirement == "MedicalCertificate")">Medical Certificate</option>
-                            <option value="VaccinationRecord" selected="@(Model.FilterRequirement == "VaccinationRecord")">Vaccination Record</option>
-                            <option value="Critical" selected="@(Model.FilterRequirement == "Critical")">Incomplete Records</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3 mb-md-0">
-                    <div class="input-group">
-                        <span class="input-group-text bg-primary text-white border-0">
-                            <i class="fas fa-university"></i>
-                        </span>
-                        <select id="departmentFilter" class="form-select">
-                            <option value="">All Departments</option>
-                            <option value="Not Specified">Not Specified</option>
-                            <option value="College of Accountancy">College of Accountancy</option>
-                            <option value="College of Agriculture">College of Agriculture</option>
-                            <option value="College of Arts and Science">College of Arts and Science</option>
-                            <option value="College of Business Administration">College of Business Administration</option>
-                            <option value="College of Communication">College of Communication</option>
-                            <option value="College of Informatics and Computing Studies">College of Informatics and Computing Studies</option>
-                            <option value="College of Criminology">College of Criminology</option>
-                            <option value="College of Education">College of Education</option>
-                            <option value="College of Engineering and Architecture">College of Engineering and Architecture</option>
-                            <option value="College of Medical Technology">College of Medical Technology</option>
-                            <option value="College of Midwifery">College of Midwifery</option>
-                            <option value="College of Music">College of Music</option>
-                            <option value="College of Nursing">College of Nursing</option>
-                            <option value="College of Physical Therapy">College of Physical Therapy</option>
-                            <option value="College of Respiratory Therapy">College of Respiratory Therapy</option>
-                            <option value="School of International Relations">School of International Relations</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <div class="input-group">
-                        <span class="input-group-text bg-primary text-white border-0">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" id="searchInput" class="form-control" placeholder="Search students...">
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <button id="resetFilters" class="btn btn-secondary btn-modern w-100">
-                        <i class="fas fa-undo"></i> Reset
-                    </button>
-                </div>
-            </div>
-        </div>
+    @if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+}
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
@@ -140,64 +219,179 @@
         </div>
     </div>
 
+    <!-- Updated Filter Row with Consistent Design -->
+    <div class="filter-row">
+        <!-- Name/Email Filter -->
+        <div class="filter-group">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" id="nameEmailFilter" class="form-control" placeholder="Filter by name or email...">
+            </div>
+        </div>
+
+
+        <!-- Department Filter -->
+        <div class="filter-group">
+            <div class="dropdown filter-dropdown">
+                <button class="btn btn-white border dropdown-toggle" type="button" id="departmentFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-building me-2"></i>
+                    <span id="selectedDepartmentFilterText">All Departments</span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="departmentFilterDropdown">
+                    <li><a class="dropdown-item" href="#" data-department-value="">All Departments</a></li>
+                    @foreach (var department in Model.Students.Select(s => s.Department).Distinct().Where(d => !string.IsNullOrEmpty(d)).OrderBy(d => d))
+                    {
+                        <li><a class="dropdown-item" href="#" data-department-value="@department">@department</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- Document Status Filter (Centered) -->
+        <div class="filter-group">
+            <div class="dropdown filter-dropdown" style="max-width: 300px;">
+                <button class="btn btn-white border dropdown-toggle" type="button" id="documentFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-file-medical me-2"></i>
+                    <span id="selectedFilterText">All Document Statuses</span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="documentFilterDropdown">
+                    <li><a class="dropdown-item" href="#" data-filter-value="">All Document Statuses</a></li>
+                    
+                    <!-- Emergency Contact Dropdown -->
+                    <li class="dropdown-submenu">
+                        <a class="dropdown-item dropdown-toggle" href="#">Emergency Contact</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-filter-value="emergency_complete">
+                                <i class="fas fa-check-circle text-success me-2"></i><span class="text-success">Completed</span>
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-filter-value="emergency_missing">
+                                <i class="fas fa-times-circle text-danger me-2"></i><span class="text-danger">Missing</span>
+                            </a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- X-Ray Dropdown -->
+                    <li class="dropdown-submenu">
+                        <a class="dropdown-item dropdown-toggle" href="#">X-Ray</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-filter-value="xray_complete">
+                                <i class="fas fa-check-circle text-success me-2"></i><span class="text-success">Completed</span>
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-filter-value="xray_missing">
+                                <i class="fas fa-times-circle text-danger me-2"></i><span class="text-danger">Missing</span>
+                            </a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Medical Certificate Dropdown -->
+                    <li class="dropdown-submenu">
+                        <a class="dropdown-item dropdown-toggle" href="#">Medical Certificate</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-filter-value="medical_complete">
+                                <i class="fas fa-check-circle text-success me-2"></i><span class="text-success">Completed</span>
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-filter-value="medical_missing">
+                                <i class="fas fa-times-circle text-danger me-2"></i><span class="text-danger">Missing</span>
+                            </a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Vaccination Record Dropdown -->
+                    <li class="dropdown-submenu">
+                        <a class="dropdown-item dropdown-toggle" href="#">Vaccination Record</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-filter-value="vaccine_complete">
+                                <i class="fas fa-check-circle text-success me-2"></i><span class="text-success">Completed</span>
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-filter-value="vaccine_missing">
+                                <i class="fas fa-times-circle text-danger me-2"></i><span class="text-danger">Missing</span>
+                            </a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Combined Status -->
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" data-filter-value="all_complete">
+                        <i class="fas fa-check-double text-success me-2"></i>All Documents Complete
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" data-filter-value="any_missing">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>Any Document Missing
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Students Table -->
     <div class="card shadow mb-4 user-table">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Student Health Requirements Status</h6>
-            <div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-primary btn-modern dropdown-toggle" type="button" id="emailActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-envelope me-2"></i> Email Actions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="emailActionsDropdown">
+                        <li>
+                            <button class="dropdown-item" type="button" id="sendIncompleteReminder">
+                                <i class="fas fa-exclamation-circle text-warning me-2"></i>Send Reminder to Incomplete
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" type="button" id="sendExpiryReminder">
+                                <i class="fas fa-clock text-danger me-2"></i>Send Expiration Reminders
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                
                 <button class="btn btn-success btn-modern" id="exportToExcel">
-                    <i class="fas fa-file-excel"></i> Export to Excel
-                </button>
+                    <i class="fas fa-file-excel me-2"></i> Export to Excel
+                </button>   
             </div>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-bordered" id="studentsTable" width="100%" cellspacing="0">
+                <table class="table table-bordered table-striped table-hover mb-0" id="studentsTable">
                     <thead>
                         <tr>
-                            <th>Student</th>
-                            <th>Department</th>
-                            <th>Blood Type</th>
-                            <th>Emergency Contact</th>
-                            <th>X-Ray</th>
-                            <th>Medical Certificate</th>
-                            <th>Vaccination Record</th>
-                            <th>Health Alerts</th>
-                            <th>Completion</th>
+                            <th class="text-center align-middle" style="width: 80px;">Profile</th>
+                            <th class="text-center align-middle">Student Name</th>
+                            <th class="text-center align-middle">Department</th>
+                            <th class="text-center align-middle">Blood Type</th>
+                            <th class="text-center align-middle document-column">Emergency Contact</th>
+                            <th class="text-center align-middle document-column">X-Ray</th>
+                            <th class="text-center align-middle document-column">Medical Certificate</th>
+                            <th class="text-center align-middle document-column">Vaccination Record</th>
+                            <th class="text-center align-middle">Completion</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var student in Model.Students)
                         {
-                            <tr data-department="@student.Department" data-completion="@student.CompletionPercentage" 
-                                data-blood-type="@(!string.IsNullOrEmpty(student.BloodType))"
-                                data-emergency-contact="@student.HasEmergencyContact"
-                                data-xray="@student.HasXRay"
-                                data-medical-certificate="@student.HasMedicalCertificate"
-                                data-vaccination-record="@student.HasVaccinationRecord"
-                                data-student-name="@student.FullName.ToLower()"
-                                data-email="@student.Email.ToLower()">
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <img src="@student.ProfilePictureUrl" class="profile-img rounded-circle me-2" alt="Profile">
-                                        <div>
-                                            <div class="fw-bold">@student.FullName</div>
-                                            <div class="small text-muted">@student.Email</div>
-                                        </div>
+                            <tr>
+                                <td class="text-center align-middle">
+                                    <img src="@student.ProfilePictureUrl" class="profile-img rounded-circle" alt="Profile" style="width: 40px; height: 40px; object-fit: cover;">
+                                </td>
+                                <td class="text-center align-middle">
+                                    <div class="text-nowrap">
+                                        <div class="fw-bold">@student.FullName</div>
+                                        <div class="small text-muted">@student.Email</div>
                                     </div>
                                 </td>
-                                <td>@(string.IsNullOrEmpty(student.Department) ? "Not Specified" : student.Department)</td>
-                                <td>
+                                <td class="text-center align-middle">@(string.IsNullOrEmpty(student.Department) ? "Not Specified" : student.Department)</td>
+                                <td class="text-center align-middle">
                                     @if (!string.IsNullOrEmpty(student.BloodType))
                                     {
-                                        <span class="badge bg-success">@student.BloodType</span>
+                                        <span class="badge bg-success rounded-pill px-2 py-1">@student.BloodType</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-danger">Missing</span>
+                                        <span class="badge bg-danger rounded-pill px-2 py-1">Missing</span>
                                     }
                                 </td>
-                                <td>
+                                <td class="text-center align-middle document-column">
                                     @if (student.HasEmergencyContact)
                                     {
                                         <i class="fas fa-check-circle text-success"></i>
@@ -207,7 +401,7 @@
                                         <i class="fas fa-times-circle text-danger"></i>
                                     }
                                 </td>
-                                <td>
+                                <td class="text-center align-middle document-column">
                                     @if (student.HasXRay)
                                     {
                                         <i class="fas fa-check-circle text-success"></i>
@@ -217,7 +411,7 @@
                                         <i class="fas fa-times-circle text-danger"></i>
                                     }
                                 </td>
-                                <td>
+                                <td class="text-center align-middle document-column">
                                     @if (student.HasMedicalCertificate)
                                     {
                                         <i class="fas fa-check-circle text-success"></i>
@@ -227,7 +421,7 @@
                                         <i class="fas fa-times-circle text-danger"></i>
                                     }
                                 </td>
-                                <td>
+                                <td class="text-center align-middle document-column">
                                     @if (student.HasVaccinationRecord)
                                     {
                                         <i class="fas fa-check-circle text-success"></i>
@@ -237,29 +431,16 @@
                                         <i class="fas fa-times-circle text-danger"></i>
                                     }
                                 </td>
-                                <td>
-                                    @if (student.HealthAlerts.Any())
-                                    {
-                                        <span class="badge bg-warning text-dark">@student.HealthAlerts.Count</span>
-                                        <button class="btn btn-sm btn-outline-info" onclick="showHealthAlerts('@string.Join(", ", student.HealthAlerts)')">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">None</span>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 20px;">
+                                <td class="text-center align-middle">
+                                    <div class="progress">
                                         @{
                                             var colorClass = student.CompletionPercentage == 100 ? "bg-success" : 
                                                             student.CompletionPercentage >= 70 ? "bg-info" :
                                                             student.CompletionPercentage >= 40 ? "bg-warning" : "bg-danger";
                                         }
                                         <div class="progress-bar @colorClass" role="progressbar" 
-                                             style="width: @student.CompletionPercentage%;" 
-                                             aria-valuenow="@student.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                                            style="width: @student.CompletionPercentage%;" 
+                                            aria-valuenow="@student.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
                                             @student.CompletionPercentage%
                                         </div>
                                     </div>
@@ -273,25 +454,78 @@
     </div>
 </div>
 
-<!-- Health Alerts Modal -->
-<div class="modal fade" id="healthAlertsModal" tabindex="-1" aria-labelledby="healthAlertsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="healthAlertsModalLabel">Health Alerts</h5>
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Action</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <ul id="healthAlertsList" class="list-group">
-                </ul>
+                <p>Are you sure you want to send reminder emails to all students with incomplete health requirements?</p>
+                <p class="fw-bold" id="incompleteCountText"></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmSend">Send Reminders</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Expiration Confirmation Modal -->
+<div class="modal fade" id="expiryConfirmationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white"><i class="fas fa-clock me-2"></i>Confirm Expiration Reminders</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to send expiration reminder emails to all students?</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This will notify students about upcoming document expirations, even if their documents are currently complete.
+                </div>
+                <p class="fw-bold" id="expiryCountText"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmExpirySend">Send Reminders</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sending Reminders</h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="progress mb-3">
+                    <div id="emailProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%"></div>
+                </div>
+                <div class="text-center">
+                    <p id="progressText">Preparing to send emails...</p>
+                    <p id="countText" class="small text-muted">0/0 emails sent</p>
+                    <p id="failedText" class="small text-danger d-none"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this to your existing Scripts section -->
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
@@ -303,241 +537,108 @@
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             });
-            
-            // Skip DataTable initialization to implement custom filtering
-            // Instead, implement direct DOM manipulation for faster and more responsive filtering
-            
-            // Global variables to track current filter state
-            var currentRequirement = '';
-            var currentDepartment = '';
-            var currentSearch = '';
-            
-            // Handle initial URL parameters if present
-            var urlParams = new URLSearchParams(window.location.search);
-            var deptParam = urlParams.get('department');
-            var reqParam = urlParams.get('requirement');
-            
-            if (deptParam) {
-                $('#departmentFilter').val(deptParam);
-                currentDepartment = deptParam;
-            }
-            
-            if (reqParam) {
-                $('#requirementFilter').val(reqParam);
-                currentRequirement = reqParam;
-            }
-            
-            // Apply initial filtering
-            applyFilters();
-            
-            // Function to apply all filters
-            function applyFilters() {
-                var allRows = $('#studentsTable tbody tr');
-                
-                // Reset visibility
-                allRows.show();
-                
-                // Apply requirement filter
-                if (currentRequirement) {
-                    switch (currentRequirement) {
-                        case 'BloodType':
-                            allRows.filter(function() {
-                                return $(this).data('blood-type') !== true;
-                            }).hide();
-                            break;
-                        case 'EmergencyContact':
-                            allRows.filter(function() {
-                                return $(this).data('emergency-contact') !== false;
-                            }).hide();
-                            break;
-                        case 'XRay':
-                            allRows.filter(function() {
-                                return $(this).data('xray') !== false;
-                            }).hide();
-                            break;
-                        case 'MedicalCertificate':
-                            allRows.filter(function() {
-                                return $(this).data('medical-certificate') !== false;
-                            }).hide();
-                            break;
-                        case 'VaccinationRecord':
-                            allRows.filter(function() {
-                                return $(this).data('vaccination-record') !== false;
-                            }).hide();
-                            break;
-                        case 'Critical':
-                            allRows.filter(function() {
-                                return $(this).data('completion') >= 50;
-                            }).hide();
-                            break;
-                    }
-                }
-                
-                // Apply department filter
-                if (currentDepartment) {
-                    allRows.filter(function() {
-                        return $(this).data('department') !== currentDepartment;
-                    }).hide();
-                }
-                
-                // Apply search filter
-                if (currentSearch) {
-                    var searchLower = currentSearch.toLowerCase();
-                    allRows.filter(function() {
-                        var studentName = $(this).data('student-name');
-                        var email = $(this).data('email');
-                        return !studentName.includes(searchLower) && !email.includes(searchLower);
-                    }).hide();
-                }
-                
-                // Update statistics after filtering
-                updateStats();
-                
-                // Update URL without page reload
-                updateURL();
-            }
-            
-            // Update URL based on current filters
-            function updateURL() {
-                var newUrl = '@Url.Action("StudentHealthStatus")';
-                var params = [];
-                
-                if (currentRequirement) params.push('requirement=' + currentRequirement);
-                if (currentDepartment) params.push('department=' + currentDepartment);
-                
-                if (params.length > 0) {
-                    newUrl += '?' + params.join('&');
-                }
-                
-                history.pushState({}, '', newUrl);
-            }
-            
-            // Requirement filter change - real-time
-            $('#requirementFilter').on('change', function() {
-                currentRequirement = $(this).val();
-                applyFilters();
-            });
-            
-            // Department filter change - real-time
-            $('#departmentFilter').on('change', function() {
-                currentDepartment = $(this).val();
-                applyFilters();
-            });
-            
-            // Search input - real-time as user types
-            $('#searchInput').on('input', function() {
-                currentSearch = $(this).val();
-                // Use debounce for better performance during rapid typing
-                clearTimeout($(this).data('timeout'));
-                $(this).data('timeout', setTimeout(function() {
-                    applyFilters();
-                }, 200));
-            });
-            
-            // Reset filters
-            $('#resetFilters').click(function() {
-                // Reset filter values
-                $('#requirementFilter').val('');
-                $('#departmentFilter').val('');
-                $('#searchInput').val('');
-                
-                // Reset filter variables
-                currentRequirement = '';
-                currentDepartment = '';
-                currentSearch = '';
-                
-                // Show all rows
-                $('#studentsTable tbody tr').show();
-                
-                // Update stats
-                updateStats();
-                
-                // Update URL
-                history.pushState({}, '', '@Url.Action("StudentHealthStatus")');
-            });
-            
-            // Update statistics based on visible rows
-            function updateStats() {
-                var visibleRows = $('#studentsTable tbody tr:visible');
-                var totalStudents = visibleRows.length;
-                var completeCount = 0;
-                var incompleteCount = 0;
-                
-                visibleRows.each(function() {
-                    var completion = parseInt($(this).data('completion'));
-                    
-                    if (completion === 100) completeCount++;
-                    else incompleteCount++;
+
+            // Name/Email filter functionality
+            $('#nameEmailFilter').on('keyup', function() {
+                var filter = $(this).val().toLowerCase();
+                $('#studentsTable tbody tr').each(function() {
+                    var name = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    var email = $(this).find('td:nth-child(2) .small').text().toLowerCase();
+                    var matches = name.includes(filter) || email.includes(filter);
+                    $(this).toggle(matches);
                 });
+                updateCounts();
+            });
+
+            // Department filter functionality
+            $('[data-department-value]').on('click', function(e) {
+                e.preventDefault();
+                var department = $(this).data('department-value');
+                $('#selectedDepartmentFilterText').text(department ? department : "All Departments");
                 
-                // Update stats cards with animation
-                animateCounter('#totalStudentsCount', totalStudents);
-                animateCounter('#completeCount', completeCount);
-                animateCounter('#incompleteCount', incompleteCount);
+                if (!department) {
+                    $('#studentsTable tbody tr').show();
+                } else {
+                    $('#studentsTable tbody tr').each(function() {
+                        var rowDepartment = $(this).find('td:nth-child(3)').text().trim();
+                        $(this).toggle(rowDepartment === department);
+                    });
+                }
+                updateCounts();
+            });
+
+            // Function to update the counts after filtering
+            function updateCounts() {
+                var visibleRows = $('#studentsTable tbody tr:visible').length;
+                var completeCount = $('#studentsTable tbody tr:visible').filter(function() {
+                    return $(this).find('.progress-bar').text().trim() === '100%';
+                }).length;
+                var incompleteCount = $('#studentsTable tbody tr:visible').filter(function() {
+                    return $(this).find('.progress-bar').text().trim() !== '100%';
+                }).length;
+
+                $('#totalStudentsCount').text(visibleRows);
+                $('#completeCount').text(completeCount);
+                $('#incompleteCount').text(incompleteCount);
             }
             
-            // Animate counter for stats
-            function animateCounter(selector, target) {
-                var $element = $(selector);
-                var current = parseInt($element.text());
-                var increment = (target - current) / 20;
-                var duration = 500; // milliseconds
-                var interval = duration / 20;
-                
-                var timer = setInterval(function() {
-                    current += increment;
-                    if ((increment > 0 && current >= target) || 
-                        (increment < 0 && current <= target)) {
-                        $element.text(target);
-                        clearInterval(timer);
-                    } else {
-                        $element.text(Math.round(current));
-                    }
-                }, interval);
-            }
-            
-            // Add sorting capability without DataTables
-            $('#studentsTable th').click(function() {
-                var table = $(this).parents('table').eq(0);
-                var rows = table.find('tr:gt(0)').toArray().sort(comparator($(this).index()));
-                this.asc = !this.asc;
-                if (!this.asc) {
-                    rows = rows.reverse();
-                }
-                // Remove sort indicators
-                table.find('th').removeClass('sorting_asc sorting_desc');
-                // Add new sort indicator
-                $(this).addClass(this.asc ? 'sorting_asc' : 'sorting_desc');
-                
-                for (var i = 0; i < rows.length; i++) {
-                    table.append(rows[i]);
-                }
+            // Multi-level dropdown handling
+            $('.dropdown-submenu > a').on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                $(this).next('.dropdown-menu').toggle();
             });
             
-            // Comparator function for sorting
-            function comparator(index) {
-                return function(a, b) {
-                    var valA = getCellValue(a, index);
-                    var valB = getCellValue(b, index);
-                    if ($.isNumeric(valA) && $.isNumeric(valB)) {
-                        return valA - valB;
-                    } else {
-                        return valA.localeCompare(valB);
+            // Handle document filter clicks
+            $('.dropdown-menu a[data-filter-value]').on('click', function(e) {
+                e.preventDefault();
+                var filterValue = $(this).data('filter-value');
+                $('#selectedFilterText').text($(this).text().trim());
+                
+                // Apply filtering logic
+                $('#studentsTable tbody tr').each(function() {
+                    var showRow = true;
+                    
+                    if (filterValue) {
+                        if (filterValue === 'all_complete') {
+                            showRow = $(this).find('td:nth-child(5) i.fa-check-circle').length > 0 &&
+                                        $(this).find('td:nth-child(6) i.fa-check-circle').length > 0 &&
+                                        $(this).find('td:nth-child(7) i.fa-check-circle').length > 0 &&
+                                        $(this).find('td:nth-child(8) i.fa-check-circle').length > 0;
+                        } 
+                        else if (filterValue === 'any_missing') {
+                            showRow = $(this).find('td:nth-child(5) i.fa-times-circle').length > 0 ||
+                                        $(this).find('td:nth-child(6) i.fa-times-circle').length > 0 ||
+                                        $(this).find('td:nth-child(7) i.fa-times-circle').length > 0 ||
+                                        $(this).find('td:nth-child(8) i.fa-times-circle').length > 0;
+                        }
+                        else {
+                            var parts = filterValue.split('_');
+                            var documentType = parts[0];
+                            var status = parts[1];
+                            
+                            var columnIndex = {
+                                'emergency': 5,
+                                'xray': 6,
+                                'medical': 7,
+                                'vaccine': 8
+                            }[documentType];
+                            
+                            if (columnIndex) {
+                                var hasCheck = $(this).find('td:nth-child(' + columnIndex + ') i.fa-check-circle').length > 0;
+                                var hasTimes = $(this).find('td:nth-child(' + columnIndex + ') i.fa-times-circle').length > 0;
+                                
+                                showRow = (status === 'complete' && hasCheck) || 
+                                            (status === 'missing' && hasTimes);
+                            }
+                        }
                     }
-                };
-            }
-            
-            // Get cell value for sorting
-            function getCellValue(row, index) {
-                var cell = $(row).children('td').eq(index);
-                // For completion column, extract percentage
-                if (index === 8) {
-                    return parseInt($(cell).find('.progress-bar').attr('aria-valuenow'));
-                }
-                // For other cells, get text content
-                return cell.text().trim();
-            }
-            
+                    
+                    $(this).toggle(showRow);
+                });
+                updateCounts();
+            });
+
             // Export to Excel functionality
             $('#exportToExcel').click(function() {
                 // Create a worksheet with visible data only
@@ -582,71 +683,231 @@
                     return buf;
                 }
                 
-                // Generate filename with department and requirement if filtered
-                var filename = "student_health_status";
-                if (currentDepartment) filename += "_" + currentDepartment.replace(/\s+/g, "_");
-                if (currentRequirement) filename += "_" + currentRequirement;
-                filename += ".xlsx";
-                
-                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), filename);
+                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), "student_health_status.xlsx");
             });
-            
-            // Apply initial filtering
-            applyFilters();
-        });
-        
-        // Show health alerts in modal
-        function showHealthAlerts(alerts) {
-            var alertsList = $('#healthAlertsList');
-            alertsList.empty();
-            
-            if (alerts && alerts.length > 0) {
-                alerts.split(', ').forEach(function(alert) {
-                    alertsList.append('<li class="list-group-item"><i class="fas fa-exclamation-triangle text-warning me-2"></i>' + alert + '</li>');
+
+            // Email Reminders Functionality
+            $(document).on('click', '#sendIncompleteReminder', function() {
+                // Show confirmation modal
+                var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+                
+                // Get incomplete count first
+                $.get('/EmailSender/GetIncompleteStudentCount', function(count) {
+                    if (count === 0) {
+                        showToast('info', 'No students with incomplete requirements found');
+                        return;
+                    }
+                    
+                    $('#incompleteCountText').text(`Found ${count} students with incomplete requirements.`);
+                    confirmationModal.show();
+                }).fail(function() {
+                    showToast('error', 'Failed to get student count');
                 });
-            } else {
-                alertsList.append('<li class="list-group-item">No health alerts found</li>');
+            });
+
+            // Confirm send button
+            $('#confirmSend').click(function() {
+                var confirmationModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
+                confirmationModal.hide();
+                
+                // Show loading modal
+                var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+                loadingModal.show();
+                
+                // Start sending emails
+                sendEmailsInBatches(loadingModal);
+            });
+
+            function sendEmailsInBatches(modal) {
+                let totalCount = 0;
+                let emailsSent = 0;
+                let failedEmails = 0;
+                const batchSize = 5; // Number of emails to send per batch
+                
+                function updateProgress() {
+                    const totalProcessed = emailsSent + failedEmails;
+                    const progress = Math.floor(totalProcessed / totalCount * 100);
+                    
+                    $('#emailProgressBar').css('width', progress + '%');
+                    $('#countText').text(`${totalProcessed}/${totalCount} emails processed`);
+                    
+                    if (failedEmails > 0) {
+                        $('#failedText').text(`${failedEmails} failed`).removeClass('d-none');
+                    }
+                    
+                    if (totalProcessed >= totalCount) {
+                        // All emails processed
+                        $('#emailProgressBar').removeClass('progress-bar-animated')
+                                             .addClass(failedEmails > 0 ? 'bg-warning' : 'bg-success');
+                        $('#progressText').html(
+                            `Completed!<br>${emailsSent} sent successfully, ${failedEmails} failed`
+                        );
+                        
+                        // Close modal after delay
+                        setTimeout(() => {
+                            modal.hide();
+                            window.location.reload(); // Refresh to show updated status
+                        }, 2000);
+                    }
+                }
+                
+                function sendNextBatch() {
+                    $.ajax({
+                        url: '/EmailSender/SendReminderBatch',
+                        type: 'POST',
+                        data: { batchSize: batchSize },
+                        success: function(response) {
+                            emailsSent += response.sentCount;
+                            failedEmails += response.failedCount;
+                            
+                            updateProgress();
+                            
+                            if (emailsSent + failedEmails < totalCount) {
+                                // Send next batch
+                                setTimeout(sendNextBatch, 500);
+                            }
+                        },
+                        error: function() {
+                            modal.hide();
+                            showToast('error', 'Error sending batch of emails');
+                        }
+                    });
+                }
+                
+                // Get total count first
+                $.get('/EmailSender/GetIncompleteStudentCount', function(count) {
+                    totalCount = count;
+                    $('#countText').text(`0/${totalCount} emails processed`);
+                    
+                    // Start first batch
+                    sendNextBatch();
+                }).fail(function() {
+                    modal.hide();
+                    showToast('error', 'Failed to get student count');
+                });
             }
             
-            var healthAlertsModal = new bootstrap.Modal(document.getElementById('healthAlertsModal'));
-            healthAlertsModal.show();
+            function showToast(type, message) {
+                // Implement your toast notification here
+                // Example using Bootstrap toasts:
+                const toast = $(`
+                    <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                `);
+                
+                $('.toast-container').append(toast);
+                const bsToast = new bootstrap.Toast(toast[0]);
+                bsToast.show();
+                
+                toast.on('hidden.bs.toast', function() {
+                    $(this).remove();
+                });
+            }
+        });
+
+        // Add this to your existing JavaScript
+        $(document).on('click', '#sendExpiryReminder', function() {
+            // Show expiration confirmation modal
+            var expiryModal = new bootstrap.Modal(document.getElementById('expiryConfirmationModal'));
+            
+            // Get count of students with expiring documents
+            $.get('/EmailSender/GetExpiringDocumentCount', function(count) {
+                if (count === 0) {
+                    showToast('info', 'No students with expiring documents found');
+                    return;
+                }
+                
+                $('#expiryCountText').text(`Found ${count} students with expiring documents.`);
+                expiryModal.show();
+            }).fail(function() {
+                showToast('error', 'Failed to get expiring document count');
+            });
+        });
+
+        // Confirm expiry send button
+        $('#confirmExpirySend').click(function() {
+            var expiryModal = bootstrap.Modal.getInstance(document.getElementById('expiryConfirmationModal'));
+            expiryModal.hide();
+            
+            // Show loading modal
+            var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            loadingModal.show();
+            
+            // Start sending expiry emails
+            sendExpiryEmailsInBatches(loadingModal);
+        });
+
+        function sendExpiryEmailsInBatches(modal) {
+            let totalCount = 0;
+            let emailsSent = 0;
+            let failedEmails = 0;
+            const batchSize = 5;
+            
+            function updateProgress() {
+                const totalProcessed = emailsSent + failedEmails;
+                const progress = Math.floor(totalProcessed / totalCount * 100);
+                
+                $('#emailProgressBar').css('width', progress + '%');
+                $('#countText').text(`${totalProcessed}/${totalCount} emails processed`);
+                $('#progressText').text(`Sending expiration reminders...`);
+                
+                if (failedEmails > 0) {
+                    $('#failedText').text(`${failedEmails} failed`).removeClass('d-none');
+                }
+                
+                if (totalProcessed >= totalCount) {
+                    $('#emailProgressBar').removeClass('progress-bar-animated')
+                                        .addClass(failedEmails > 0 ? 'bg-warning' : 'bg-success');
+                    $('#progressText').html(
+                        `Completed!<br>${emailsSent} expiration reminders sent, ${failedEmails} failed`
+                    );
+                    
+                    setTimeout(() => {
+                        modal.hide();
+                        window.location.reload();
+                    }, 2000);
+                }
+            }
+            
+            function sendNextBatch() {
+                $.ajax({
+                    url: '/EmailSender/SendExpiryReminderBatch',
+                    type: 'POST',
+                    data: { batchSize: batchSize },
+                    success: function(response) {
+                        emailsSent += response.sentCount;
+                        failedEmails += response.failedCount;
+                        
+                        updateProgress();
+                        
+                        if (emailsSent + failedEmails < totalCount) {
+                            setTimeout(sendNextBatch, 500);
+                        }
+                    },
+                    error: function() {
+                        modal.hide();
+                        showToast('error', 'Error sending batch of expiration reminders');
+                    }
+                });
+            }
+            
+            // Get total count first
+            $.get('/EmailSender/GetExpiringDocumentCount', function(count) {
+                totalCount = count;
+                $('#countText').text(`0/${totalCount} emails processed`);
+                
+                // Start first batch
+                sendNextBatch();
+            }).fail(function() {
+                modal.hide();
+                showToast('error', 'Failed to get expiring document count');
+            });
         }
     </script>
-    
-    <style>
-        /* Add sorting indicators */
-        #studentsTable th {
-            cursor: pointer;
-            position: relative;
-        }
-        
-        #studentsTable th:after {
-            content: "\f0dc";
-            font-family: "Font Awesome 5 Free";
-            font-weight: 900;
-            position: absolute;
-            right: 8px;
-            color: #ccc;
-        }
-        
-        #studentsTable th.sorting_asc:after {
-            content: "\f0de";
-            color: #007bff;
-        }
-        
-        #studentsTable th.sorting_desc:after {
-            content: "\f0dd";
-            color: #007bff;
-        }
-        
-        /* Improve table responsiveness */
-        .table-responsive {
-            padding-bottom: 15px;
-        }
-        
-        /* Animated transitions */
-        #studentsTable tbody tr {
-            transition: opacity 0.2s ease-in-out;
-        }
-    </style>
 }

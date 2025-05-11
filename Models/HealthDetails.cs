@@ -62,5 +62,7 @@ namespace WebApp.Models
         public DateTime? VaccinationRecordExpiryDate { get; set; }
         public DateTime? XRayExpiryDate { get; set; }
         public DateTime? DocumentSubmissionDate { get; set; }
+        public DateTime? LastReminderSent { get; set; }
+        public DateTime? LastExpiryReminderSent { get; set; }
     }
 }
