@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\emailsendercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\emailsendercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250427202254_AddLastExpiryReminderSentToHealthDetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250427202254_AddLastExpiryReminderSentToHealthDetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\models\\healthdetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:models\\healthdetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|c:\\neu\\se2\\projects\\neu-clinic\\controllers\\emailsendercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9979EE9D-1A6B-7C50-68E9-BD80DFEEF9FE}|WebApp.csproj|solutionrelative:controllers\\emailsendercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250427201251_AddLastReminderSentToHealthDetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -262,7 +262,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
@@ -280,7 +280,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "20250427202254_AddLastExpiryReminderSentToHealthDetails.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Migrations\\20250427202254_AddLastExpiryReminderSentToHealthDetails.cs",
               "RelativeDocumentMoniker": "Migrations\\20250427202254_AddLastExpiryReminderSentToHealthDetails.cs",
@@ -306,13 +306,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "EmailSenderController.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\EmailSenderController.cs",
               "RelativeDocumentMoniker": "Controllers\\EmailSenderController.cs",
               "ToolTip": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Controllers\\EmailSenderController.cs",
               "RelativeToolTip": "Controllers\\EmailSenderController.cs",
-              "ViewState": "AgIAABcBAAAAAAAAAAAowGgBAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAA8BAAAAAAAAAAAewL4AAAA/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-22T08:10:42.262Z",
               "EditorCaption": ""
@@ -332,7 +332,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "HealthDetails.cs",
               "DocumentMoniker": "C:\\NEU\\SE2\\Projects\\NEU-Clinic\\Models\\HealthDetails.cs",
               "RelativeDocumentMoniker": "Models\\HealthDetails.cs",

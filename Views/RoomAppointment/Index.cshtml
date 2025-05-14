@@ -80,6 +80,7 @@
                     <th>User Limit</th>
                     <th>QR Code</th>
                     <th>Enrolled Users</th>
+                    <th>View Appointment</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -108,6 +109,12 @@
                                 data-bs-target="#viewEnrolledUsersModal" onclick="loadEnrolledUsers('@appointment.Id')">
                                 <i class="fas fa-eye"></i> View
                             </button>
+                        </td>
+                        <td class="align-middle">
+                            <!-- View Appointment Button -->
+                            <a href="/appointment/@appointment.Id" class="btn btn-primary btn-sm btn-modern">
+                                <i class="fas fa-calendar-check"></i> View Appointment
+                            </a>
                         </td>
                         <td class="align-middle">
                             <!-- Edit Button -->

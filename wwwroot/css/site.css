@@ -189,7 +189,7 @@ main {
 /* 🪄 Shadow on Hover */
 .btn:hover,
 .list-group-item:hover {
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 4px 12px rgba(135, 135, 135, 0.15);
 }
 
 /* 📝 Typography Improvements */
@@ -319,9 +319,9 @@ a {
 }
 
 .btn-dark:hover {
-  background-color: #1a1e21 !important;
+  background-color: #b6b6b6 !important;
   /* Darker shade of dark */
-  border-color: #1a1e21 !important;
+  border-color: #b6b6b6 !important;
   opacity: 0.9;
 }
 

@@ -1,22 +1,34 @@
 @using System.Security.Claims
 @model WebApp.Controllers.AppointmentViewModel
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore;
+@using WebApp.Models
+@inject UserManager<Users> UserManager
+@inject SignInManager<Users> SignInManager
 
 @{
     ViewData["Title"] = "Appointment Details";
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
 }
+@{
+    var userManager = UserManager;
+    var signInManager = SignInManager;
+}
+@{
+    // Get the current user's roles
+    var userRole = await userManager.GetUserAsync(User);
+    var roles = userRole != null ? await userManager.GetRolesAsync(userRole) : new List<string>();
+    
+    // Initialize role flags
+    var isSuperAdmin = roles.Contains("SuperAdmin");
+    var isAdmin = roles.Contains("Admin");
+    var isMedicalStaff = roles.Contains("MedicalStaff");
+}
 
 <div class="container mt-4 mb-4">
-    <div class="row mb-3">
-        <div class="col-12 text-start">
-            <a href="@Url.Action("Index", "Dashboard", new { activeTab = ViewBag.ActiveTab })" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-            </a>
-        </div>
-    </div>
     <div class="row g-4">
         <!-- Appointment Details Card -->
-        <div class="col-lg-8">
+        <div class="container">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h5 class="card-title mb-0">
@@ -58,42 +70,22 @@
                         }
                         else
                         {
-                            <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#confirmationModal"
-                                data-action="enroll" data-appointment-id="@Model.Appointment.Id">
-                                <i class="fas fa-plus me-2"></i>Book
-                            </button>
+                             @if (!(isSuperAdmin || isAdmin || isMedicalStaff))
+                            {
+                                <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#confirmationModal"
+                                    data-action="enroll" data-appointment-id="@Model.Appointment.Id">
+                                    <i class="fas fa-plus me-2"></i>Book
+                                </button>
+                            }
                         }
                     }
                 </div>
             </div>
         </div>
-
-        <!-- QR Code Card -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-qrcode me-2"></i>QR Code
-                    </h5>
-                </div>
-                <div class="card-body text-center">
-                    @if (!string.IsNullOrEmpty(Model.Appointment.QRCodePath))
-                    {
-                        <img src="@Model.Appointment.QRCodePath" alt="QR Code" class="img-fluid rounded" />
-                        <p class="mt-3">Scan this QR code to view the appointment details.</p>
-                    }
-                    else
-                    {
-                        <p class="text-muted">No QR code available.</p>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Enrolled Users Card -->
-    <div class="row mt-4">
-        <div class="col-12">
+        
+        @if (isSuperAdmin || isAdmin || isMedicalStaff)
+        {
+        <div class="container">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h5 class="card-title mb-0">
@@ -101,31 +93,34 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    @if (Model.Appointment.RoomAppointmentUsers.Any())
-                    {
-                        <ul class="list-group list-group-flush">
-                            @foreach (var user in Model.EnrolledUsers)
-                            {
-                                <li class="list-group-item d-flex align-items-center">
-                                    <img src="@user.ProfilePictureUrl" alt="Profile Picture" class="rounded-circle me-3"
-                                        width="40" height="40" />
-                                    <div>
-                                        <a href="@user.ProfileUrl" class="text-decoration-none">@user.FullName</a>
-                                        <p class="text-muted mb-0">@user.Email</p>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>No users have enrolled in this appointment yet.
-                        </div>
-                    }
+                   
+                        @if (Model.Appointment.RoomAppointmentUsers.Any())
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var user in Model.EnrolledUsers)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <img src="@user.ProfilePictureUrl" alt="Profile Picture" class="rounded-circle me-3"
+                                            width="40" height="40" />
+                                        <div>
+                                            <a href="@user.ProfileUrl" class="text-decoration-none">@user.FullName</a>
+                                            <p class="text-muted mb-0">@user.Email</p>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>No users have enrolled in this appointment yet.
+                            </div>
+                        }
+                    
                 </div>
             </div>
         </div>
+        }
     </div>
 </div>
 
