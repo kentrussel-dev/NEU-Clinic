@@ -23,54 +23,68 @@
     var isSuperAdmin = roles.Contains("SuperAdmin");
     var isAdmin = roles.Contains("Admin");
     var isMedicalStaff = roles.Contains("MedicalStaff");
+    var isStaff = isSuperAdmin || isAdmin || isMedicalStaff;
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
 }
 
 <div class="container mt-4 mb-4">
-    <div class="row g-4">
-        <!-- Appointment Details Card -->
-        <div class="container">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-calendar-alt me-2"></i>Appointment Details
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Room Name:</strong> @Model.Appointment.RoomName</p>
-                            <p><strong>Description:</strong> @Model.Appointment.Description</p>
-                            <p><strong>Start Time:</strong> @Model.Appointment.StartTime.ToString("g")</p>
-                            <p><strong>End Time:</strong> @Model.Appointment.EndTime.ToString("g")</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Created By:</strong> @Model.Appointment.CreatedBy</p>
-                            <p><strong>Created On:</strong> @Model.Appointment.CreatedOn.ToString("g")</p>
-                            <p><strong>User Limit:</strong> @Model.Appointment.UserLimit</p>
-                            <p><strong>Enrolled Users:</strong> @Model.Appointment.RoomAppointmentUsers.Count / @Model.Appointment.UserLimit</p>
-                        </div>
+    @if (!isStaff)
+    {
+        <!-- Student View - Centered Layout -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>Appointment Details
+                        </h5>
                     </div>
-                    @if (Model.IsEnrolled)
-                    {
-                        <div class="alert alert-success mt-3">
-                            <i class="fas fa-check-circle me-2"></i>You are enrolled in this appointment.
-                        </div>
-                        <button class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#confirmationModal"
-                            data-action="unenroll" data-appointment-id="@Model.Appointment.Id">
-                            <i class="fas fa-minus me-2"></i>Unenroll
-                        </button>
-                    }
-                    else
-                    {
-                        if (Model.Appointment.RoomAppointmentUsers.Count >= Model.Appointment.UserLimit)
-                        {
-                            <div class="alert alert-warning mt-3">
-                                <i class="fas fa-exclamation-circle me-2"></i>The user limit has been reached.
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Room Name:</strong> @Model.Appointment.RoomName</p>
+                                <p><strong>Description:</strong> @Model.Appointment.Description</p>
+                                <p><strong>Start Time:</strong> @Model.Appointment.StartTime.ToString("g")</p>
+                                <p><strong>End Time:</strong> @Model.Appointment.EndTime.ToString("g")</p>
                             </div>
+                            <div class="col-md-6">
+                                <p><strong>Created By:</strong> @Model.Appointment.CreatedBy</p>
+                                <p><strong>Created On:</strong> @Model.Appointment.CreatedOn.ToString("g")</p>
+                                <p><strong>User Limit:</strong> @Model.Appointment.UserLimit</p>
+                                <p><strong>Enrolled Users:</strong> @Model.Appointment.RoomAppointmentUsers.Count / @Model.Appointment.UserLimit</p>
+                            </div>
+                        </div>
+                        @if (Model.IsEnrolled)
+                        {
+                            <div class="alert alert-success mt-3">
+                                <i class="fas fa-check-circle me-2"></i>You are enrolled in this appointment.
+                            </div>
+                            <button class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#confirmationModal"
+                                data-action="unenroll" data-appointment-id="@Model.Appointment.Id">
+                                <i class="fas fa-minus me-2"></i>Unbook
+                            </button>
                         }
                         else
                         {
-                             @if (!(isSuperAdmin || isAdmin || isMedicalStaff))
+                            if (Model.Appointment.RoomAppointmentUsers.Count >= Model.Appointment.UserLimit)
+                            {
+                                <div class="alert alert-warning mt-3">
+                                    <i class="fas fa-exclamation-circle me-2"></i>The user limit has been reached.
+                                </div>
+                            }
+                            else
                             {
                                 <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#confirmationModal"
                                     data-action="enroll" data-appointment-id="@Model.Appointment.Id">
@@ -78,37 +92,125 @@
                                 </button>
                             }
                         }
-                    }
+                    </div>
                 </div>
             </div>
         </div>
-        
-        @if (isSuperAdmin || isAdmin || isMedicalStaff)
-        {
-        <div class="container">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-users me-2"></i>Enrolled Users
-                    </h5>
+    }
+    else
+    {
+        <!-- Staff View - Split Layout -->
+        <div class="row">
+            <!-- Left Column (75%) -->
+            <div class="col-lg-9">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>Appointment Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Room Name:</strong> @Model.Appointment.RoomName</p>
+                                <p><strong>Description:</strong> @Model.Appointment.Description</p>
+                                <p><strong>Start Time:</strong> @Model.Appointment.StartTime.ToString("g")</p>
+                                <p><strong>End Time:</strong> @Model.Appointment.EndTime.ToString("g")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Created By:</strong> @Model.Appointment.CreatedBy</p>
+                                <p><strong>Created On:</strong> @Model.Appointment.CreatedOn.ToString("g")</p>
+                                <p><strong>User Limit:</strong> @Model.Appointment.UserLimit</p>
+                                <p><strong>Enrolled Users:</strong> @Model.Appointment.RoomAppointmentUsers.Count / @Model.Appointment.UserLimit</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                   
+
+                <!-- Enrolled Users Table -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-users me-2"></i>Enrolled Users
+                        </h5>
+                    </div>
+                    <div class="card-body">
                         @if (Model.Appointment.RoomAppointmentUsers.Any())
                         {
-                            <ul class="list-group list-group-flush">
-                                @foreach (var user in Model.EnrolledUsers)
-                                {
-                                    <li class="list-group-item d-flex align-items-center">
-                                        <img src="@user.ProfilePictureUrl" alt="Profile Picture" class="rounded-circle me-3"
-                                            width="40" height="40" />
-                                        <div>
-                                            <a href="@user.ProfileUrl" class="text-decoration-none">@user.FullName</a>
-                                            <p class="text-muted mb-0">@user.Email</p>
-                                        </div>
-                                    </li>
-                                }
-                            </ul>
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 50px;">Profile</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th class="text-center">Attendance</th>
+                                            <th class="text-center" style="width: 250px;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var enrollment in Model.Appointment.RoomAppointmentUsers)
+                                        {
+                                            var user = Model.EnrolledUsers.FirstOrDefault(u => u.UserId == enrollment.UserId);
+                                            if (user != null)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <img src="@user.ProfilePictureUrl" alt="Profile Picture" class="rounded-circle" width="40" height="40" />
+                                                    </td>
+                                                    <td>
+                                                        <a href="@user.ProfileUrl" class="text-decoration-none">@user.FullName</a>
+                                                    </td>
+                                                    <td>@user.Email</td>
+                                                    <td class="text-center">
+                                                        @switch (enrollment.Status)
+                                                        {
+                                                            case AttendanceStatus.Present:
+                                                                <span class="badge bg-success">Present</span>
+                                                                break;
+                                                            case AttendanceStatus.Absent:
+                                                                <span class="badge bg-danger">Absent</span>
+                                                                break;
+                                                            default:
+                                                                <span class="badge bg-secondary">Not Recorded</span>
+                                                                break;
+                                                        }
+                                                        @if (enrollment.StatusChangedAt.HasValue)
+                                                        {
+                                                            <br />
+                                                            <small class="text-muted">
+                                                                @enrollment.StatusChangedAt.Value.ToLocalTime().ToString("g")
+                                                            </small>
+                                                        }
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <div class="btn-group btn-group-sm" role="group">
+                                                            <button class="btn btn-success mark-attendance" 
+                                                                    data-user-id="@user.UserId" 
+                                                                    data-appointment-id="@Model.Appointment.Id" 
+                                                                    data-status="Present">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                            <button class="btn btn-danger mark-attendance" 
+                                                                    data-user-id="@user.UserId" 
+                                                                    data-appointment-id="@Model.Appointment.Id" 
+                                                                    data-status="Absent">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                            <button class="btn btn-secondary mark-attendance" 
+                                                                    data-user-id="@user.UserId" 
+                                                                    data-appointment-id="@Model.Appointment.Id" 
+                                                                    data-status="NotRecorded">
+                                                                <i class="fas fa-undo"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         }
                         else
                         {
@@ -116,12 +218,31 @@
                                 <i class="fas fa-info-circle me-2"></i>No users have enrolled in this appointment yet.
                             </div>
                         }
-                    
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column (25%) -->
+            <div class="col-lg-3">
+                <div class="card shadow-sm" style="top: 20px;">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-qrcode me-2"></i>Check-In QR Code
+                        </h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="@Model.Appointment.QRCodePath" alt="Check-In QR Code" class="img-fluid mb-3" />
+                        <p class="mb-1"><strong>Appointment:</strong> @Model.Appointment.RoomName</p>
+                        <p class="mb-1"><strong>Time:</strong> @Model.Appointment.StartTime.ToString("t") - @Model.Appointment.EndTime.ToString("t")</p>
+                        <p class="mb-3"><strong>Date:</strong> @Model.Appointment.StartTime.ToString("d")</p>
+                        <a href="@Model.Appointment.QRCodePath" download="Appointment-@Model.Appointment.Id-QRCode.png" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download me-1"></i> Download QR
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-        }
-    </div>
+    }
 </div>
 
 <!-- Confirmation Modal -->
@@ -210,5 +331,46 @@
                 }
             });
         }
+
+        // Attendance handling
+        document.querySelectorAll('.mark-attendance').forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+                const appointmentId = this.getAttribute('data-appointment-id');
+                const status = this.getAttribute('data-status');
+                
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                this.disabled = true;
+                
+                fetch('/RoomAppointment/UpdateAttendance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        appointmentId: appointmentId,
+                        status: status
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to update attendance');
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating attendance');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                });
+            });
+        });
     </script>
 }

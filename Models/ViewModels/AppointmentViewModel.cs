@@ -15,5 +15,8 @@ namespace WebApp.Models.ViewModels
         public string Email { get; set; }
         public string ProfilePictureUrl { get; set; }
         public string ProfileUrl { get; set; }
+        public AttendanceStatus Status { get; set; }
+        public DateTime? StatusChangedAt { get; set; }
+        public string StatusChangedBy { get; set; }
     }
 }

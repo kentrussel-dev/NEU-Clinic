@@ -1,92 +1,280 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using WebApp.Models
+@using WebApp.Models.ViewModels
+@inject WebApp.Data.AppDbContext _context
+@inject UserManager<Users> userManager
+
+@{
+    // System/user stats
+    var totalUsers = await _context.Users.CountAsync();
+    var totalAdmins = await _context.Users
+        .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { u, ur })
+        .Join(_context.Roles, x => x.ur.RoleId, r => r.Id, (x, r) => new { x.u, r })
+        .CountAsync(x => x.r.Name == "Admin" || x.r.Name == "SuperAdmin");
+    var totalStudents = await _context.Users
+        .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { u, ur })
+        .Join(_context.Roles, x => x.ur.RoleId, r => r.Id, (x, r) => new { x.u, r })
+        .CountAsync(x => x.r.Name == "Student");
+    var pendingApprovals = await _context.Users
+        .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { u, ur })
+        .Join(_context.Roles, x => x.ur.RoleId, r => r.Id, (x, r) => new { x.u, r })
+        .CountAsync(x => x.r.Name == "Student" && x.u.EmailConfirmed == false);
+
+    // Recent activity (last 5 notifications)
+    var recentNotifications = await _context.Notifications
+        .OrderByDescending(n => n.CreatedAt)
+        .Take(5)
+        .Include(n => n.User)
+        .ToListAsync();
+
+    // Analytics: Health requirements completion
+    var students = await _context.Users
+        .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { u, ur })
+        .Join(_context.Roles, x => x.ur.RoleId, r => r.Id, (x, r) => new { x.u, r })
+        .Where(x => x.r.Name == "Student")
+        .Select(x => x.u)
+        .Include(u => u.HealthDetails)
+        .ToListAsync();
+
+    var requirementStats = new Dictionary<string, (int Completed, int Total)>();
+    requirementStats["BloodType"] = (
+        students.Count(s => s.HealthDetails != null && !string.IsNullOrEmpty(s.HealthDetails.BloodType)),
+        students.Count
+    );
+    requirementStats["EmergencyContact"] = (
+        students.Count(s => s.HealthDetails != null && !string.IsNullOrEmpty(s.HealthDetails.EmergencyContactName) && !string.IsNullOrEmpty(s.HealthDetails.EmergencyContactPhone)),
+        students.Count
+    );
+    requirementStats["XRay"] = (
+        students.Count(s => s.HealthDetails != null && !string.IsNullOrEmpty(s.HealthDetails.XRayFileUrl)),
+        students.Count
+    );
+    requirementStats["MedicalCertificate"] = (
+        students.Count(s => s.HealthDetails != null && !string.IsNullOrEmpty(s.HealthDetails.MedicalCertificateUrl)),
+        students.Count
+    );
+    requirementStats["VaccinationRecord"] = (
+        students.Count(s => s.HealthDetails != null && !string.IsNullOrEmpty(s.HealthDetails.VaccinationRecordUrl)),
+        students.Count
+    );
+    var avgCompletionRate = requirementStats.Values.Any() ? requirementStats.Values.Average(x => x.Total > 0 ? (double)x.Completed / x.Total * 100 : 0) : 0;
+}
+
 <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
-<div class="row">
-    <!-- Left Column (2/3) -->
-    <div class="col-md-8">
-        <div class="row">
-            <!-- Card 1: System Overview -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0"><i class="fas fa-tachometer-alt me-2"></i>System Overview</h5>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+<style>
+    :root {
+        --primary-color: var(--bs-primary);
+        --primary-light: #e6f2ff;
+        --secondary-color: #f8f9fa;
+        --text-dark: #343a40;
+    }
+    .bg-primary-soft { background-color: var(--primary-light); }
+    .section-title { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+    .dashboard-container { background-color: #fff; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px; }
+    .stats-box { padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.2s; background-color: white; }
+    .stats-box:hover { transform: translateY(-3px); }
+    .progress-bar-primary { background-color: var(--primary-color); }
+    .action-btn { background-color: var(--primary-color); color: white; padding: 10px 15px; border-radius: 5px; transition: all 0.3s; border: none; margin-bottom: 10px; text-align: left; display: block; text-decoration: none; }
+    .action-btn:hover { background-color: var(--bs-secondary); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: white; text-decoration: none; }
+    .chart-container { height: 250px; position: relative; margin-bottom: 20px; }
+    .activity-item { padding: 10px 0; border-bottom: 1px solid #eee; }
+    .activity-item:last-child { border-bottom: none; }
+    .badge-admin { background-color: #007bff; color: white; }
+    .badge-student { background-color: #28a745; color: white; }
+    .badge-pending { background-color: #ffc107; color: #212529; }
+    .status-badge { padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Main Content Section (8/12) -->
+        <div class="col-lg-8">
+            <!-- Overview -->
+            <div class="dashboard-container">
+                <h4 class="section-title">
+                    <i class="fas fa-chart-line me-2"></i>Admin Dashboard
+                    <span class="float-end fs-6 text-muted">Updated: @DateTime.Now.ToString("MMM dd, h:mm tt")</span>
+                </h4>
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stats-box text-center">
+                            <h3 class="mb-1">@totalUsers</h3>
+                            <p class="mb-1">Total Users</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p class="card-text">Total Users: 1,234</p>
-                        <!-- Graph Placeholder -->
-                        <div class="text-center">
-                            <canvas id="systemOverviewChart" width="100%" height="50"></canvas>
+                    <div class="col-md-3">
+                        <div class="stats-box text-center">
+                            <h3 class="mb-1">@totalAdmins</h3>
+                            <p class="mb-1">Admins</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-box text-center">
+                            <h3 class="mb-1">@totalStudents</h3>
+                            <p class="mb-1">Students</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-box text-center">
+                            <h3 class="mb-1">@pendingApprovals</h3>
+                            <p class="mb-1">Pending Approvals</p>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Card 2: Recent Activity -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>Recent Activity</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">No recent activity.</p>
-                        <!-- Icon Example -->
-                        <div class="text-center">
-                            <i class="fas fa-clock fa-3x text-primary mb-3"></i>
-                            <p class="text-muted">Last activity: 2 hours ago.</p>
+                <!-- Analytics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stats-box text-center">
+                            <h3 class="mb-1">@students.Count</h3>
+                            <p class="mb-1">Total Students</p>
                         </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-box text-center">
+                            <h3 class="mb-1">@avgCompletionRate.ToString("F2")%</h3>
+                            <p class="mb-1">Avg. Health Completion</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-box text-center">
+                            <h3 class="mb-1">@requirementStats["BloodType"].Completed/@requirementStats["BloodType"].Total</h3>
+                            <p class="mb-1">Blood Type Completed</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Health Requirements Completion Chart -->
+                <div class="dashboard-container">
+                    <h5 class="section-title"><i class="fas fa-clipboard-check me-2"></i>Health Requirements Completion</h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="adminRequirementsChart"
+                            data-labels="@string.Join(",", requirementStats.Keys)"
+                            data-completed="@string.Join(",", requirementStats.Values.Select(x => x.Completed))"
+                            data-total="@string.Join(",", requirementStats.Values.Select(x => x.Total))"></canvas>
+                    </div>
+                </div>
+                <!-- Recent Activity -->
+                <div class="dashboard-container">
+                    <h4 class="section-title"><i class="fas fa-history me-2"></i>Recent Activity</h4>
+                    <div>
+                        @if (recentNotifications.Any())
+                        {
+                            foreach (var n in recentNotifications)
+                            {
+                                <div class="activity-item py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>@n.Message</strong>
+                                            <div class="text-muted small">
+                                                @n.CreatedAt.ToString("MMM dd, h:mm tt")
+                                                @if (n.User != null)
+                                                {
+                                                    <span>by @n.User.FullName</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <span class="status-badge @(n.IsRead ? "badge-admin" : "badge-pending")">
+                                            @(n.IsRead ? "Read" : "Unread")
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-4">No recent activity</div>
+                        }
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Card 3: User Management -->
-        <div class="row">
-            <div class="col-md-12 mb-4">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0"><i class="fas fa-users-cog me-2"></i>User Management</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Manage users and roles.</p>
-                        <!-- Progress Bar Example -->
-                        <div class="progress mb-3">
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: 50%;"
-                                aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50%</div>
-                        </div>
-                        <small class="text-muted">Pending user approvals.</small>
-                    </div>
+        <!-- Right Sidebar (4/12) -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="dashboard-container">
+                <h4 class="section-title"><i class="fas fa-bolt me-2"></i>Quick Actions</h4>
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Index", "UsersManagement")" class="action-btn">
+                        <i class="fas fa-users-cog me-2"></i> Manage Users
+                    </a>
+                    <a href="@Url.Action("Index", "RolesManagement")" class="action-btn">
+                        <i class="fas fa-user-shield me-2"></i> Manage Roles
+                    </a>
+                    <a href="@Url.Action("Index", "Analytics")" class="action-btn">
+                        <i class="fas fa-chart-bar me-2"></i> View Analytics
+                    </a>
+                    <a href="@Url.Action("Index", "EmailSender")" class="action-btn">
+                        <i class="fas fa-envelope me-2"></i> Send Email
+                    </a>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Right Column (1/3) -->
-    <div class="col-md-4">
-        <!-- Card 4: Quick Actions -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled">
-                    <li><a href="#" class="text-decoration-none"><i class="fas fa-user-plus me-2"></i>Add User</a></li>
-                    <li><a href="#" class="text-decoration-none"><i class="fas fa-file-alt me-2"></i>Generate
-                            Reports</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Card 5: System Alerts -->
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-exclamation-triangle me-2"></i>System Alerts</h5>
-            </div>
-            <div class="card-body">
-                <p class="card-text">No alerts.</p>
-                <!-- Icon Example -->
-                <div class="text-center">
-                    <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
-                    <p class="text-muted">All systems operational.</p>
+            <!-- System Alerts -->
+            <div class="dashboard-container">
+                <h4 class="section-title"><i class="fas fa-exclamation-triangle me-2"></i>System Alerts</h4>
+                <div class="text-center text-muted py-4">
+                    All systems operational.
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Chart !== 'undefined') {
+        // User Breakdown Chart
+        var breakdownCtx = document.getElementById('userBreakdownChart');
+        if (breakdownCtx) {
+            var admins = parseInt(breakdownCtx.getAttribute('data-admins'));
+            var students = parseInt(breakdownCtx.getAttribute('data-students'));
+            new Chart(breakdownCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Admins', 'Students'],
+                    datasets: [{
+                        data: [admins, students],
+                        backgroundColor: ['#007bff', '#28a745']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+        // Health Requirements Completion Chart
+        var reqChart = document.getElementById('adminRequirementsChart');
+        if (reqChart) {
+            var labels = reqChart.getAttribute('data-labels').split(',');
+            var completed = reqChart.getAttribute('data-completed').split(',').map(Number);
+            var total = reqChart.getAttribute('data-total').split(',').map(Number);
+            var completionRates = completed.map(function(val, idx) {
+                return total[idx] > 0 ? Math.round(val / total[idx] * 100) : 0;
+            });
+            new Chart(reqChart, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Completion Rate (%)',
+                        data: completionRates,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: { display: true, text: 'Completion Rate (%)' }
+                        }
+                    }
+                }
+            });
+        }
+    }
+});
+</script>

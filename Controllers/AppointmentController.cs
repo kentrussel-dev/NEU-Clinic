@@ -19,7 +19,6 @@ namespace WebApp.Controllers
             _userManager = userManager;
         }
 
-        // GET: appointment/{id}
         [HttpGet("appointment/{id}")]
         public async Task<IActionResult> ViewAppointment(int id)
         {
@@ -35,15 +34,16 @@ namespace WebApp.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var currentUserId = currentUser?.Id; // Get the current user's ID
+            var currentUserId = currentUser?.Id;
 
-            var isEnrolled = currentUser != null && appointment.RoomAppointmentUsers.Any(rau => rau.UserId == currentUserId);
+            var isEnrolled = currentUser != null &&
+                            appointment.RoomAppointmentUsers.Any(rau => rau.UserId == currentUserId);
 
             var viewModel = new AppointmentViewModel
             {
                 Appointment = appointment,
                 IsEnrolled = isEnrolled,
-                CurrentUserId = currentUserId, // Pass the current user's ID to the view
+                CurrentUserId = currentUserId,
                 EnrolledUsers = appointment.RoomAppointmentUsers
                     .Select(rau => new EnrolledUserViewModel
                     {
@@ -51,12 +51,55 @@ namespace WebApp.Controllers
                         FullName = rau.User.FullName,
                         Email = rau.User.Email,
                         ProfilePictureUrl = rau.User.ProfilePictureUrl ?? "/default-profile.png",
-                        ProfileUrl = $"/profile/{rau.User.Id}"
+                        ProfileUrl = $"/profile/{rau.User.Id}",
+                        Status = rau.Status,
+                        StatusChangedAt = rau.StatusChangedAt,
+                        StatusChangedBy = rau.StatusChangedBy
                     })
                     .ToList()
             };
 
             return View(viewModel);
+        }
+        [HttpGet("appointment/{id}/checkin")]
+        public async Task<IActionResult> CheckIn(int id)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge(); // Force login if not authenticated
+            }
+
+            var appointment = await _context.RoomAppointments
+                .Include(ra => ra.RoomAppointmentUsers)
+                .FirstOrDefaultAsync(ra => ra.Id == id);
+
+            if (appointment == null)
+            {
+                TempData["ErrorMessage"] = "Appointment not found.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Check if user is enrolled
+            var enrollment = appointment.RoomAppointmentUsers
+                .FirstOrDefault(rau => rau.UserId == currentUser.Id);
+
+            if (enrollment == null)
+            {
+                TempData["ErrorMessage"] = "You are not enrolled in this appointment.";
+                return RedirectToAction("ViewAppointment", new { id });
+            }
+
+            // Update attendance status
+            enrollment.Status = AttendanceStatus.Present;
+            enrollment.StatusChangedAt = DateTime.UtcNow;
+            enrollment.StatusChangedBy = "QR Check-In";
+
+            _context.RoomAppointmentUsers.Update(enrollment);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Attendance recorded successfully!";
+            return RedirectToAction("ViewAppointment", new { id });
         }
     }
     // ViewModel for the appointment details
@@ -76,6 +119,9 @@ namespace WebApp.Controllers
         public string Email { get; set; }
         public string ProfilePictureUrl { get; set; }
         public string ProfileUrl { get; set; }
+        public AttendanceStatus Status { get; set; }
+        public DateTime? StatusChangedAt { get; set; }
+        public string StatusChangedBy { get; set; }
     }
 
 }

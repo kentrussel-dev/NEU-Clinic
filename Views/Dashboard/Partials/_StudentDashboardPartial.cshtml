@@ -1,94 +1,626 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore;
+@using WebApp.Models
+@inject WebApp.Data.AppDbContext _context
+@inject UserManager<Users> userManager
+@{
+    var user = await userManager.GetUserAsync(User);
+    var personalAppointments = await _context.PersonalAppointments
+        .Where(a => a.UserId == user.Id)
+        .OrderByDescending(a => a.VisitationDate)
+        .ToListAsync();
+
+    var roomAppointments = await _context.RoomAppointmentUsers
+        .Include(rau => rau.RoomAppointment)
+        .Where(rau => rau.UserId == user.Id)
+        .Select(rau => rau.RoomAppointment)
+        .OrderByDescending(ra => ra.StartTime)
+        .ToListAsync();
+
+    // Calculate statistics for data attributes
+    var approvedCount = personalAppointments.Count(a => a.ApprovalStatus == "Approved");
+    var pendingCount = personalAppointments.Count(a => a.ApprovalStatus == "Pending");
+    var rejectedCount = personalAppointments.Count(a => a.ApprovalStatus == "Rejected");
+    var upcomingCount = roomAppointments.Count(ra => ra.StartTime > DateTime.Now);
+    var completedCount = roomAppointments.Count(ra => ra.EndTime < DateTime.Now);
+
+    // Monthly data: Generate last 6 months of data for trends
+    var months = new List<string>();
+    var personalMonthlyData = new List<int>();
+    var roomMonthlyData = new List<int>();
+    
+    for (int i = 5; i >= 0; i--)
+    {
+        var month = DateTime.Now.AddMonths(-i);
+        months.Add(month.ToString("MMM"));
+        
+        var monthStart = new DateTime(month.Year, month.Month, 1);
+        var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+        
+        personalMonthlyData.Add(personalAppointments.Count(a => a.VisitationDate >= monthStart && a.VisitationDate <= monthEnd));
+        roomMonthlyData.Add(roomAppointments.Count(ra => ra.StartTime >= monthStart && ra.StartTime <= monthEnd));
+    }
+
+    // Current month data for monthly summary
+    var currentMonth = DateTime.Now.Month;
+    var currentYear = DateTime.Now.Year;
+    var currentMonthStart = new DateTime(currentYear, currentMonth, 1);
+    var currentMonthEnd = currentMonthStart.AddMonths(1).AddDays(-1);
+    
+    var approvedThisMonth = personalAppointments.Count(a => a.ApprovalStatus == "Approved" && a.VisitationDate >= currentMonthStart && a.VisitationDate <= currentMonthEnd);
+    var pendingThisMonth = personalAppointments.Count(a => a.ApprovalStatus == "Pending" && a.VisitationDate >= currentMonthStart && a.VisitationDate <= currentMonthEnd);
+    var rejectedThisMonth = personalAppointments.Count(a => a.ApprovalStatus == "Rejected" && a.VisitationDate >= currentMonthStart && a.VisitationDate <= currentMonthEnd);
+    var roomThisMonth = roomAppointments.Count(ra => ra.StartTime >= currentMonthStart && ra.StartTime <= currentMonthEnd);
+}
+
 <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
-<div class="row">
-    <!-- Left Column (2/3) -->
-    <div class="col-md-8">
-        <div class="row">
-            <!-- Card 1: Upcoming Events -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0"><i class="fas fa-calendar-alt me-2"></i>Upcoming Events</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">No upcoming events.</p>
-                        <!-- Progress Bar Example -->
-                        <div class="progress mb-3">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 25%;"
-                                aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+
+<!-- Add Chart.js from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+<style>
+    :root {
+        --primary-color: var(--bs-primary);
+        --primary-light: #e6f2ff;
+        --secondary-color: #f8f9fa;
+        --text-dark: #343a40;
+    }
+    
+    .bg-primary-soft {
+        background-color: var(--primary-light);
+    }
+    
+    .section-title {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .dashboard-container, .stats-box {
+        background-color: #fff;
+        border-radius: 1rem !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border: 1.5px solid var(--bs-primary, #d27510);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s;
+    }
+    .dashboard-container:hover, .stats-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    
+    .progress-bar-primary {
+        background-color: var(--primary-color);
+    }
+    
+    .action-btn {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        transition: all 0.3s;
+        border: none;
+        margin-bottom: 10px;
+        text-align: left;
+        display: block;
+        text-decoration: none;
+    }
+    
+    .action-btn:hover {
+        background-color: var(--bs-secondary);  
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .chart-container {
+        height: 250px;
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .appointment-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .appointment-table th {
+        background-color: var(--primary-light);
+        color: var(--text-dark);
+        text-align: left;
+        padding: 12px;
+    }
+    
+    .appointment-table td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .appointment-table tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .activity-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .badge-approved { background-color: #28a745; color: white; }
+    .badge-pending { background-color: #ffc107; color: #212529; }
+    .badge-rejected { background-color: #dc3545; color: white; }
+    .badge-upcoming { background-color: var(--primary-color); color: white; }
+    .badge-completed { background-color: #6c757d; color: white; }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Main Content Section (8/12) -->
+        <div class="col-lg-8">
+            <!-- Appointments Overview -->
+            <div class="dashboard-container">
+                <h4 class="section-title">
+                    <i class="fas fa-chart-line me-2"></i>Appointments Overview
+                    <span class="float-end fs-6 text-muted">Updated: @DateTime.Now.ToString("MMM dd, h:mm tt")</span>
+                </h4>
+                
+                <div class="row mb-4">
+                    <!-- Personal Appointments Summary -->
+                    <div class="col-md-4">
+                        <div class="stats-box text-center d-flex flex-column align-items-center justify-content-center h-100">
+                            <h3 class="mb-1">@personalAppointments.Count</h3>
+                            <p class="mb-1">Personal Appointments</p>
+                            <div class="d-flex flex-column align-items-center gap-2 mt-2 w-100">
+                                <span class="status-badge badge-approved">@approvedCount Approved</span>
+                                <span class="status-badge badge-pending">@pendingCount Pending</span>
+                                <span class="status-badge badge-rejected">@rejectedCount Rejected</span>
+                            </div>
                         </div>
-                        <small class="text-muted">Next event in 5 days.</small>
+                    </div>
+                    
+                    <!-- Room Appointments Summary -->
+                    <div class="col-md-4">
+                        <div class="stats-box text-center">
+                            <h3 class="mb-1">@roomAppointments.Count</h3>
+                            <p class="mb-1">Room Appointments</p>
+                            <div class="d-flex justify-content-between mt-2">
+                                <span class="status-badge badge-upcoming">@upcomingCount Upcoming</span>
+                                <span class="status-badge badge-completed">@completedCount Completed</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Completion Rate -->
+                    <div class="col-md-4">
+                        <div class="stats-box text-center">
+                            @{
+                                int totalAppointments = personalAppointments.Count + roomAppointments.Count;
+                                int completedAppointments = approvedCount + completedCount;
+                                int completionRate = totalAppointments > 0 ? (completedAppointments * 100 / totalAppointments) : 0;
+                            }
+                            <h3 class="mb-1">@completionRate%</h3>
+                            <p class="mb-1">Completion Rate</p>
+                            <div class="progress mt-2" style="height: 10px;">
+                                <div class="progress-bar progress-bar-primary" role="progressbar" style="width: @completionRate%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Charts -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-center mb-3">Personal Appointments Status</h5>
+                        <div class="chart-container">
+                            <canvas id="personalAppointmentsChart" 
+                                   data-approved="@approvedCount" 
+                                   data-pending="@pendingCount" 
+                                   data-rejected="@rejectedCount"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-center mb-3">Appointment Trends (6 Months)</h5>
+                        <div class="chart-container">
+                            <canvas id="appointmentTrendsChart" 
+                                   data-months="@string.Join(",", months)" 
+                                   data-personal-monthly="@string.Join(",", personalMonthlyData)" 
+                                   data-room-monthly="@string.Join(",", roomMonthlyData)"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Card 2: Academic Calendar -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0"><i class="fas fa-calendar-check me-2"></i>Academic Calendar</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">View important dates and deadlines.</p>
-                        <!-- Icon Example -->
-                        <div class="text-center">
-                            <i class="fas fa-calendar-day fa-3x text-primary mb-3"></i>
-                            <p class="text-muted">Semester ends on Dec 15.</p>
-                        </div>
-                    </div>
+            
+            <!-- Upcoming Appointments Table -->
+            <div class="dashboard-container">
+                <h4 class="section-title"><i class="fas fa-calendar-day me-2"></i>Upcoming Appointments</h4>
+                <div class="table-responsive">
+                    <table class="appointment-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Date & Time</th>
+                                <th>Details</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var upcomingPersonal = personalAppointments.Where(a => a.VisitationDate > DateTime.Now).Take(3);
+                                var upcomingRoom = roomAppointments.Where(ra => ra.StartTime > DateTime.Now).Take(3);
+                                var combinedUpcoming = upcomingPersonal.Select(a => new { 
+                                    Type = "Personal",
+                                    Date = a.VisitationDate,
+                                    Details = a.Purpose,
+                                    Status = a.ApprovalStatus,
+                                    IsRoom = false
+                                }).Concat(upcomingRoom.Select(ra => new {
+                                    Type = $"Room ({ra.RoomName})",
+                                    Date = ra.StartTime,
+                                    Details = ra.Description,
+                                    Status = "Booked",
+                                    IsRoom = true
+                                })).OrderBy(a => a.Date).Take(5);
+                            }
+                            
+                            @foreach (var appointment in combinedUpcoming)
+                            {
+                                <tr>
+                                    <td>@appointment.Type</td>
+                                    <td>
+                                        @if (appointment.IsRoom)
+                                        {
+                                            var roomAppt = upcomingRoom.FirstOrDefault(ra => ra.StartTime == appointment.Date);
+                                            @roomAppt.StartTime.ToString("MMM dd, h:mm tt") <span class="text-muted">-</span> @roomAppt.EndTime.ToString("h:mm tt")
+                                        }
+                                        else
+                                        {
+                                            @appointment.Date.ToString("MMM dd, h:mm tt")
+                                        }
+                                    </td>
+                                    <td>@appointment.Details</td>
+                                    <td>
+                                        @if (appointment.IsRoom)
+                                        {
+                                            <span class="status-badge badge-upcoming">Booked</span>
+                                        }
+                                        else
+                                        {
+                                            @if (appointment.Status == "Approved")
+                                            {
+                                                <span class="status-badge badge-approved">Approved</span>
+                                            }
+                                            else if (appointment.Status == "Pending")
+                                            {
+                                                <span class="status-badge badge-pending">Pending</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge badge-rejected">Rejected</span>
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            @if (!combinedUpcoming.Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">No upcoming appointments</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-
-        <!-- Card 3: Notifications -->
-        <div class="row">
-            <div class="col-md-12 mb-4">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0"><i class="fas fa-bell me-2"></i>Notifications</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">No new notifications.</p>
-                        <!-- Graph Placeholder -->
-                        <div class="text-center">
-                            <canvas id="notificationChart" width="100%" height="50"></canvas>
+        
+        <!-- Right Sidebar (4/12) -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="dashboard-container">
+                <h4 class="section-title"><i class="fas fa-bolt me-2"></i>Quick Actions</h4>
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Index", "Dashboard", new { activeTab = "appointments" })" class="action-btn">
+                        <i class="fas fa-calendar-plus me-2"></i> Book Room Appointment
+                    </a>
+                    <a href="@Url.Action("Index", "Dashboard", new { activeTab = "personalappointments" })" class="action-btn">
+                        <i class="fas fa-user-md me-2"></i> Request Personal Appointment
+                    </a>
+                    <a href="@Url.Action("Index", "Dashboard", new { activeTab = "healthrecords" })" class="action-btn">
+                        <i class="fas fa-file-medical me-2"></i> Submit Health Records
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="dashboard-container">
+                <h4 class="section-title"><i class="fas fa-history me-2"></i>Recent Activity</h4>
+                <div class="recent-activity">
+                    @{
+                        var recentPersonal = personalAppointments.OrderByDescending(a => a.CreatedAt).Take(3);
+                        var recentRoom = roomAppointments.OrderByDescending(ra => ra.CreatedOn).Take(2);
+                        var combinedRecent = recentPersonal.Select(a => new {
+                            Title = a.Purpose,
+                            Date = a.CreatedAt,
+                            Status = a.ApprovalStatus,
+                            IsRoom = false
+                        }).Concat(recentRoom.Select(ra => new {
+                            Title = ra.RoomName,
+                            Date = ra.CreatedOn,
+                            Status = ra.StartTime > DateTime.Now ? "Upcoming" : "Completed",
+                            IsRoom = true
+                        })).OrderByDescending(a => a.Date).Take(5);
+                    }
+                    
+                    @foreach (var activity in combinedRecent)
+                    {
+                        <div class="activity-item py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@activity.Title</strong>
+                                    <div class="text-muted small">@activity.Date.ToString("MMM dd, h:mm tt")</div>
+                                </div>
+                                @if (activity.IsRoom)
+                                {
+                                    <span class="status-badge @(activity.Status == "Upcoming" ? "badge-upcoming" : "badge-completed")">
+                                        @activity.Status
+                                    </span>
+                                }
+                                else
+                                {
+                                    @if (activity.Status == "Approved")
+                                    {
+                                        <span class="status-badge badge-approved">Approved</span>
+                                    }
+                                    else if (activity.Status == "Pending")
+                                    {
+                                        <span class="status-badge badge-pending">Pending</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge badge-rejected">Rejected</span>
+                                    }
+                                }
+                            </div>
                         </div>
-                    </div>
+                    }
+                    @if (!combinedRecent.Any())
+                    {
+                        <div class="text-center text-muted py-4">
+                            No recent activity
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Right Column (1/3) -->
-    <div class="col-md-4">
-        <!-- Card 4: Quick Links -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled">
-                    <li><a href="#" class="text-decoration-none"><i class="fas fa-book me-2"></i>Course Registration</a>
-                    </li>
-                    <li><a href="#" class="text-decoration-none"><i class="fas fa-chart-line me-2"></i>Grades</a></li>
-                    <li><a href="#" class="text-decoration-none"><i class="fas fa-book-open me-2"></i>Library</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Card 5: Profile Summary -->
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-user me-2"></i>Profile Summary</h5>
-            </div>
-            <div class="card-body">
-                <p class="card-text">View your profile details.</p>
-                <!-- Progress Bar Example -->
-                <div class="progress mb-3">
-                    <div class="progress-bar bg-info" role="progressbar" style="width: 75%;" aria-valuenow="75"
-                        aria-valuemin="0" aria-valuemax="100">75%</div>
+            
+            <!-- Monthly Summary -->
+            <div class="dashboard-container">
+                <h4 class="section-title"><i class="fas fa-chart-bar me-2"></i>Monthly Summary</h4>
+                <h5 class="text-center mb-3">@DateTime.Now.ToString("MMMM") Summary</h5>
+                <div class="chart-container">
+                    <canvas id="monthlySummaryChart" 
+                           data-approved="@approvedThisMonth" 
+                           data-pending="@pendingThisMonth" 
+                           data-rejected="@rejectedThisMonth" 
+                           data-room="@roomThisMonth"></canvas>
                 </div>
-                <small class="text-muted">Profile completeness.</small>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Wait for DOM to be fully loaded and Chart.js to be available
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if Chart.js is loaded
+    if (typeof Chart !== 'undefined') {
+        initializeCharts();
+    } else {
+        // If Chart.js hasn't loaded yet, wait a bit
+        setTimeout(function() {
+            if (typeof Chart !== 'undefined') {
+                initializeCharts();
+            } else {
+                console.error('Chart.js not loaded');
+            }
+        }, 500);
+    }
+});
+
+function initializeCharts() {
+    console.log('Initializing charts...');
+    
+    // Setup charts with consistent colors
+    const primaryColor = '#007bff';
+    const secondaryColor = '#6c757d';
+    const chartColors = {
+        approved: '#28a745',
+        pending: '#ffc107',
+        rejected: '#dc3545',
+        upcoming: primaryColor,
+        completed: secondaryColor
+    };
+    
+    // Personal Appointments Chart (Donut)
+    initializePersonalAppointmentsChart();
+    
+    // Appointments Trends (Line chart)
+    initializeAppointmentTrendsChart();
+    
+    // Monthly Summary (Bar chart)
+    initializeMonthlySummaryChart();
+}
+
+function initializePersonalAppointmentsChart() {
+    const personalCtx = document.getElementById('personalAppointmentsChart');
+    if (!personalCtx) {
+        console.error('personalAppointmentsChart canvas not found');
+        return;
+    }
+    
+    // Get the data from data attributes
+    const approvedCount = parseInt(personalCtx.getAttribute('data-approved') || 0);
+    const pendingCount = parseInt(personalCtx.getAttribute('data-pending') || 0);
+    const rejectedCount = parseInt(personalCtx.getAttribute('data-rejected') || 0);
+    
+    console.log('Personal chart data:', approvedCount, pendingCount, rejectedCount);
+    
+    try {
+        new Chart(personalCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Pending', 'Rejected'],
+                datasets: [{
+                    data: [approvedCount, pendingCount, rejectedCount],
+                    backgroundColor: [
+                        '#28a745',  // approved
+                        '#ffc107',  // pending
+                        '#dc3545'   // rejected
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+        console.log('Personal appointments chart created successfully');
+    } catch (error) {
+        console.error('Error creating personal appointments chart:', error);
+    }
+}
+
+function initializeAppointmentTrendsChart() {
+    const trendsCtx = document.getElementById('appointmentTrendsChart');
+    if (!trendsCtx) {
+        console.error('appointmentTrendsChart canvas not found');
+        return;
+    }
+    
+    // Get data from data attributes
+    const monthsStr = trendsCtx.getAttribute('data-months') || '';
+    const personalMonthlyStr = trendsCtx.getAttribute('data-personal-monthly') || '';
+    const roomMonthlyStr = trendsCtx.getAttribute('data-room-monthly') || '';
+    
+    const months = monthsStr.split(',');
+    const personalMonthly = personalMonthlyStr.split(',').map(Number);
+    const roomMonthly = roomMonthlyStr.split(',').map(Number);
+    
+    console.log('Trends chart data:', months, personalMonthly, roomMonthly);
+    
+    try {
+        new Chart(trendsCtx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Personal',
+                    data: personalMonthly,
+                    borderColor: '#007bff',  // primaryColor
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Room',
+                    data: roomMonthly,
+                    borderColor: '#6c757d',  // secondaryColor
+                    backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+        console.log('Appointment trends chart created successfully');
+    } catch (error) {
+        console.error('Error creating appointment trends chart:', error);
+    }
+}
+
+function initializeMonthlySummaryChart() {
+    const monthlySummaryCtx = document.getElementById('monthlySummaryChart');
+    if (!monthlySummaryCtx) {
+        console.error('monthlySummaryChart canvas not found');
+        return;
+    }
+    
+    // Get data from data attributes
+    const approvedThisMonth = parseInt(monthlySummaryCtx.getAttribute('data-approved') || 0);
+    const pendingThisMonth = parseInt(monthlySummaryCtx.getAttribute('data-pending') || 0);
+    const rejectedThisMonth = parseInt(monthlySummaryCtx.getAttribute('data-rejected') || 0);
+    const roomThisMonth = parseInt(monthlySummaryCtx.getAttribute('data-room') || 0);
+    
+    console.log('Monthly summary data:', approvedThisMonth, pendingThisMonth, rejectedThisMonth, roomThisMonth);
+    
+    try {
+        new Chart(monthlySummaryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Approved', 'Pending', 'Rejected', 'Room Bookings'],
+                datasets: [{
+                    label: new Date().toLocaleString('default', { month: 'long' }),
+                    data: [approvedThisMonth, pendingThisMonth, rejectedThisMonth, roomThisMonth],
+                    backgroundColor: [
+                        '#28a745',  // approved
+                        '#ffc107',  // pending
+                        '#dc3545',  // rejected
+                        '#007bff'   // upcoming
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+        console.log('Monthly summary chart created successfully');
+    } catch (error) {
+        console.error('Error creating monthly summary chart:', error);
+    }
+}
+</script>
+

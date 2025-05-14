@@ -26,5 +26,19 @@
 
         public string UserId { get; set; }
         public Users User { get; set; }
+
+        // Add these new properties for attendance tracking
+        public AttendanceStatus Status { get; set; } = AttendanceStatus.NotRecorded;
+        public DateTime? StatusChangedAt { get; set; }
+        public string? StatusChangedBy { get; set; }
     }
+
+    // Add this enum to WebApp.Models
+    public enum AttendanceStatus
+    {
+        Present,
+        Absent,
+        NotRecorded
+    }
+
 }

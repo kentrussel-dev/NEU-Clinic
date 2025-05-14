@@ -46,8 +46,7 @@
 
 <div class="d-flex" id="wrapper">
     <div class="bg-dark border-end" id="sidebar-wrapper">
-        <div
-            class="bg-primary text-white p-3 sidebar-header shadow-lg d-flex flex-column flex-sm-row align-items-center">
+        <div class="bg-primary text-white p-3 sidebar-header d-flex flex-column flex-sm-row align-items-center">
             <h4 class="m-0 sidebar-text text-nowrap">
                 <i class="fas fa-heartbeat me-2"></i>Dashboard
             </h4>
@@ -71,13 +70,11 @@
                     <i class="fas fa-user"></i><span class="sidebar-text ms-2">Profile</span>
                 </a>
             }
-            <!-- Add QR Scanner Tab -->
             <a href="@Url.Action("Index", "Dashboard", new { activeTab = "qrscanner" })"
                 class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "qrscanner" ? "active" : "")"
                 data-tab="qrscanner">
                 <i class="fas fa-qrcode"></i><span class="sidebar-text ms-2">QR Scanner</span>
             </a>
-            <!-- Add Submit Health Records Tab (Only for Students) -->
             @if (isStudent)
             {
                 <a href="@Url.Action("Index", "Dashboard", new { activeTab = "healthrecords" })"
@@ -86,7 +83,6 @@
                     <i class="fas fa-file-medical"></i><span class="sidebar-text ms-2">Submit Health Records</span>
                 </a>
             }
-            <!-- Add Available Appointments Tab (Only for Students) -->
             @if (isStudent)
             {
                 <a href="@Url.Action("Index", "Dashboard", new { activeTab = "appointments" })"
@@ -94,14 +90,12 @@
                     data-tab="appointments">
                     <i class="fas fa-calendar-alt"></i><span class="sidebar-text ms-2">Available Appointments</span>
                 </a>
-                <!-- Add Personal Appointments Tab -->
                 <a href="@Url.Action("Index", "Dashboard", new { activeTab = "personalappointments" })"
                     class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "personalappointments" ? "active" : "")"
                     data-tab="personalappointments">
                     <i class="fas fa-calendar-check"></i><span class="sidebar-text ms-2">Personal Appointments</span>
                 </a>
             }
-            
         </div>
     </div>
 
@@ -110,44 +104,109 @@
             <!-- Home Content -->
             <div id="home-content" class="tab-content @(activeTab == "home" ? "active" : "")"
                 style="display: @(activeTab == "home" ? "block" : "none");">
-                <!-- Welcome Section -->
+                <!-- Redesigned Welcome Section (matches partials style) -->
+                <style>
+                    /* Use the unified card style for the welcome card */
+                    .welcome-card {
+                        background: #fff;
+                        border-radius: 1rem !important;
+                        border: 1.5px solid var(--bs-primary, #d27510);
+                        margin-bottom: 32px;
+                        padding: 0;
+                        transition: transform 0.2s;
+                    }
+                    .welcome-card:hover {
+                        transform: translateY(-5px);
+                    }
+                    .welcome-card .section-title {
+                        color: var(--bs-primary);
+                        border-bottom: 2px solid var(--bs-primary);
+                        padding-bottom: 0.5rem;
+                        margin-bottom: 1.5rem;
+                        font-size: 1.5rem;
+                        font-weight: 600;
+                    }
+                    .welcome-card .card-title {
+                        font-size: 2.2rem;
+                        font-weight: bold;
+                        letter-spacing: -1px;
+                        color: var(--bs-primary);
+                    }
+                    .welcome-card .lead {
+                        font-size: 1.15rem;
+                        font-weight: 500;
+                        color: #343a40;
+                    }
+                    .welcome-card .badge {
+                        font-size: 1rem;
+                        padding: 0.6em 1.2em;
+                        border-radius: 6px;
+                    }
+                    .welcome-card .text-muted {
+                        color: #6c757d !important;
+                    }
+                    .welcome-card img {
+                        max-width: 160px;
+                        border-radius: 10px;
+                        background: #fff;
+                        padding: 8px;
+                    }
+                </style>
                 <div class="row mb-4">
                     <div class="col-md-12">
-                        <div class="card welcome-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h1 class="card-title mb-0 text-white">
-                                            Welcome, @name! 👋
+                        <div class="card welcome-card border-0">
+                            <div class="card-body p-4">
+                                <div class="section-title d-flex align-items-center mb-4">
+                                    <i class="fas fa-heartbeat me-2"></i>
+                                    <span>Welcome</span>
+                                    <span class="ms-auto fs-6 text-muted">Updated: @DateTime.Now.ToString("MMM dd, h:mm tt")</span>
+                                </div>
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h1 class="card-title mb-2">
+                                            Welcome back, <span class="fw-bold">@name</span>!
                                         </h1>
-                                        <p class="card-text lead text-white">
-                                            You are logged in as a <span class="text-warning">@role</span>.
+                                        <p class="lead mb-3">
+                                            <i class="fas fa-user-circle me-2"></i>
+                                            <span class="fw-semibold">Role:</span>
+                                            <span class="badge bg-primary text-white ms-2">
+                                                @{
+                                                    if (isStudent)
+                                                    {
+                                                        <text><i class="fas fa-user-graduate me-1"></i> Student</text>
+                                                    }
+                                                    else if (isSuperAdmin)
+                                                    {
+                                                        <text><i class="fas fa-user-shield me-1"></i> Super Admin</text>
+                                                    }
+                                                    else if (isAdmin)
+                                                    {
+                                                        <text><i class="fas fa-user-tie me-1"></i> Admin</text>
+                                                    }
+                                                    else if (isMedicalStaff)
+                                                    {
+                                                        <text><i class="fas fa-user-md me-1"></i> Medical Staff</text>
+                                                    }
+                                                    else
+                                                    {
+                                                        @role
+                                                    }
+                                                }
+                                            </span>
                                         </p>
-                                    </div>
-
-                                    <div>
-                                        @if (isStudent)
-                                        {
-                                            <i class="fas fa-user-graduate fa-4x text-white"></i> @* Student Icon *@
-                                        }
-                                        else if (isSuperAdmin)
-                                        {
-                                            <i class="fas fa-user-shield fa-4x text-white"></i> @* Super Admin Icon *@
-                                        }
-                                        else if (isAdmin)
-                                        {
-                                            <i class="fas fa-user-tie fa-4x text-white"></i> @* Admin Icon *@
-                                        }
-                                        else if (isMedicalStaff)
-                                        {
-                                            <i class="fas fa-user-md fa-4x text-white"></i> @* Medical Staff Icon *@
-                                        }
+                                        <div class="mt-4">
+                                            <span class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Use the sidebar to navigate your dashboard features.
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- End Redesigned Welcome Section -->
 
                 <!-- Dashboard Cards -->
                 @if (isStudent)
@@ -168,7 +227,6 @@
                 }
             </div>
 
-            <!-- Profile Content -->
             @if (!isSuperAdmin)
             {
                 <div id="profile-content" class="tab-content @(activeTab == "profile" ? "active" : "")"
@@ -177,13 +235,11 @@
                 </div>
             }
 
-            <!-- QR Scanner Content -->
             <div id="qrscanner-content" class="tab-content @(activeTab == "qrscanner" ? "active" : "")"
                 style="display: @(activeTab == "qrscanner" ? "block" : "none");">
                 @await Html.PartialAsync("QRScanner/_QRScannerPartial")
             </div>
 
-            <!-- Submit Health Records Content -->
             @if (isStudent)
             {
                 <div id="healthrecords-content" class="tab-content @(activeTab == "healthrecords" ? "active" : "")"
@@ -193,57 +249,50 @@
                 </div>
             }
 
-            <!-- Available Appointments Content -->
             @if (isStudent)
             {
                 <div id="appointments-content" class="tab-content @(activeTab == "appointments" ? "active" : "")"
                     style="display: @(activeTab == "appointments" ? "block" : "none");">
                     @await Html.PartialAsync("AvailableAppointments/_AvailableAppointmentsPartial", Model)
                 </div>
-                 <!-- Personal Appointments Content -->
                 <div id="personalappointments-content" class="tab-content @(activeTab == "personalappointments" ? "active" : "")"
                     style="display: @(activeTab == "personalappointments" ? "block" : "none");">
                     @await Html.PartialAsync("PersonalAppointment/_PersonalAppointmentPartial")
                 </div>
             }
-
-           
-            
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        document.getElementById("menu-toggle").addEventListener("click", function () {
-            document.getElementById("wrapper").classList.toggle("toggled");
-        });
+<script>
+    document.getElementById("menu-toggle").addEventListener("click", function () {
+        document.getElementById("wrapper").classList.toggle("toggled");
+    });
 
-        // Activate the correct tab based on the activeTab value
-        const activeTab = "@activeTab";
-        const activeTabItem = document.querySelector(`.list-group-item[data-tab="${activeTab}"]`);
-        if (activeTabItem) {
-            activeTabItem.classList.add('active');
-            document.getElementById(`${activeTab}-content`).style.display = 'block';
-        }
+    // Activate the correct tab based on the activeTab value
+    const activeTab = "@activeTab";
+    const activeTabItem = document.querySelector(`.list-group-item[data-tab="${activeTab}"]`);
+    if (activeTabItem) {
+        activeTabItem.classList.add('active');
+        document.getElementById(`${activeTab}-content`).style.display = 'block';
+    }
 
-        // Handle tab clicks
-        document.querySelectorAll('.list-group-item').forEach(item => {
-            item.addEventListener('click', function (e) {
-                e.preventDefault();
-                const tab = this.getAttribute('data-tab');
+    // Handle tab clicks
+    document.querySelectorAll('.list-group-item').forEach(item => {
+        item.addEventListener('click', function (e) {
+            e.preventDefault();
+            const tab = this.getAttribute('data-tab');
 
-                // Hide all tab contents
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.style.display = 'none';
-                });
-
-                // Show the selected tab content
-                document.getElementById(`${tab}-content`).style.display = 'block';
-
-                // Update the URL with the active tab
-                window.location.href = `@Url.Action("Index", "Dashboard")?activeTab=${tab}`;
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
             });
+
+            // Show the selected tab content
+            document.getElementById(`${tab}-content`).style.display = 'block';
+
+            // Update the URL with the active tab
+            window.location.href = `@Url.Action("Index", "Dashboard")?activeTab=${tab}`;
         });
-    </script>
-}
+    });
+</script>

@@ -98,36 +98,77 @@ namespace WebApp.Controllers
                 if (user == null)
                 {
                     TempData["ErrorMessage"] = "User not found.";
-                    return Ok();
+                    return RedirectToAction(nameof(Index));
                 }
 
+                // Validate inputs
+                if (string.IsNullOrEmpty(roomName))
+                {
+                    TempData["ErrorMessage"] = "Room name cannot be empty.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (startTime >= endTime)
+                {
+                    TempData["ErrorMessage"] = "Start time must be before end time.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (userLimit <= 0)
+                {
+                    TempData["ErrorMessage"] = "User limit must be greater than zero.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Create appointment
                 var appointment = new RoomAppointment
                 {
                     RoomName = roomName,
                     StartTime = startTime,
                     EndTime = endTime,
-                    Description = description,
+                    Description = description ?? string.Empty,
                     UserLimit = userLimit,
                     CreatedBy = user.FullName ?? user.UserName,
-                    CreatedOn = DateTime.UtcNow
+                    CreatedOn = DateTime.UtcNow,
+                    RoomAppointmentUsers = new List<RoomAppointmentUser>() // Initialize to empty collection
                 };
 
-                appointment.QRCodePath = "/temp/qrcode.png";
+                string qrCodePath = qrCodeService.GenerateAppointmentQRCode(0);
+                appointment.QRCodePath = qrCodePath;
 
+                // Add the appointment to context
                 _context.RoomAppointments.Add(appointment);
+
+                // Save changes
                 await _context.SaveChangesAsync();
 
+                // Now update the QR code with the real ID if needed
                 appointment.QRCodePath = qrCodeService.GenerateAppointmentQRCode(appointment.Id);
-
                 _context.RoomAppointments.Update(appointment);
                 await _context.SaveChangesAsync();
+                
 
                 TempData["SuccessMessage"] = "Appointment created successfully.";
                 return RedirectToAction(nameof(Index));
             }
+            catch (DbUpdateException ex)
+            {
+                // Log the detailed exception including inner exception
+                Console.WriteLine($"Database error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+
+                TempData["ErrorMessage"] = $"Failed to create appointment: Database error. {ex.InnerException?.Message ?? ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Failed to create appointment: " + ex.Message;
+                // Log the exception
+                Console.WriteLine($"Error creating appointment: {ex.Message}");
+
+                TempData["ErrorMessage"] = $"Failed to create appointment: {ex.Message}";
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -321,6 +362,42 @@ namespace WebApp.Controllers
             };
 
             return Json(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateAttendance([FromBody] UpdateAttendanceModel model)
+        {
+            try
+            {
+                var enrollment = await _context.RoomAppointmentUsers
+                    .FirstOrDefaultAsync(rau => rau.RoomAppointmentId == model.appointmentId && rau.UserId == model.userId);
+
+                if (enrollment == null)
+                {
+                    return NotFound("Enrollment record not found");
+                }
+
+                // Update the attendance status
+                enrollment.Status = (AttendanceStatus)Enum.Parse(typeof(AttendanceStatus), model.status);
+                enrollment.StatusChangedAt = DateTime.UtcNow;
+                enrollment.StatusChangedBy = User.Identity.Name;
+
+                _context.RoomAppointmentUsers.Update(enrollment);
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        public class UpdateAttendanceModel
+        {
+            public string userId { get; set; }
+            public int appointmentId { get; set; }
+            public string status { get; set; }
         }
     }
 }

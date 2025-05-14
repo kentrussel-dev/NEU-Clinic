@@ -1,0 +1,96 @@
+<!-- Enhanced News Carousel Component -->
+<div class="container-fluid py-5 news-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-header bg-primary text-white p-3 d-flex align-items-center justify-content-between">
+                        <h2 class="fs-2 fw-bold mb-0">Latest News & Updates</h2>
+                        <div class="carousel-controls d-flex">
+                            <button class="btn btn-sm btn-light me-2" type="button" data-bs-target="#newsCarousel" data-bs-slide="prev">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light" type="button" data-bs-target="#newsCarousel" data-bs-slide="next">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <!-- News Carousel -->
+                        <div id="newsCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#newsCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+                                <button type="button" data-bs-target="#newsCarousel" data-bs-slide-to="1"></button>
+                                <button type="button" data-bs-target="#newsCarousel" data-bs-slide-to="2"></button>
+                            </div>
+                            <div class="carousel-inner">
+                                <!-- News Item 1 -->
+                                <div class="carousel-item active">
+                                    <div class="row g-0">
+                                        <div class="col-md-6">
+                                            <img src="~/assets/images/NEU_SLIDE1.jpg" class="img-fluid w-100 h-100 object-fit-cover" style="max-height: 450px;" alt="Free Health Checkup Camp">
+                                        </div>
+                                        <div class="col-md-6 d-flex flex-column justify-content-center bg-light">
+                                            <div class="p-4 p-lg-5">
+                                                <div class="badge bg-primary mb-2 fw-semibold px-3 py-2">Breaking News</div>
+                                                <h3 class="fw-bold mb-3">Free Health Checkup Camp</h3>
+                                                <p class="text-muted mb-4">NEU Care is organizing a free health checkup camp next weekend. Services include blood pressure monitoring, blood sugar testing, and basic health consultations.</p>
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <i class="bi bi-calendar-event text-primary me-2"></i>
+                                                    <span class="text-muted">May 10, 2025</span>
+                                                </div>
+                                                <a href="#" class="btn btn-primary">Learn More <i class="bi bi-arrow-right ms-1"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- News Item 2 -->
+                                <div class="carousel-item">
+                                    <div class="row g-0">
+                                        <div class="col-md-6">
+                                            <img src="~/assets/images/NEU_SLIDE2.jpg" class="img-fluid w-100 h-100 object-fit-cover" style="max-height: 450px;" alt="Mental Health Awareness Month">
+                                        </div>
+                                        <div class="col-md-6 d-flex flex-column justify-content-center bg-light">
+                                            <div class="p-4 p-lg-5">
+                                                <div class="badge bg-success mb-2 fw-semibold px-3 py-2">Featured Event</div>
+                                                <h3 class="fw-bold mb-3">Mental Health Awareness Month</h3>
+                                                <p class="text-muted mb-4">Join us for a series of workshops, webinars, and support groups throughout May as we focus on mental wellness and self-care strategies.</p>
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <i class="bi bi-calendar-event text-success me-2"></i>
+                                                    <span class="text-muted">May 1, 2025</span>
+                                                </div>
+                                                <a href="#" class="btn btn-success">Learn More <i class="bi bi-arrow-right ms-1"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- News Item 3 -->
+                                <div class="carousel-item">
+                                    <div class="row g-0">
+                                        <div class="col-md-6">
+                                            <img src="~/assets/images/NEU_SLIDE3.jpg" class="img-fluid w-100 h-100 object-fit-cover" style="max-height: 450px;" alt="New Medical Specialists Join Our Team">
+                                        </div>
+                                        <div class="col-md-6 d-flex flex-column justify-content-center bg-light">
+                                            <div class="p-4 p-lg-5">
+                                                <div class="badge bg-info mb-2 fw-semibold px-3 py-2">Announcement</div>
+                                                <h3 class="fw-bold mb-3">New Medical Specialists Join Our Team</h3>
+                                                <p class="text-muted mb-4">We're pleased to welcome Dr. Santos (Cardiologist) and Dr. Reyes (Pediatrician) to our growing team of healthcare professionals.</p>
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <i class="bi bi-calendar-event text-info me-2"></i>
+                                                    <span class="text-muted">April 28, 2025</span>
+                                                </div>
+                                                <a href="#" class="btn btn-info text-white">Learn More <i class="bi bi-arrow-right ms-1"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

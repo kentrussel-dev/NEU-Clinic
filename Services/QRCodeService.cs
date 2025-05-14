@@ -63,8 +63,8 @@ public class QRCodeService
             return relativePath;
         }
 
-        // Create QR code data
-        string qrCodeData = $"appointment/{appointmentId}";
+        // Create QR code data with attendance endpoint
+        string qrCodeData = $"appointment/{appointmentId}/checkin";
 
         var qrCodeGenerator = new ZXing.BarcodeWriter<SKBitmap>
         {
