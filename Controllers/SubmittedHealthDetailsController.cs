@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Models;
-using WebApp.ViewModels;
+using WebApp.ViewModels;    
 using System.IO;
 using System;
 using System.Collections.Generic;
@@ -16,12 +16,18 @@ namespace WebApp.Controllers
         private readonly AppDbContext _context;
         private readonly UserManager<Users> _userManager;
         private readonly EmailService _emailService;
+        private readonly IDocumentExpiryService _expiryService;
 
-        public SubmittedHealthDetailsController(AppDbContext context, UserManager<Users> userManager, EmailService emailService)
+        public SubmittedHealthDetailsController(
+       AppDbContext context,
+       UserManager<Users> userManager,
+       EmailService emailService,
+       IDocumentExpiryService expiryService)
         {
             _context = context;
             _userManager = userManager;
             _emailService = emailService;
+            _expiryService = expiryService;
         }
 
         public async Task<IActionResult> Index()
@@ -187,26 +193,28 @@ namespace WebApp.Controllers
                     break;
                 case "XRayFile":
                     record.XRayFileStatus = "Approved";
-                    record.XRayExpiryDate = expiryDate;
                     await UpdateHealthDetails(record.UserId, h => {
                         h.XRayFileUrl = record.XRayFileUrl;
-                        h.XRayExpiryDate = expiryDate;
+                        h.DocumentsValid = DateTime.UtcNow <= expiryDate;
+                        h.LastValidationDate = DateTime.UtcNow;
                     });
                     break;
+
                 case "MedicalCertificate":
                     record.MedicalCertificateStatus = "Approved";
-                    record.MedicalCertificateExpiryDate = expiryDate;
                     await UpdateHealthDetails(record.UserId, h => {
                         h.MedicalCertificateUrl = record.MedicalCertificateUrl;
-                        h.MedicalCertificateExpiryDate = expiryDate;
+                        h.DocumentsValid = DateTime.UtcNow <= expiryDate;
+                        h.LastValidationDate = DateTime.UtcNow;
                     });
                     break;
+
                 case "VaccinationRecord":
                     record.VaccinationRecordStatus = "Approved";
-                    record.VaccinationRecordExpiryDate = expiryDate;
                     await UpdateHealthDetails(record.UserId, h => {
                         h.VaccinationRecordUrl = record.VaccinationRecordUrl;
-                        h.VaccinationRecordExpiryDate = expiryDate;
+                        h.DocumentsValid = DateTime.UtcNow <= expiryDate;
+                        h.LastValidationDate = DateTime.UtcNow;
                     });
                     break;
                 case "OtherDocuments":
@@ -383,6 +391,21 @@ namespace WebApp.Controllers
             }
 
             return $"/uploads/{uniqueFileName}";
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetGlobalExpiry(DateTime expiryDate)
+        {
+            try
+            {
+                await _expiryService.UpdateExpiryDate(expiryDate);
+                return Json(new { success = true, message = "Global expiry date updated successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

@@ -262,102 +262,184 @@ namespace WebApp.Controllers
         [HttpGet]
         public IActionResult GetExpiringDocumentCount()
         {
-            var count = _context.Users
-                .Join(_context.UserRoles,
-                    user => user.Id,
-                    userRole => userRole.UserId,
-                    (user, userRole) => new { User = user, UserRole = userRole })
-                .Join(_context.Roles,
-                    ur => ur.UserRole.RoleId,
-                    role => role.Id,
-                    (ur, role) => new { ur.User, Role = role })
-                .Where(x => x.Role.Name == "Student")
-                .Select(x => x.User)
-                .Count(u => u.HealthDetails != null &&
-                           (u.HealthDetails.MedicalCertificateExpiryDate.HasValue ||
-                            u.HealthDetails.VaccinationRecordExpiryDate.HasValue ||
-                            u.HealthDetails.XRayExpiryDate.HasValue));
+            try
+            {
+                // Get the current system expiry date
+                var systemConfig = _context.SystemConfigurations.FirstOrDefault();
+                if (systemConfig == null)
+                {
+                    return Json(0); // No expiry date set yet
+                }
 
-            return Json(count);
+                var expiryDate = systemConfig.HealthDocumentsExpiryDate;
+
+                var count = _context.Users
+                    .Join(_context.UserRoles,
+                        user => user.Id,
+                        userRole => userRole.UserId,
+                        (user, userRole) => new { User = user, UserRole = userRole })
+                    .Join(_context.Roles,
+                        ur => ur.UserRole.RoleId,
+                        role => role.Id,
+                        (ur, role) => new { ur.User, Role = role })
+                    .Where(x => x.Role.Name == "Student")
+                    .Select(x => x.User)
+                    .Include(u => u.HealthDetails)
+                    .Count(u => u.HealthDetails != null &&
+                               u.HealthDetails.DocumentsValid && // Only documents that are currently valid
+                               u.HealthDetails.LastValidationDate <= expiryDate); // Documents that will expire
+
+                return Json(count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting expiring document count");
+                return Json(0);
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> SendExpiryReminderBatch([FromForm] int batchSize)
         {
-            var studentsToNotify = await _context.Users
-                .Join(_context.UserRoles,
-                    user => user.Id,
-                    userRole => userRole.UserId,
-                    (user, userRole) => new { User = user, UserRole = userRole })
-                .Join(_context.Roles,
-                    ur => ur.UserRole.RoleId,
-                    role => role.Id,
-                    (ur, role) => new { ur.User, Role = role })
-                .Where(x => x.Role.Name == "Student")
-                .Select(x => x.User)
-                .Include(u => u.HealthDetails)
-                .Where(u => u.HealthDetails != null &&
-                           (u.HealthDetails.MedicalCertificateExpiryDate.HasValue ||
-                            u.HealthDetails.VaccinationRecordExpiryDate.HasValue ||
-                            u.HealthDetails.XRayExpiryDate.HasValue))
-                // Only send to students who haven't received an expiry reminder today
-                .Where(u => u.HealthDetails.LastExpiryReminderSent == null ||
-                           u.HealthDetails.LastExpiryReminderSent.Value.Date < DateTime.Today)
-                .Take(batchSize)
-                .ToListAsync();
-
-            int sentCount = 0;
-            int failedCount = 0;
-
-            foreach (var student in studentsToNotify)
+            try
             {
-                try
+                // Get the current system expiry date
+                var systemConfig = await _context.SystemConfigurations.FirstOrDefaultAsync();
+                if (systemConfig == null)
                 {
-                    var healthDetails = student.HealthDetails;
-                    var expiringDocuments = new List<string>();
-
-                    if (healthDetails.MedicalCertificateExpiryDate.HasValue)
-                    {
-                        expiringDocuments.Add($"Medical Certificate (Expires: {healthDetails.MedicalCertificateExpiryDate.Value.ToShortDateString()})");
-                    }
-                    if (healthDetails.VaccinationRecordExpiryDate.HasValue)
-                    {
-                        expiringDocuments.Add($"Vaccination Record (Expires: {healthDetails.VaccinationRecordExpiryDate.Value.ToShortDateString()})");
-                    }
-                    if (healthDetails.XRayExpiryDate.HasValue)
-                    {
-                        expiringDocuments.Add($"X-Ray Results (Expires: {healthDetails.XRayExpiryDate.Value.ToShortDateString()})");
-                    }
-
-                    var emailBody = $@"
-                <h3>Dear {student.FullName ?? student.UserName},</h3>
-                <p>This is a reminder about upcoming document expirations in your health records:</p>
-                <ul>
-                    {string.Join("", expiringDocuments.Select(d => $"<li>{d}</li>"))}
-                </ul>
-                <p>Please renew these documents before they expire to maintain your complete health record status.</p>
-                <p>Thank you for your attention to this matter.</p>
-                <p>Sincerely,<br>Health Services</p>
-            ";
-
-                    await _emailService.SendEmailAsync(
-                        student.Email,
-                        "Reminder: Upcoming Document Expirations",
-                        emailBody);
-
-                    // Update the LastExpiryReminderSent timestamp
-                    healthDetails.LastExpiryReminderSent = DateTime.Now;
-                    sentCount++;
+                    return Json(new { success = false, message = "No expiry date has been configured yet." });
                 }
-                catch (Exception ex)
+
+                var expiryDate = systemConfig.HealthDocumentsExpiryDate;
+
+                // Get students with documents that will expire
+                var studentsToNotify = await _context.Users
+                    .Join(_context.UserRoles,
+                        user => user.Id,
+                        userRole => userRole.UserId,
+                        (user, userRole) => new { User = user, UserRole = userRole })
+                    .Join(_context.Roles,
+                        ur => ur.UserRole.RoleId,
+                        role => role.Id,
+                        (ur, role) => new { ur.User, Role = role })
+                    .Where(x => x.Role.Name == "Student")
+                    .Select(x => x.User)
+                    .Include(u => u.HealthDetails)
+                    .Where(u => u.HealthDetails != null &&
+                               u.HealthDetails.DocumentsValid && // Only valid documents
+                               u.HealthDetails.LastValidationDate <= expiryDate) // Will expire
+                    .Take(batchSize)
+                    .ToListAsync();
+
+                int sentCount = 0;
+                int failedCount = 0;
+
+                foreach (var student in studentsToNotify)
                 {
-                    _logger.LogError(ex, $"Failed to send expiry reminder to {student.Email}");
-                    failedCount++;
+                    try
+                    {
+                        var daysUntilExpiry = (expiryDate - DateTime.Now).Days;
+
+                        // Get specific document expiry dates
+                        var docExpiryMessage = new List<string>();
+
+                        if (!string.IsNullOrEmpty(student.HealthDetails.XRayFileUrl))
+                        {
+                            docExpiryMessage.Add($"X-Ray Results (expires {expiryDate.ToShortDateString()})");
+                        }
+
+                        if (!string.IsNullOrEmpty(student.HealthDetails.MedicalCertificateUrl))
+                        {
+                            docExpiryMessage.Add($"Medical Certificate (expires {expiryDate.ToShortDateString()})");
+                        }
+
+                        if (!string.IsNullOrEmpty(student.HealthDetails.VaccinationRecordUrl))
+                        {
+                            docExpiryMessage.Add($"Vaccination Record (expires {expiryDate.ToShortDateString()})");
+                        }
+
+                        var emailBody = $@"
+                    <h3>Dear {student.FullName ?? student.UserName},</h3>
+                    <p>This is a reminder that your health documents will expire in {daysUntilExpiry} days (on {expiryDate.ToShortDateString()}).</p>
+                    <p>The following documents need renewal:</p>
+                    <ul>
+                        {string.Join("", docExpiryMessage.Select(d => $"<li>{d}</li>"))}
+                    </ul>
+                    <p>Failure to renew these documents may affect your student status.</p>
+                    <p>Thank you for your attention to this matter.</p>
+                    <p>Sincerely,<br>Health Services</p>
+                ";
+
+                        await _emailService.SendEmailAsync(
+                            student.Email,
+                            $"Urgent: Health Documents Expiring in {daysUntilExpiry} Days",
+                            emailBody);
+
+                        await _notificationService.NotifyUserAsync(
+                            student.Id,
+                            "System",
+                            $"Your health documents will expire in {daysUntilExpiry} days");
+
+                        // Update the LastExpiryReminderSent timestamp
+                        student.HealthDetails.LastExpiryReminderSent = DateTime.Now;
+                        sentCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Failed to send expiry reminder to {student.Email}");
+                        failedCount++;
+                    }
                 }
+
+                await _context.SaveChangesAsync();
+                return Json(new
+                {
+                    success = true,
+                    sentCount,
+                    failedCount,
+                    message = $"Sent {sentCount} expiry reminders, {failedCount} failed"
+                });
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending expiry reminders");
+                return Json(new { success = false, message = "Error sending expiry reminders" });
+            }
+        }
 
-            await _context.SaveChangesAsync();
-            return Json(new { sentCount, failedCount });
+        [HttpPost]
+        public async Task<IActionResult> SetGlobalExpiryDate([FromBody] SetGlobalExpiryRequest request)
+        {
+            try
+            {
+                if (!DateTime.TryParse(request.ExpiryDate, out var expiryDate))
+                {
+                    return Json(new { success = false, message = "Invalid date format" });
+                }
+
+                // Get or create system configuration
+                var systemConfig = await _context.SystemConfigurations.FirstOrDefaultAsync();
+                if (systemConfig == null)
+                {
+                    systemConfig = new SystemConfiguration();
+                    _context.SystemConfigurations.Add(systemConfig);
+                }
+
+                systemConfig.HealthDocumentsExpiryDate = expiryDate;
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Global expiry date updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting global expiry date");
+                return Json(new { success = false, message = "Error setting global expiry date" });
+            }
+        }
+
+        public class SetGlobalExpiryRequest
+        {
+            public string ExpiryDate { get; set; }
         }
 
         public class EmailReminderRequest

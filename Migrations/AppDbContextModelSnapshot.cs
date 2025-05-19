@@ -181,6 +181,9 @@ namespace WebApp.Migrations
                     b.Property<DateTime?>("DocumentSubmissionDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("DocumentsValid")
+                        .HasColumnType("bit");
+
                     b.Property<string>("EmergencyContactName")
                         .HasColumnType("nvarchar(max)");
 
@@ -203,7 +206,7 @@ namespace WebApp.Migrations
                     b.Property<DateTime?>("LastReminderSent")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("MedicalCertificateExpiryDate")
+                    b.Property<DateTime?>("LastValidationDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("MedicalCertificateUrl")
@@ -228,14 +231,8 @@ namespace WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("VaccinationRecordExpiryDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("VaccinationRecordUrl")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("XRayExpiryDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("XRayFileUrl")
                         .HasColumnType("nvarchar(max)");
@@ -509,9 +506,6 @@ namespace WebApp.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasDefaultValue("Pending");
 
-                    b.Property<DateTime?>("MedicalCertificateExpiryDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("MedicalCertificateStatus")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -537,9 +531,6 @@ namespace WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("VaccinationRecordExpiryDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("VaccinationRecordStatus")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -548,9 +539,6 @@ namespace WebApp.Migrations
 
                     b.Property<string>("VaccinationRecordUrl")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("XRayExpiryDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("XRayFileStatus")
                         .IsRequired()
@@ -566,6 +554,33 @@ namespace WebApp.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("SubmittedHealthDetails");
+                });
+
+            modelBuilder.Entity("WebApp.Models.SystemConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("HealthDocumentsExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            HealthDocumentsExpiryDate = new DateTime(2025, 7, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            LastUpdated = new DateTime(2025, 5, 19, 18, 27, 57, 658, DateTimeKind.Utc).AddTicks(6873)
+                        });
                 });
 
             modelBuilder.Entity("WebApp.Models.Users", b =>

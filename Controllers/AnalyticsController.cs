@@ -14,11 +14,16 @@ namespace WebApp.Controllers
     {
         private readonly AppDbContext _context;
         private readonly UserManager<Users> _userManager;
+        private readonly IDocumentExpiryService _expiryService;
 
-        public AnalyticsController(AppDbContext context, UserManager<Users> userManager)
+        public AnalyticsController(
+            AppDbContext context,
+            UserManager<Users> userManager,
+            IDocumentExpiryService expiryService)
         {
             _context = context;
             _userManager = userManager;
+            _expiryService = expiryService;
         }
 
         // Main entry point for analytics
@@ -278,32 +283,26 @@ namespace WebApp.Controllers
         private void CalculateDocumentExpirationStats(HealthAnalyticsViewModel viewModel, List<Users> students)
         {
             DateTime today = DateTime.Today;
+            DateTime expiryDate = _expiryService.GetCurrentExpiryDate();
 
-            // Define the current academic year's end date (July of the current or next year)
-            int currentYear = today.Month >= 8 ? today.Year + 1 : today.Year; // If we're in/after August, use next year's July
-            DateTime academicYearEnd = new DateTime(currentYear, 7, 31);
+            // For "soon to expire" counter, we'll use 60 days before expiry
+            DateTime soonToExpireThreshold = expiryDate.AddDays(-60);
 
-            // For the "soon to expire" counter, we'll use 60 days before academic year end
-            DateTime soonToExpireThreshold = academicYearEnd.AddDays(-60);
-
-            // Count documents expiring at end of academic year
+            // Count documents that will expire
             viewModel.SoonToExpireMedicalCertificates = students.Count(s =>
                 s.HealthDetails?.MedicalCertificateUrl != null &&
-                (s.HealthDetails?.MedicalCertificateExpiryDate == null || // Count missing expiry dates
-                 (s.HealthDetails.MedicalCertificateExpiryDate <= academicYearEnd &&
-                  s.HealthDetails.MedicalCertificateExpiryDate >= soonToExpireThreshold)));
+                s.HealthDetails?.DocumentsValid == true &&
+                today >= soonToExpireThreshold);
 
             viewModel.SoonToExpireVaccinationRecords = students.Count(s =>
                 s.HealthDetails?.VaccinationRecordUrl != null &&
-                (s.HealthDetails?.VaccinationRecordExpiryDate == null ||
-                 (s.HealthDetails.VaccinationRecordExpiryDate <= academicYearEnd &&
-                  s.HealthDetails.VaccinationRecordExpiryDate >= soonToExpireThreshold)));
+                s.HealthDetails?.DocumentsValid == true &&
+                today >= soonToExpireThreshold);
 
             viewModel.SoonToExpireXRays = students.Count(s =>
                 s.HealthDetails?.XRayFileUrl != null &&
-                (s.HealthDetails?.XRayExpiryDate == null ||
-                 (s.HealthDetails.XRayExpiryDate <= academicYearEnd &&
-                  s.HealthDetails.XRayExpiryDate >= soonToExpireThreshold)));
+                s.HealthDetails?.DocumentsValid == true &&
+                today >= soonToExpireThreshold);
 
             // Group by month for the next 12 months for expiring documents 
             var expiringDocsByMonth = new Dictionary<string, int>();
@@ -315,19 +314,21 @@ namespace WebApp.Controllers
                 DateTime monthEnd = monthStart.AddMonths(1).AddDays(-1);
                 string monthName = monthStart.ToString("MMM yyyy");
 
-                // Get documents that need renewal in this month (either real expiry date or forced July renewal)
-                int expiringDocs = students.Count(s =>
-                    (s.HealthDetails?.MedicalCertificateExpiryDate >= monthStart && s.HealthDetails.MedicalCertificateExpiryDate <= monthEnd) ||
-                    (s.HealthDetails?.VaccinationRecordExpiryDate >= monthStart && s.HealthDetails.VaccinationRecordExpiryDate <= monthEnd) ||
-                    (s.HealthDetails?.XRayExpiryDate >= monthStart && s.HealthDetails.XRayExpiryDate <= monthEnd) ||
-                    // Special handling for July (academic year end)
-                    (monthName.StartsWith("Jul") && (
-                        (s.HealthDetails?.MedicalCertificateUrl != null && (s.HealthDetails?.MedicalCertificateExpiryDate == null || s.HealthDetails.MedicalCertificateExpiryDate.Value.Year == monthStart.Year)) ||
-                        (s.HealthDetails?.VaccinationRecordUrl != null && (s.HealthDetails?.VaccinationRecordExpiryDate == null || s.HealthDetails.VaccinationRecordExpiryDate.Value.Year == monthStart.Year)) ||
-                        (s.HealthDetails?.XRayFileUrl != null && (s.HealthDetails?.XRayExpiryDate == null || s.HealthDetails.XRayExpiryDate.Value.Year == monthStart.Year))
-                    )));
+                // Special handling for expiry month
+                if (monthStart.Month == expiryDate.Month && monthStart.Year == expiryDate.Year)
+                {
+                    // Count all documents that will expire this month
+                    int expiringDocs = students.Count(s =>
+                        (s.HealthDetails?.MedicalCertificateUrl != null && s.HealthDetails.DocumentsValid) ||
+                        (s.HealthDetails?.VaccinationRecordUrl != null && s.HealthDetails.DocumentsValid) ||
+                        (s.HealthDetails?.XRayFileUrl != null && s.HealthDetails.DocumentsValid));
 
-                expiringDocsByMonth[monthName] = expiringDocs;
+                    expiringDocsByMonth[monthName] = expiringDocs;
+                }
+                else
+                {
+                    expiringDocsByMonth[monthName] = 0;
+                }
             }
 
             viewModel.ExpiringDocumentsByMonth = expiringDocsByMonth;
@@ -490,6 +491,7 @@ namespace WebApp.Controllers
             return View(viewModel.DocumentStatistics);
         }
 
+        // Update the CalculateCompletionPercentage method:
         private int CalculateCompletionPercentage(HealthDetails healthDetails)
         {
             if (healthDetails == null)
@@ -503,6 +505,8 @@ namespace WebApp.Controllers
             if (!string.IsNullOrEmpty(healthDetails.EmergencyContactName) &&
                 !string.IsNullOrEmpty(healthDetails.EmergencyContactPhone)) completedFields++;
             if (!string.IsNullOrEmpty(healthDetails.ImmunizationHistory)) completedFields++;
+
+            // Document fields now check both URL and validity
             if (!string.IsNullOrEmpty(healthDetails.XRayFileUrl)) completedFields++;
             if (!string.IsNullOrEmpty(healthDetails.MedicalCertificateUrl)) completedFields++;
             if (!string.IsNullOrEmpty(healthDetails.VaccinationRecordUrl)) completedFields++;

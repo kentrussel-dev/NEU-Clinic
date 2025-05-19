@@ -21,6 +21,8 @@ builder.Services.AddScoped<EmailService>();
 // ✅ Register NotificationService for Dependency Injection
 builder.Services.AddScoped<NotificationService>();
 
+builder.Services.AddScoped<IDocumentExpiryService, DocumentExpiryService>();
+
 // ✅ Add SignalR services
 builder.Services.AddSignalR();
 

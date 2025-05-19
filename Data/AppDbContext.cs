@@ -14,15 +14,12 @@ namespace WebApp.Data
         public DbSet<RoomAppointment> RoomAppointments { get; set; }
         public DbSet<RoomAppointmentUser> RoomAppointmentUsers { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-
-
-        // New table for submitted health details
         public DbSet<SubmittedHealthDetails> SubmittedHealthDetails { get; set; }
         public DbSet<PersonalAppointment> PersonalAppointments { get; set; }
-
-        // New table for chat
-
         public DbSet<PersonalMessage> PersonalMessages { get; set; }
+
+        // Add SystemConfiguration table
+        public DbSet<SystemConfiguration> SystemConfigurations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,7 +29,7 @@ namespace WebApp.Data
             modelBuilder.Entity<Users>()
                 .HasOne(u => u.PersonalDetails)
                 .WithOne(p => p.User)
-                .HasForeignKey<PersonalDetails>(p => p.UserId) // Foreign key in PersonalDetails
+                .HasForeignKey<PersonalDetails>(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Configure the one-to-one relationship between Users and HealthDetails
@@ -49,6 +46,7 @@ namespace WebApp.Data
                 .HasForeignKey(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Configure default values for status fields
             foreach (var property in typeof(SubmittedHealthDetails).GetProperties()
                 .Where(p => p.Name.EndsWith("Status") && p.PropertyType == typeof(string)))
             {
@@ -57,7 +55,7 @@ namespace WebApp.Data
                     .HasDefaultValue("Pending");
             }
 
-            // Configure the many-to-many relationship
+            // Configure the many-to-many relationship for room appointments
             modelBuilder.Entity<RoomAppointmentUser>()
                 .HasKey(rau => new { rau.RoomAppointmentId, rau.UserId });
 
@@ -71,17 +69,19 @@ namespace WebApp.Data
                 .WithMany(u => u.RoomAppointmentUsers)
                 .HasForeignKey(rau => rau.UserId);
 
+            // Configure notifications
             modelBuilder.Entity<Notification>()
                .HasOne(n => n.User)
                .WithMany(u => u.Notifications)
                .HasForeignKey(n => n.UserId);
 
+            // Configure personal appointments
             modelBuilder.Entity<PersonalAppointment>()
                .HasOne(a => a.User)
                .WithMany()
                .HasForeignKey(a => a.UserId);
 
-            // Add this configuration for PersonalMessage
+            // Configure personal messages
             modelBuilder.Entity<PersonalMessage>()
                 .HasOne(m => m.Sender)
                 .WithMany()
@@ -93,6 +93,23 @@ namespace WebApp.Data
                 .WithMany()
                 .HasForeignKey(m => m.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Seed initial system configuration
+            var currentYear = DateTime.Now.Year;
+            var defaultExpiry = new DateTime(currentYear, 7, 25);
+            if (DateTime.Now > defaultExpiry)
+            {
+                defaultExpiry = new DateTime(currentYear + 1, 7, 25);
+            }
+
+            modelBuilder.Entity<SystemConfiguration>().HasData(
+                new SystemConfiguration
+                {
+                    Id = 1,
+                    HealthDocumentsExpiryDate = defaultExpiry,
+                    LastUpdated = DateTime.UtcNow
+                }
+            );
         }
     }
 }

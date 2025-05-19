@@ -1,4 +1,6 @@
+@using Microsoft.EntityFrameworkCore;
 @model WebApp.Models.ViewModels.StudentHealthStatusViewModel
+@inject WebApp.Data.AppDbContext _context
 @{
     ViewData["Title"] = "Student Health Requirements Status";
     Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
@@ -18,6 +20,9 @@
         left: 100%;
         margin-top: -1px;
     }
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore;
 
     .dropdown-submenu:hover > .dropdown-menu {
         display: block;
@@ -219,6 +224,40 @@
         </div>
     </div>
 
+    <!-- Current Expiry Date Display -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-calendar-alt me-2"></i>Current Document Expiry Configuration
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @{
+                        var systemConfig = await _context.SystemConfigurations.FirstOrDefaultAsync();
+                        var expiryDate = systemConfig?.HealthDocumentsExpiryDate;
+                    }
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5 class="mb-0">
+                                @if (expiryDate.HasValue)
+                                {
+                                    <span class="text-success">Current Expiry Date: @expiryDate.Value.ToString("MMMM dd, yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">No expiry date configured</span>
+                                }
+                            </h5>
+                            <small class="text-muted">All health documents will expire on this date</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Updated Filter Row with Consistent Design -->
     <div class="filter-row">
         <!-- Name/Email Filter -->
@@ -341,6 +380,24 @@
                         <li>
                             <button class="dropdown-item" type="button" id="sendExpiryReminder">
                                 <i class="fas fa-clock text-danger me-2"></i>Send Expiration Reminders
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Add this to your existing code, right after the Email Actions dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-modern dropdown-toggle" type="button" id="adminActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog me-2"></i> Actions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="adminActionsDropdown">
+                        <li>
+                            <button class="dropdown-item" type="button" id="setGlobalExpiry" data-bs-toggle="modal" data-bs-target="#globalExpiryModal">
+                                <i class="fas fa-calendar-day text-primary me-2"></i>Set Expiry to All Documents
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" type="button" id="archiveAllDocuments" data-bs-toggle="modal" data-bs-target="#archiveConfirmationModal">
+                                <i class="fas fa-archive text-warning me-2"></i>Archive All Documents
                             </button>
                         </li>
                     </ul>
@@ -525,7 +582,57 @@
     </div>
 </div>
 
-<!-- Add this to your existing Scripts section -->
+<!-- Add these modals at the bottom of your existing modals -->
+<!-- Global Expiry Modal -->
+<div class="modal fade" id="globalExpiryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white"><i class="fas fa-calendar-day me-2"></i>Set Global Expiry Date</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="globalExpiryDate" class="form-label">Select Expiry Date for All Documents</label>
+                    <input type="date" class="form-control" id="globalExpiryDate">
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    This will set the same expiry date for all student health documents (Emergency Contact, X-Ray, Medical Certificate, and Vaccination Record).
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmGlobalExpiry">Set Expiry Date</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Archive Confirmation Modal -->
+<div class="modal fade" id="archiveConfirmationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="fas fa-archive me-2"></i>Confirm Archive Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to archive all student health documents?</p>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Warning:</strong> This action will move all documents to archive. Students will need to re-upload their documents.
+                </div>
+                <p class="fw-bold">Total documents to archive: <span id="totalDocumentsCount">@Model.Students.Count</span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="confirmArchive">Archive All Documents</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
@@ -533,9 +640,9 @@
     <script>
         $(document).ready(function() {
             // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
             // Name/Email filter functionality
@@ -756,6 +863,9 @@
                         url: '/EmailSender/SendReminderBatch',
                         type: 'POST',
                         data: { batchSize: batchSize },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
                         success: function(response) {
                             emailsSent += response.sentCount;
                             failedEmails += response.failedCount;
@@ -786,10 +896,187 @@
                     showToast('error', 'Failed to get student count');
                 });
             }
-            
+
+            // Expiry Reminders
+            $(document).on('click', '#sendExpiryReminder', function() {
+                // Show confirmation modal
+                var expiryModal = new bootstrap.Modal(document.getElementById('expiryConfirmationModal'));
+                
+                // Get count of students with expiring documents first
+                $.get('/EmailSender/GetExpiringDocumentCount', function(count) {
+                    if (count === 0) {
+                        showToast('info', 'No students with expiring documents found');
+                        return;
+                    }
+                    
+                    $('#expiryCountText').text(`Found ${count} students with expiring documents.`);
+                    expiryModal.show();
+                }).fail(function() {
+                    showToast('error', 'Failed to get expiring document count');
+                });
+            });
+
+            // Confirm expiry send button
+            $('#confirmExpirySend').click(function() {
+                var expiryModal = bootstrap.Modal.getInstance(document.getElementById('expiryConfirmationModal'));
+                expiryModal.hide();
+                
+                // Show loading modal
+                var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+                loadingModal.show();
+                
+                // Start sending expiry emails
+                sendExpiryEmailsInBatches(loadingModal);
+            });
+
+            function sendExpiryEmailsInBatches(modal) {
+                let totalCount = 0;
+                let emailsSent = 0;
+                let failedEmails = 0;
+                const batchSize = 5;
+                let isProcessing = false;
+
+                function updateProgress() {
+                    const totalProcessed = emailsSent + failedEmails;
+                    const progress = Math.floor(totalProcessed / totalCount * 100);
+                    
+                    $('#emailProgressBar').css('width', progress + '%');
+                    $('#countText').text(`${totalProcessed}/${totalCount} emails processed`);
+                    $('#progressText').text(`Sending expiration reminders...`);
+                    
+                    if (failedEmails > 0) {
+                        $('#failedText').text(`${failedEmails} failed`).removeClass('d-none');
+                    }
+                    
+                    if (totalProcessed >= totalCount) {
+                        $('#emailProgressBar').removeClass('progress-bar-animated')
+                                            .addClass(failedEmails > 0 ? 'bg-warning' : 'bg-success');
+                        $('#progressText').html(
+                            `Completed!<br>${emailsSent} expiration reminders sent, ${failedEmails} failed`
+                        );
+                        
+                        setTimeout(() => {
+                            modal.hide();
+                            if (emailsSent > 0) {
+                                showToast('success', `Sent ${emailsSent} expiration reminders`);
+                            }
+                            if (failedEmails > 0) {
+                                showToast('warning', `Failed to send ${failedEmails} reminders`);
+                            }
+                        }, 2000);
+                    }
+                }
+                
+                function sendNextBatch() {
+                    if (isProcessing) return;
+                    isProcessing = true;
+                    
+                    $.ajax({
+                        url: '/EmailSender/SendExpiryReminderBatch',
+                        type: 'POST',
+                        data: { batchSize: batchSize },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                emailsSent += response.sentCount;
+                                failedEmails += response.failedCount;
+                                
+                                updateProgress();
+                                
+                                if (emailsSent + failedEmails < totalCount) {
+                                    setTimeout(() => {
+                                        isProcessing = false;
+                                        sendNextBatch();
+                                    }, 500);
+                                }
+                            } else {
+                                modal.hide();
+                                showToast('error', response.message || 'Failed to send expiry reminders');
+                            }
+                        },
+                        error: function(xhr) {
+                            console.error("Error:", xhr.responseText);
+                            modal.hide();
+                            showToast('error', 'Error sending batch of expiration reminders');
+                        },
+                        complete: function() {
+                            isProcessing = false;
+                        }
+                    });
+                }
+                
+                // Get total count first
+                $.get('/EmailSender/GetExpiringDocumentCount')
+                    .done(function(count) {
+                        if (count === 0) {
+                            modal.hide();
+                            showToast('info', 'No documents are expiring soon');
+                            return;
+                        }
+                        
+                        totalCount = count;
+                        $('#countText').text(`0/${totalCount} emails processed`);
+                        sendNextBatch();
+                    })
+                    .fail(function(xhr) {
+                        console.error("Count error:", xhr.responseText);
+                        modal.hide();
+                        showToast('error', 'Failed to get expiring document count');
+                    });
+            }
+
+            // Global Expiry Date Configuration
+            $(document).on('click', '#confirmGlobalExpiry', function() {
+                var expiryDate = $('#globalExpiryDate').val();
+                if (!expiryDate) {
+                    showToast('error', 'Please select a valid expiry date');
+                    return;
+                }
+
+                var modal = bootstrap.Modal.getInstance(document.getElementById('globalExpiryModal'));
+                modal.hide();
+
+                // Show loading modal
+                var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+                loadingModal.show();
+                $('#progressText').text('Setting global expiry date...');
+                $('#emailProgressBar').css('width', '0%');
+
+                $.ajax({
+                    url: '/EmailSender/SetGlobalExpiryDate',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ expiryDate: expiryDate }),
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#emailProgressBar').css('width', '100%').removeClass('progress-bar-animated')
+                                                .addClass('bg-success');
+                            $('#progressText').html('<i class="fas fa-check-circle me-2"></i>Global expiry date set successfully!');
+                            setTimeout(function() {
+                                loadingModal.hide();
+                                showToast('success', 'Global expiry date updated successfully');
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            loadingModal.hide();
+                            showToast('error', response.message || 'Failed to set global expiry date');
+                        }
+                    },
+                    error: function(xhr) {
+                        loadingModal.hide();
+                        showToast('error', 'Error setting global expiry date');
+                        console.error("Error:", xhr.responseText);
+                    }
+                });
+            });
+
+            // Helper function for toast notifications
             function showToast(type, message) {
-                // Implement your toast notification here
-                // Example using Bootstrap toasts:
                 const toast = $(`
                     <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
                         <div class="d-flex">
@@ -810,104 +1097,5 @@
                 });
             }
         });
-
-        // Add this to your existing JavaScript
-        $(document).on('click', '#sendExpiryReminder', function() {
-            // Show expiration confirmation modal
-            var expiryModal = new bootstrap.Modal(document.getElementById('expiryConfirmationModal'));
-            
-            // Get count of students with expiring documents
-            $.get('/EmailSender/GetExpiringDocumentCount', function(count) {
-                if (count === 0) {
-                    showToast('info', 'No students with expiring documents found');
-                    return;
-                }
-                
-                $('#expiryCountText').text(`Found ${count} students with expiring documents.`);
-                expiryModal.show();
-            }).fail(function() {
-                showToast('error', 'Failed to get expiring document count');
-            });
-        });
-
-        // Confirm expiry send button
-        $('#confirmExpirySend').click(function() {
-            var expiryModal = bootstrap.Modal.getInstance(document.getElementById('expiryConfirmationModal'));
-            expiryModal.hide();
-            
-            // Show loading modal
-            var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-            loadingModal.show();
-            
-            // Start sending expiry emails
-            sendExpiryEmailsInBatches(loadingModal);
-        });
-
-        function sendExpiryEmailsInBatches(modal) {
-            let totalCount = 0;
-            let emailsSent = 0;
-            let failedEmails = 0;
-            const batchSize = 5;
-            
-            function updateProgress() {
-                const totalProcessed = emailsSent + failedEmails;
-                const progress = Math.floor(totalProcessed / totalCount * 100);
-                
-                $('#emailProgressBar').css('width', progress + '%');
-                $('#countText').text(`${totalProcessed}/${totalCount} emails processed`);
-                $('#progressText').text(`Sending expiration reminders...`);
-                
-                if (failedEmails > 0) {
-                    $('#failedText').text(`${failedEmails} failed`).removeClass('d-none');
-                }
-                
-                if (totalProcessed >= totalCount) {
-                    $('#emailProgressBar').removeClass('progress-bar-animated')
-                                        .addClass(failedEmails > 0 ? 'bg-warning' : 'bg-success');
-                    $('#progressText').html(
-                        `Completed!<br>${emailsSent} expiration reminders sent, ${failedEmails} failed`
-                    );
-                    
-                    setTimeout(() => {
-                        modal.hide();
-                        window.location.reload();
-                    }, 2000);
-                }
-            }
-            
-            function sendNextBatch() {
-                $.ajax({
-                    url: '/EmailSender/SendExpiryReminderBatch',
-                    type: 'POST',
-                    data: { batchSize: batchSize },
-                    success: function(response) {
-                        emailsSent += response.sentCount;
-                        failedEmails += response.failedCount;
-                        
-                        updateProgress();
-                        
-                        if (emailsSent + failedEmails < totalCount) {
-                            setTimeout(sendNextBatch, 500);
-                        }
-                    },
-                    error: function() {
-                        modal.hide();
-                        showToast('error', 'Error sending batch of expiration reminders');
-                    }
-                });
-            }
-            
-            // Get total count first
-            $.get('/EmailSender/GetExpiringDocumentCount', function(count) {
-                totalCount = count;
-                $('#countText').text(`0/${totalCount} emails processed`);
-                
-                // Start first batch
-                sendNextBatch();
-            }).fail(function() {
-                modal.hide();
-                showToast('error', 'Failed to get expiring document count');
-            });
-        }
     </script>
 }
