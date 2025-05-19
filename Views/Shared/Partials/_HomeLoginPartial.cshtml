@@ -1,0 +1,209 @@
+@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<Users> signInManager;
+@inject UserManager<Users> userManager;
+
+@{
+	var user = await userManager.GetUserAsync(User);
+	var name = user?.FullName ?? user?.UserName ?? "Guest";
+
+	var roles = user != null ? await userManager.GetRolesAsync(user) : new List<string>();
+	var role = roles.Any() ? string.Join(", ", roles) : "No Role Assigned";
+
+	var isSuperAdmin = roles.Contains("SuperAdmin");
+	var isAdmin = roles.Contains("Admin");
+	var isMedicalStaff = roles.Contains("MedicalStaff");
+	var isStudent = roles.Contains("Student");
+
+	var userRole = "Student";
+	if (isSuperAdmin)
+	{
+		userRole = "SuperAdmin";
+	}
+	else if (isAdmin)
+	{
+		userRole = "Admin";
+	}
+	else if (isMedicalStaff)
+	{
+		userRole = "MedicalStaff";
+	}
+	else if (isStudent)
+	{
+		userRole = "Student";
+	}
+}
+
+@if (signInManager.IsSignedIn(User))
+{
+	var userProfilePicture = User.FindFirst("ProfilePictureUrl")?.Value ?? "/default-profile.png";
+
+	<!-- Notification and Profile Dropdown Container -->
+	<div class="d-flex align-items-center gap-2">
+
+		<!-- Profile Dropdown -->
+		<div class="dropdown">
+			<a class="d-flex align-items-center gap-2 text-white text-decoration-none dropdown-toggle bg-primary p-2 rounded"
+				href="#" role="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+				style="height: 40px;">
+				@if (!isSuperAdmin)
+				{
+					<img src="@userProfilePicture" alt="Profile" class="rounded-circle"
+						style="height:40px;width:40px;" alt="Profile Picture">
+				}
+				else
+				{
+					<i class="fas fa-user-shield text-white rounded-circle bg-dark d-flex align-items-center justify-content-center"
+						style="height:40px; width:40px; font-size: 20px;"></i>
+				}
+			</a>
+			<ul class="dropdown-menu dropdown-menu-end bg-primary border-0 shadow rounded-3 p-2"
+				aria-labelledby="profileDropdown" style="min-width: 220px;">
+				<!-- 🏠 Dashboard Button -->
+				<li>
+					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" asp-controller="Dashboard"
+						asp-action="Index">
+						<i class="fas fa-tachometer-alt"></i> Dashboard
+					</a>
+				</li>
+				<li>
+					<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2" asp-controller="Home" asp-action="Privacy" aria-label="Privacy Notice">
+						<i class="fas fa-user-shield"></i> Privacy Notice
+					</a>
+				</li>
+				@if (isSuperAdmin)
+				{
+					<li>
+						<hr class="dropdown-divider bg-white opacity-50">
+					</li>
+					<li>
+						<span class="dropdown-header text-uppercase text-warning small">Super Admin</span>
+					</li>
+
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="UsersManagement" asp-action="Index">
+							<i class="fas fa-users-cog"></i> User Management
+						</a>
+					</li>
+					<!-- Add Send Notification Link -->
+
+				}
+				@if (isSuperAdmin || isAdmin || isMedicalStaff)
+				{
+					<li>
+						<hr class="dropdown-divider bg-white opacity-50">
+					</li>
+					<li>
+						<span class="dropdown-header text-uppercase text-warning small">Medical Staff/Admin</span>
+					</li>
+
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="UserHealthManagement" asp-action="Index">
+							<i class="fas fa-notes-medical"></i> Student Health Management
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="SubmittedHealthDetails" asp-action="Index">
+							<i class="fas fa-list"></i> View Submitted Records
+						</a>
+					</li>
+					<!-- Add Room Appointment Management Link -->
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="RoomAppointment" asp-action="Index">
+							<i class="fas fa-calendar-check"></i> Room Appointment Management
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="SendNotification" asp-action="Index">
+							<i class="fas fa-bell"></i> Send Notification
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="EmailSender" asp-action="Index">
+							<i class="fas fa-envelope"></i> Email Sender
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="PersonalAppointment" asp-action="Index">
+							<i class="fas fa-calendar-alt"></i> Personal Appointments
+						</a>
+					</li>
+					 <li>
+						<a class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2"
+							asp-controller="Analytics" asp-action="Index">
+							<i class="fas fa-chart-line"></i> Health Analytics
+						</a>
+					</li>
+				}	
+
+				<li>
+					<hr class="dropdown-divider bg-white opacity-50">
+				</li>
+
+				<!-- 🚪 Logout -->
+				<li>
+					<form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
+						<button type="submit" class="dropdown-item text-white d-flex align-items-center gap-2 rounded-2">
+							<i class="fas fa-sign-out-alt"></i> Logout
+						</button>
+					</form>
+				</li>
+			</ul>
+		</div>
+	</div>
+}
+else
+{
+	<a class="nav-link text-white" asp-controller="Account" asp-action="Login">
+		<i class="fas fa-sign-in-alt"></i> Login
+	</a>
+}
+
+<script>
+    // Load unread message count when page loads
+    $(document).ready(function() {
+        loadUnreadMessageCount();
+        
+        // Set up SignalR connection for real-time updates
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        connection.on("ReceivePrivateMessage", () => {
+            // When a new message is received, update the count
+            loadUnreadMessageCount();
+        });
+
+        connection.on("MessagesRead", () => {
+            // When messages are read, update the count
+            loadUnreadMessageCount();
+        });
+
+        connection.start().catch(err => console.error(err));
+    });
+
+    function loadUnreadMessageCount() {
+        $.get('/Chat/GetUnreadCount', function(data) {
+            const count = data.count;
+            const badge = $('#unreadMessageCount');
+            
+            if (count > 0) {
+                badge.text(count).show();
+            } else {
+                badge.hide();
+            }
+        });
+    }
+
+    // When chat modal is closed, update the unread count
+    $('#chatModal').on('hidden.bs.modal', function() {
+        loadUnreadMessageCount();
+    });
+</script>

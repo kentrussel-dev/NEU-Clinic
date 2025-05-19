@@ -1,193 +1,250 @@
-#sidebar-wrapper {
-    width: 300px;
-    transition: width 0.3s ease;
-    overflow: hidden;
-    min-height: 100vh;
+:root {
+    --primary-color: var(--bs-primary);
+    --primary-light: #e6f2ff;
+    --secondary-color: #f8f9fa;
+    --text-dark: #343a40;
 }
 
+/* Utility Classes */
+.bg-primary-soft {
+    background-color: var(--primary-light);
+}
+
+.section-title {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Dashboard Components */
+.dashboard-container, 
+.stats-box {
+    background-color: #fff;
+    border-radius: 1rem !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 1.5px solid var(--bs-primary, #d27510);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.dashboard-container:hover, 
+.stats-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+/* Progress Bar */
+.progress-bar-primary {
+    background-color: var(--primary-color);
+}
+
+/* Buttons */
+.action-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: all 0.3s;
+    border: none;
+    margin-bottom: 10px;
+    text-align: left;
+    display: block;
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    background-color: var(--bs-secondary);  
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    color: white;
+    text-decoration: none;
+}
+
+/* Charts */
+.chart-container {
+    height: 250px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+/* Tables */
+.appointment-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.appointment-table th {
+    background-color: var(--primary-light);
+    color: var(--text-dark);
+    text-align: left;
+    padding: 12px;
+}
+
+.appointment-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.appointment-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Activity Items */
+.activity-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+/* Status Badges */
+.badge-approved { background-color: #28a745; color: white; }
+.badge-pending { background-color: #ffc107; color: #212529; }
+.badge-rejected { background-color: #dc3545; color: white; }
+.badge-upcoming { background-color: var(--primary-color); color: white; }
+.badge-completed { background-color: #6c757d; color: white; }
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Sidebar Styles */
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: 300px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+#page-content-wrapper {
+    min-height: 100vh;
+    width: calc(100% - 300px);
+    transition: all 0.3s ease;
+}
+
+.sidebar-header {
+    transition: all 0.3s ease;
+}
+
+.list-group-item {
+    transition: all 0.3s ease;
+    border: none !important;
+}
+
+.list-group-item i {
+    transition: all 0.3s ease;
+}
+
+.list-group-item.active {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.list-group-item:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+/* Toggled State */
 #wrapper.toggled #sidebar-wrapper {
     width: 80px;
 }
 
-/* Hide text when toggled */
 #wrapper.toggled .sidebar-text {
-    display: none;
+    display: none !important;
 }
 
-/* Page content width adjustment */
-#page-content-wrapper {
-    width: calc(100% - 320px);
-    transition: width 0.3s ease;
-    min-height: 100vh;
+#wrapper.toggled .sidebar-header h4 {
+    display: none !important;
+}
+
+#wrapper.toggled .sidebar-header {
+    justify-content: center !important;
+    padding: 1rem 0.5rem !important;
 }
 
 #wrapper.toggled #page-content-wrapper {
-    width: calc(100% - 80px);
+    width: calc(100% - 80px) !important;
 }
 
-/* Align icons and text consistently */
-.list-group-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-}
-
-.list-group-item i {
-    width: 30px;
-    font-size: 20px;
-    text-align: center;
-}
-
-/* Adjust text position consistently */
-.sidebar-text {
-    margin-left: 10px;
-}
-
-/* Center icons horizontally in collapsed state */
 #wrapper.toggled .list-group-item {
-    justify-content: center;
-    padding: 12px 0;
+    justify-content: center !important;
+    padding: 1rem 0 !important;
 }
 
 #wrapper.toggled .list-group-item i {
-    margin: 0 auto;
+    margin: 0 !important;
+    font-size: 1.25rem !important;
 }
 
-/* Center the hamburger button horizontally */
-.sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-#wrapper.toggled .toggle-btn {
-    margin: 0 auto;
-}
-
-/* Sidebar full height */
-#page-content-wrapper,
-#sidebar-wrapper {
-    min-height: 100vh;
-}
-
-/* Smooth hover effect */
-.list-group-item:hover {
-    background-color: #d4d4d4 !important;
-}
-
-/* Active tab styling */
-.list-group-item.active {
-    background-color: #ffffff !important;
-    color: rgb(0, 0, 0) !important;
-}
-
-.list-group-item.active:hover {
-    background-color: #ffffff !important;
-    color: rgb(0, 0, 0) !important;
-}
-
-/* Welcome Card Styling */
-.welcome-card {
-    background: var(--bs-primary);
-    border: none;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
-}
-
-.welcome-card:hover {
-    transform: translateY(-5px);
-}
-
-.welcome-card .card-title {
-    font-size: 1.5rem;
-}
-
-.welcome-card .card-text {
-    font-size: 1.25rem;
-    font-weight: 300;
-}
-
-.welcome-card .fa-user-circle {
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
-}
-
-.welcome-card:hover .fa-user-circle {
-    opacity: 1;
-}
-
-.card {
-    border-radius: 1rem !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.card-header {
-    border-top-left-radius: 1rem !important;
-    border-top-right-radius: 1rem !important;
-    font-weight: bold;
-}
-
-.card-body {
-    padding: 1.5rem;
-}
-
-/* Media query for screens less than 1000px */
-@media (max-width: 1000px) {
-    /* Shrink the sidebar */
+/* Responsive Styles */
+@media (max-width: 992px) {
     #sidebar-wrapper {
-        width: 60px !important;
+        width: 80px;
     }
-
-    /* Hide the sidebar text */
+    
     .sidebar-text {
         display: none !important;
     }
-
-    /* Hide the sidebar header text */
+    
     .sidebar-header h4 {
         display: none !important;
     }
-
-    /* Center the toggle button */
+    
     .sidebar-header {
-        justify-content: center;
+        justify-content: center !important;
+        padding: 1rem 0.5rem !important;
     }
-
-    /* Prevent the sidebar from expanding */
-    #wrapper.toggled #sidebar-wrapper {
-        width: 60px !important;
-    }
-
-    /* Adjust page content width */
+    
     #page-content-wrapper {
-        width: calc(100% - 60px) !important;
+        width: calc(100% - 80px) !important;
     }
-
-    /* Center icons in the sidebar */
+    
     .list-group-item {
-        justify-content: center;
-        padding: 12px 0;
+        justify-content: center !important;
+        padding: 1rem 0 !important;
     }
-
+    
     .list-group-item i {
-        margin: 0 auto;
+        margin: 0 !important;
+        font-size: 1.25rem !important;
     }
-}
-
-/* Media query for screens less than 800px */
-@media (max-width: 800px) {
-    .sidebar-header {
-        flex-direction: column;
-        text-align: center;
+    
+    #wrapper.toggled #sidebar-wrapper {
+        width: 300px !important;
     }
-
-    .sidebar-header h4 {
-        margin-bottom: 10px;
+    
+    #wrapper.toggled .sidebar-text {
+        display: inline-block !important;
+    }
+    
+    #wrapper.toggled .sidebar-header h4 {
+        display: block !important;
+    }
+    
+    #wrapper.toggled .sidebar-header {
+        justify-content: space-between !important;
+        padding: 1rem !important;
+    }
+    
+    #wrapper.toggled #page-content-wrapper {
+        width: calc(100% - 300px) !important;
+    }
+    
+    #wrapper.toggled .list-group-item {
+        justify-content: flex-start !important;
+        padding: 0.75rem 1.25rem !important;
+    }
+    
+    #wrapper.toggled .list-group-item i {
+        margin-right: 0.5rem !important;
+        font-size: 1rem !important;
     }
 }

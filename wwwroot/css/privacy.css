@@ -17,7 +17,7 @@
 }
 
 .nav-tabs .nav-link.active {
-    background-color: var(--bs-primary) !important;
+    background-color: white !important;
     color: #fff;
     border-color: var(--bs-primary) !important;
 }
@@ -104,7 +104,7 @@
 }
 
 .tab-content a {
-    color: var(--bs-primary);
+    color: white;
     text-decoration: none;
     transition: color 0.3s ease;
 }

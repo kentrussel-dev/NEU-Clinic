@@ -36,20 +36,14 @@ namespace WebApp.Controllers
             ViewBag.ActiveTab = activeTab;
 
             // Fetch data based on the active tab
-            if (isStudent && activeTab == "appointments")
-            {
-                // Fetch available appointments (where the user limit has not been reached)
-                var availableAppointments = await _context.RoomAppointments
-                    .Include(ra => ra.RoomAppointmentUsers)
-                    .Where(ra => ra.RoomAppointmentUsers.Count < ra.UserLimit)
-                    .ToListAsync();
+            // Fetch available appointments (where the user limit has not been reached)
+            var availableAppointments = await _context.RoomAppointments
+                .Include(ra => ra.RoomAppointmentUsers)
+                .Where(ra => ra.RoomAppointmentUsers.Count < ra.UserLimit)
+                .ToListAsync();
 
-                // Pass the list of available appointments to the view
-                return View(availableAppointments);
-            }
-
-            // Default view for other tabs
-            return View();
+            // Pass the list of available appointments to the view
+            return View(availableAppointments);
         }
     }
 }

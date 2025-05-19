@@ -61,32 +61,8 @@
     var avgCompletionRate = requirementStats.Values.Any() ? requirementStats.Values.Average(x => x.Total > 0 ? (double)x.Completed / x.Total * 100 : 0) : 0;
 }
 
-<link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-
-<style>
-    :root {
-        --primary-color: var(--bs-primary);
-        --primary-light: #e6f2ff;
-        --secondary-color: #f8f9fa;
-        --text-dark: #343a40;
-    }
-    .bg-primary-soft { background-color: var(--primary-light); }
-    .section-title { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
-    .dashboard-container { background-color: #fff; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px; }
-    .stats-box { padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.2s; background-color: white; }
-    .stats-box:hover { transform: translateY(-3px); }
-    .progress-bar-primary { background-color: var(--primary-color); }
-    .action-btn { background-color: var(--primary-color); color: white; padding: 10px 15px; border-radius: 5px; transition: all 0.3s; border: none; margin-bottom: 10px; text-align: left; display: block; text-decoration: none; }
-    .action-btn:hover { background-color: var(--bs-secondary); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: white; text-decoration: none; }
-    .chart-container { height: 250px; position: relative; margin-bottom: 20px; }
-    .activity-item { padding: 10px 0; border-bottom: 1px solid #eee; }
-    .activity-item:last-child { border-bottom: none; }
-    .badge-admin { background-color: #007bff; color: white; }
-    .badge-student { background-color: #28a745; color: white; }
-    .badge-pending { background-color: #ffc107; color: #212529; }
-    .status-badge { padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-</style>
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
 
 <div class="container-fluid py-4">
     <div class="row">
@@ -96,7 +72,6 @@
             <div class="dashboard-container">
                 <h4 class="section-title">
                     <i class="fas fa-chart-line me-2"></i>Admin Dashboard
-                    <span class="float-end fs-6 text-muted">Updated: @DateTime.Now.ToString("MMM dd, h:mm tt")</span>
                 </h4>
                 <div class="row mb-4">
                     <div class="col-md-3">

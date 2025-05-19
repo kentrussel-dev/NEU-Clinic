@@ -44,9 +44,11 @@
     var activeTab = ViewBag.ActiveTab ?? "home";
 }
 
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+
 <div class="d-flex" id="wrapper">
     <div class="bg-dark border-end" id="sidebar-wrapper">
-        <div class="bg-primary text-white p-3 sidebar-header d-flex flex-column flex-sm-row align-items-center">
+        <div class="bg-primary text-white p-3 sidebar-header d-flex flex-row align-items-center justify-content-between">
             <h4 class="m-0 sidebar-text text-nowrap">
                 <i class="fas fa-heartbeat me-2"></i>Dashboard
             </h4>
@@ -57,27 +59,27 @@
         </div>
 
         <div class="list-group list-group-flush mt-3 sidebar-content">
-            <a href="@Url.Action("Index", "Dashboard", new { activeTab = "home" })"
+            <a href="/?activeTab=home" 
                 class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "home" ? "active" : "")"
                 data-tab="home">
                 <i class="fas fa-home"></i><span class="sidebar-text ms-2">Home</span>
             </a>
             @if (!isSuperAdmin)
             {
-                <a href="@Url.Action("Index", "Dashboard", new { activeTab = "profile" })"
+                <a href="/?activeTab=profile"
                     class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "profile" ? "active" : "")"
                     data-tab="profile">
                     <i class="fas fa-user"></i><span class="sidebar-text ms-2">Profile</span>
                 </a>
             }
-            <a href="@Url.Action("Index", "Dashboard", new { activeTab = "qrscanner" })"
+            <a href="/?activeTab=qrscanner"
                 class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "qrscanner" ? "active" : "")"
                 data-tab="qrscanner">
                 <i class="fas fa-qrcode"></i><span class="sidebar-text ms-2">QR Scanner</span>
             </a>
             @if (isStudent)
             {
-                <a href="@Url.Action("Index", "Dashboard", new { activeTab = "healthrecords" })"
+                <a href="/?activeTab=healthrecords"
                     class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "healthrecords" ? "active" : "")"
                     data-tab="healthrecords">
                     <i class="fas fa-file-medical"></i><span class="sidebar-text ms-2">Submit Health Records</span>
@@ -85,12 +87,12 @@
             }
             @if (isStudent)
             {
-                <a href="@Url.Action("Index", "Dashboard", new { activeTab = "appointments" })"
+                <a href="/?activeTab=appointments"
                     class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "appointments" ? "active" : "")"
                     data-tab="appointments">
                     <i class="fas fa-calendar-alt"></i><span class="sidebar-text ms-2">Available Appointments</span>
                 </a>
-                <a href="@Url.Action("Index", "Dashboard", new { activeTab = "personalappointments" })"
+                <a href="/?activeTab=personalappointments"
                     class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "personalappointments" ? "active" : "")"
                     data-tab="personalappointments">
                     <i class="fas fa-calendar-check"></i><span class="sidebar-text ms-2">Personal Appointments</span>
@@ -104,104 +106,51 @@
             <!-- Home Content -->
             <div id="home-content" class="tab-content @(activeTab == "home" ? "active" : "")"
                 style="display: @(activeTab == "home" ? "block" : "none");">
-                <!-- Redesigned Welcome Section (matches partials style) -->
-                <style>
-                    /* Use the unified card style for the welcome card */
-                    .welcome-card {
-                        background: #fff;
-                        border-radius: 1rem !important;
-                        border: 1.5px solid var(--bs-primary, #d27510);
-                        margin-bottom: 32px;
-                        padding: 0;
-                        transition: transform 0.2s;
-                    }
-                    .welcome-card:hover {
-                        transform: translateY(-5px);
-                    }
-                    .welcome-card .section-title {
-                        color: var(--bs-primary);
-                        border-bottom: 2px solid var(--bs-primary);
-                        padding-bottom: 0.5rem;
-                        margin-bottom: 1.5rem;
-                        font-size: 1.5rem;
-                        font-weight: 600;
-                    }
-                    .welcome-card .card-title {
-                        font-size: 2.2rem;
-                        font-weight: bold;
-                        letter-spacing: -1px;
-                        color: var(--bs-primary);
-                    }
-                    .welcome-card .lead {
-                        font-size: 1.15rem;
-                        font-weight: 500;
-                        color: #343a40;
-                    }
-                    .welcome-card .badge {
-                        font-size: 1rem;
-                        padding: 0.6em 1.2em;
-                        border-radius: 6px;
-                    }
-                    .welcome-card .text-muted {
-                        color: #6c757d !important;
-                    }
-                    .welcome-card img {
-                        max-width: 160px;
-                        border-radius: 10px;
-                        background: #fff;
-                        padding: 8px;
-                    }
-                </style>
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <div class="card welcome-card border-0">
-                            <div class="card-body p-4">
-                                <div class="section-title d-flex align-items-center mb-4">
-                                    <i class="fas fa-heartbeat me-2"></i>
-                                    <span>Welcome</span>
-                                    <span class="ms-auto fs-6 text-muted">Updated: @DateTime.Now.ToString("MMM dd, h:mm tt")</span>
-                                </div>
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <h1 class="card-title mb-2">
-                                            Welcome back, <span class="fw-bold">@name</span>!
-                                        </h1>
-                                        <p class="lead mb-3">
-                                            <i class="fas fa-user-circle me-2"></i>
-                                            <span class="fw-semibold">Role:</span>
-                                            <span class="badge bg-primary text-white ms-2">
-                                                @{
-                                                    if (isStudent)
-                                                    {
-                                                        <text><i class="fas fa-user-graduate me-1"></i> Student</text>
-                                                    }
-                                                    else if (isSuperAdmin)
-                                                    {
-                                                        <text><i class="fas fa-user-shield me-1"></i> Super Admin</text>
-                                                    }
-                                                    else if (isAdmin)
-                                                    {
-                                                        <text><i class="fas fa-user-tie me-1"></i> Admin</text>
-                                                    }
-                                                    else if (isMedicalStaff)
-                                                    {
-                                                        <text><i class="fas fa-user-md me-1"></i> Medical Staff</text>
-                                                    }
-                                                    else
-                                                    {
-                                                        @role
-                                                    }
-                                                }
-                                            </span>
-                                        </p>
-                                        <div class="mt-4">
-                                            <span class="text-muted">
-                                                <i class="fas fa-info-circle me-1"></i>
-                                                Use the sidebar to navigate your dashboard features.
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
+                <!-- Redesigned Welcome Section (matches dashboard style) -->
+                <div class="dashboard-container">
+                    <div class="section-title d-flex align-items-center">
+                        <i class="fas fa-heartbeat me-2"></i>
+                        <span>Welcome</span>
+                    </div>
+                    
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="mb-3">
+                                <span class="text-primary">@name</span>
+                            </h1>
+                            
+                            <div class="d-flex align-items-center mb-4">
+                                <i class="fas fa-user-circle me-2 fs-5"></i>
+                                <span class="fw-semibold me-2">Role:</span>
+                                <span class="badge bg-primary text-white ms-2">
+                                @{
+                                    if (isStudent)
+                                    {
+                                        <text><i class="fas fa-user-graduate me-1"></i> Student</text>
+                                    }
+                                    else if (isSuperAdmin)
+                                    {
+                                        <text><i class="fas fa-user-shield me-1"></i> Super Admin</text>
+                                    }
+                                    else if (isAdmin)
+                                    {
+                                        <text><i class="fas fa-user-tie me-1"></i> Admin</text>
+                                    }
+                                    else if (isMedicalStaff)
+                                    {
+                                        <text><i class="fas fa-user-md me-1"></i> Medical Staff</text>
+                                    }
+                                    else
+                                    {
+                                        @role
+                                    }
+                                }
+                                </span>
+                            </div>
+                            
+                            <div class="alert bg-primary-soft">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Use the sidebar to navigate your dashboard features.
                             </div>
                         </div>
                     </div>
@@ -265,11 +214,25 @@
 </div>
 
 <script>
-    document.getElementById("menu-toggle").addEventListener("click", function () {
+    // Toggle sidebar
+    document.getElementById("menu-toggle").addEventListener("click", function (e) {
+        e.preventDefault();
         document.getElementById("wrapper").classList.toggle("toggled");
+        
+        // Store sidebar state in localStorage
+        const isToggled = document.getElementById("wrapper").classList.contains("toggled");
+        localStorage.setItem('sidebarToggled', isToggled);
     });
 
-    // Activate the correct tab based on the activeTab value
+    // Initialize sidebar state
+    document.addEventListener("DOMContentLoaded", function() {
+        const isToggled = localStorage.getItem('sidebarToggled') === 'true';
+        if (isToggled) {
+            document.getElementById("wrapper").classList.add("toggled");
+        }
+    });
+
+    // Tab handling code
     const activeTab = "@activeTab";
     const activeTabItem = document.querySelector(`.list-group-item[data-tab="${activeTab}"]`);
     if (activeTabItem) {
@@ -277,22 +240,23 @@
         document.getElementById(`${activeTab}-content`).style.display = 'block';
     }
 
-    // Handle tab clicks
     document.querySelectorAll('.list-group-item').forEach(item => {
         item.addEventListener('click', function (e) {
             e.preventDefault();
             const tab = this.getAttribute('data-tab');
-
-            // Hide all tab contents
+            
+            // Update active tab UI
+            document.querySelectorAll('.list-group-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show/hide content
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.style.display = 'none';
             });
-
-            // Show the selected tab content
             document.getElementById(`${tab}-content`).style.display = 'block';
-
-            // Update the URL with the active tab
-            window.location.href = `@Url.Action("Index", "Dashboard")?activeTab=${tab}`;
+            
+            // Update URL
+            window.history.pushState({}, '', `/?activeTab=${tab}`);
         });
     });
 </script>
