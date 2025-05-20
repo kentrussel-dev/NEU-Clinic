@@ -136,6 +136,9 @@
 .list-group-item {
     transition: all 0.3s ease;
     border: none !important;
+    padding: 0.75rem 1.25rem;
+    text-align: center;
+    margin-right: 10px;
 }
 
 .list-group-item i {
@@ -150,6 +153,11 @@
 .list-group-item:hover:not(.active) {
     background-color: rgba(255, 255, 255, 0.1) !important;
     color: white !important;
+}
+
+.sidebar-text {
+    display: inline-block;
+    vertical-align: middle;
 }
 
 /* Toggled State */

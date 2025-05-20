@@ -1,27 +1,24 @@
 @model List<WebApp.Models.Users>
 @using Microsoft.AspNetCore.Identity
-@using Microsoft.EntityFrameworkCore;
+@using Microsoft.EntityFrameworkCore
 @using WebApp.Models
 @inject UserManager<Users> UserManager
 @inject SignInManager<Users> SignInManager
-
 
 <link rel="stylesheet" href="~/css/superadmin.css" asp-append-version="true" />
 
 @{
     // Fetch all users with their PersonalDetails
     var allUsers = await UserManager.Users
-    .Include(u => u.PersonalDetails)
-    .ToListAsync();
+        .Include(u => u.PersonalDetails)
+        .ToListAsync();
 
-    ViewData["Title"] = "User Management";
     var userRoles = ViewBag.UserRoles as Dictionary<string, List<string>>;
     var roles = ViewBag.Roles as List<IdentityRole>;
-    Layout = "~/Views/Shared/Layouts/_DashboardLayout.cshtml";
+    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
 
     // Filter out the SuperAdmin role
     var filteredRoles = roles.Where(r => r.Name != "SuperAdmin").ToList();
-    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
 }
 
 <div class="container mt-4 mb-4">
@@ -152,71 +149,69 @@
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        // Function to toggle edit mode
-        function toggleEdit(userId) {
-            const row = document.getElementById(`user-${userId}`);
-            const roleSelect = row.querySelector('.role-select');
-            const editBtn = row.querySelector('.edit-btn');
-            const updateBtn = row.querySelector('.update-btn');
+<script>
+    // Function to toggle edit mode
+    function toggleEdit(userId) {
+        const row = document.getElementById(`user-${userId}`);
+        const roleSelect = row.querySelector('.role-select');
+        const editBtn = row.querySelector('.edit-btn');
+        const updateBtn = row.querySelector('.update-btn');
 
-            roleSelect.disabled = !roleSelect.disabled;
-            editBtn.style.display = roleSelect.disabled ? 'inline-block' : 'none';
-            updateBtn.style.display = roleSelect.disabled ? 'none' : 'inline-block';
-        }
+        roleSelect.disabled = !roleSelect.disabled;
+        editBtn.style.display = roleSelect.disabled ? 'inline-block' : 'none';
+        updateBtn.style.display = roleSelect.disabled ? 'none' : 'inline-block';
+    }
 
-        // Function to handle search
-        document.getElementById('searchInput').addEventListener('keyup', function () {
-            let search = this.value.toLowerCase();
-            let rows = document.querySelectorAll('#userTable tbody tr');
-            rows.forEach(row => {
-                let name = row.cells[1].textContent.toLowerCase(); // Search by name (2nd column)
-                let email = row.cells[2].textContent.toLowerCase(); // Search by email (3rd column)
-                let student_id = row.cells[3].textContent.toLowerCase(); // Search by email (4th column)
-                row.style.display = (name.includes(search) || email.includes(search) || student_id.includes(search)) ? '' : 'none';
-            });
+    // Function to handle search
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        let search = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#userTable tbody tr');
+        rows.forEach(row => {
+            let name = row.cells[1].textContent.toLowerCase(); // Search by name (2nd column)
+            let email = row.cells[2].textContent.toLowerCase(); // Search by email (3rd column)
+            let student_id = row.cells[3].textContent.toLowerCase(); // Search by email (4th column)
+            row.style.display = (name.includes(search) || email.includes(search) || student_id.includes(search)) ? '' : 'none';
         });
+    });
 
-        // Function to confirm delete action
-        function confirmDelete(userId) {
-            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-            document.getElementById('confirmAction').onclick = function () {
-                fetch(`/UsersManagement/DeleteUser?userId=${userId}`, {
-                    method: 'POST',
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.reload(); // Reload the page after deletion
-                    } else {
-                        alert('Failed to delete user');
-                    }
-                });
-                modal.hide();
-            };
-            modal.show();
-        }
-
-        // Function to confirm update action
-        function confirmUpdate(userId) {
-            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-            document.getElementById('confirmAction').onclick = function () {
-                document.getElementById(`updateForm-${userId}`).submit(); // Submit the update form
-                modal.hide();
-            };
-            modal.show();
-        }
-
-        // Sorting functionality
-        function sortTable(columnIndex, ascending) {
-            let rows = Array.from(document.querySelectorAll('#userTable tbody tr'));
-            rows.sort((a, b) => {
-                let aValue = a.cells[columnIndex].textContent.toLowerCase();
-                let bValue = b.cells[columnIndex].textContent.toLowerCase();
-                return ascending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+    // Function to confirm delete action
+    function confirmDelete(userId) {
+        const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+        document.getElementById('confirmAction').onclick = function () {
+            fetch(`/UsersManagement/DeleteUser?userId=${userId}`, {
+                method: 'POST',
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload(); // Reload the page after deletion
+                } else {
+                    alert('Failed to delete user');
+                }
             });
-            let tbody = document.querySelector('#userTable tbody');
-            tbody.innerHTML = '';
-            rows.forEach(row => tbody.appendChild(row));
-        }
-    </script>
-}
+            modal.hide();
+        };
+        modal.show();
+    }
+
+    // Function to confirm update action
+    function confirmUpdate(userId) {
+        const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+        document.getElementById('confirmAction').onclick = function () {
+            document.getElementById(`updateForm-${userId}`).submit(); // Submit the update form
+            modal.hide();
+        };
+        modal.show();
+    }
+
+    // Sorting functionality
+    function sortTable(columnIndex, ascending) {
+        let rows = Array.from(document.querySelectorAll('#userTable tbody tr'));
+        rows.sort((a, b) => {
+            let aValue = a.cells[columnIndex].textContent.toLowerCase();
+            let bValue = b.cells[columnIndex].textContent.toLowerCase();
+            return ascending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+        });
+        let tbody = document.querySelector('#userTable tbody');
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+    }
+</script>

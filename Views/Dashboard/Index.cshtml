@@ -3,7 +3,7 @@
 @inject SignInManager<Users> signInManager
 @inject UserManager<Users> userManager
 
-@model List<WebApp.Models.RoomAppointment>
+@model WebApp.Models.ViewModels.DashboardViewModel
 
 @{
     ViewData["Title"] = "NEU Care | Dashboard";
@@ -96,6 +96,15 @@
                     class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "personalappointments" ? "active" : "")"
                     data-tab="personalappointments">
                     <i class="fas fa-calendar-check"></i><span class="sidebar-text ms-2">Personal Appointments</span>
+                </a>
+            }
+            <!-- Add this to the sidebar navigation -->
+            @if (isSuperAdmin)
+            {
+                <a href="#" data-tab="usermanagement" 
+                    class="list-group-item list-group-item-action bg-dark text-white d-flex align-items-center @(activeTab == "usermanagement" ? "active" : "")"
+                    onclick="loadTabContent('usermanagement')">
+                    <i class="fas fa-users-cog"></i><span class="sidebar-text ms-2"> User Management</span>
                 </a>
             }
         </div>
@@ -202,11 +211,33 @@
             {
                 <div id="appointments-content" class="tab-content @(activeTab == "appointments" ? "active" : "")"
                     style="display: @(activeTab == "appointments" ? "block" : "none");">
-                    @await Html.PartialAsync("AvailableAppointments/_AvailableAppointmentsPartial", Model)
+                    @await Html.PartialAsync("AvailableAppointments/_AvailableAppointmentsPartial", Model.RoomAppointments)
                 </div>
                 <div id="personalappointments-content" class="tab-content @(activeTab == "personalappointments" ? "active" : "")"
                     style="display: @(activeTab == "personalappointments" ? "block" : "none");">
                     @await Html.PartialAsync("PersonalAppointment/_PersonalAppointmentPartial")
+                </div>
+            }
+            @if (isSuperAdmin)
+            {
+                <!-- Tab content container (empty by default) -->
+                <div id="usermanagement-content" class="tab-content" 
+                    style="display: @(activeTab == "usermanagement" ? "block" : "none");">
+                    @if (activeTab == "usermanagement")
+                    {
+                        <!-- Initial load if directly navigating to this tab -->
+                        @await Html.PartialAsync("Admin/_UsersManagementPartial", Model.Users)
+                    }
+                    else
+                    {
+                        <!-- Loading placeholder for AJAX loading -->
+                        <div class="text-center p-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Loading user data...</p>
+                        </div>
+                    }
                 </div>
             }
         </div>
@@ -259,4 +290,45 @@
             window.history.pushState({}, '', `/?activeTab=${tab}`);
         });
     });
+    function loadTabContent(tabName) {
+        if (tabName === 'usermanagement') {
+            const container = document.getElementById('usermanagement-content');
+            
+            // Show loading indicator
+            container.innerHTML = `
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading user data...</p>
+                </div>
+            `;
+            
+            // Load via AJAX
+            fetch('/Dashboard/LoadUserManagementData')
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                    // Update URL without reload
+                    history.pushState({}, '', '/Dashboard/Index?activeTab=usermanagement');
+                })
+                .catch(error => {
+                    container.innerHTML = `
+                        <div class="alert alert-danger">
+                            Failed to load user data: ${error.message}
+                        </div>
+                    `;
+                });
+        }
+        // ... handle other tabs if needed ...
+    }
+
+    // Call this when page loads if we're on the user management tab
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeTab = new URLSearchParams(window.location.search).get('activeTab');
+        if (activeTab === 'usermanagement') {
+            loadTabContent('usermanagement');
+        }
+    });
+    
 </script>

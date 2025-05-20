@@ -23,23 +23,6 @@ namespace WebApp.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var users = _userManager.Users.ToList();
-            var userRoles = new Dictionary<string, List<string>>();
-
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                userRoles[user.Id] = roles.ToList();
-            }
-
-            ViewBag.UserRoles = userRoles;
-            ViewBag.Roles = _roleManager.Roles.ToList();
-
-            return View(users);
-        }
-
         [HttpPost]
         public async Task<IActionResult> UpdateUserRole(string userId, string newRole)
         {
@@ -48,7 +31,7 @@ namespace WebApp.Controllers
             {
                 TempData["ErrorMessage"] = "User not found.";
                 _logger.LogWarning($"User role update failed: User ID {userId} not found.");
-                return NotFound();
+                return RedirectToAction("Index", "Dashboard", new { activeTab = "usermanagement" });
             }
 
             var currentRoles = await _userManager.GetRolesAsync(user);
@@ -57,8 +40,7 @@ namespace WebApp.Controllers
 
             TempData["SuccessMessage"] = "User role updated successfully.";
             _logger.LogInformation($"User {user.UserName} (ID: {user.Id}) role updated to {newRole}.");
-
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Dashboard", new { activeTab = "usermanagement" });
         }
 
         [HttpPost]
@@ -69,7 +51,7 @@ namespace WebApp.Controllers
             {
                 TempData["ErrorMessage"] = "User not found.";
                 _logger.LogWarning($"User deletion failed: User ID {userId} not found.");
-                return NotFound();
+                return RedirectToAction("Index", "Dashboard", new { activeTab = "usermanagement" });
             }
 
             var result = await _userManager.DeleteAsync(user);
@@ -77,12 +59,12 @@ namespace WebApp.Controllers
             {
                 TempData["SuccessMessage"] = "User deleted successfully.";
                 _logger.LogInformation($"User {user.UserName} (ID: {user.Id}) deleted.");
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Dashboard", new { activeTab = "usermanagement" });
             }
 
             TempData["ErrorMessage"] = "An error occurred while deleting the user.";
             _logger.LogError($"Error deleting user {user.UserName} (ID: {user.Id}).");
-            return View("Error");
+            return RedirectToAction("Index", "Dashboard", new { activeTab = "usermanagement" });
         }
     }
 }
