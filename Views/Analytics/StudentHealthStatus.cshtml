@@ -623,7 +623,6 @@
                     <i class="fas fa-exclamation-circle me-2"></i>
                     <strong>Warning:</strong> This action will move all documents to archive. Students will need to re-upload their documents.
                 </div>
-                <p class="fw-bold">Total documents to archive: <span id="totalDocumentsCount">@Model.Students.Count</span></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -1096,6 +1095,40 @@
                     $(this).remove();
                 });
             }
+
+            $('#confirmArchive').click(function() {
+                var archiveModal = bootstrap.Modal.getInstance(document.getElementById('archiveConfirmationModal'));
+                archiveModal.hide();
+                
+                // Show loading modal
+                var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+                loadingModal.show();
+                $('#progressText').text('Archiving all documents...');
+                $('#emailProgressBar').css('width', '0%');
+                
+                // Call the controller action to archive all documents
+                $.ajax({
+                    url: '/Archive/ArchiveAllDocuments',
+                    type: 'POST',
+                    success: function(response) {
+                        $('#emailProgressBar').css('width', '100%')
+                                            .removeClass('progress-bar-animated')
+                                            .addClass('bg-success');
+                        $('#progressText').html('<i class="fas fa-check-circle me-2"></i>All documents archived successfully!');
+                        
+                        setTimeout(function() {
+                            loadingModal.hide();
+                            showToast('success', 'All documents have been archived successfully');
+                            window.location.reload();
+                        }, 1500);
+                    },
+                    error: function(xhr) {
+                        loadingModal.hide();
+                        showToast('error', 'Error archiving documents: ' + (xhr.responseJSON?.message || 'Unknown error'));
+                        console.error("Error:", xhr.responseText);
+                    }
+                });
+            });
         });
     </script>
 }

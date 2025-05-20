@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Models;
 using WebApp.Validators;
+using WebApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,9 @@ builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<NotificationService>();
 
 builder.Services.AddScoped<IDocumentExpiryService, DocumentExpiryService>();
+
+// Add this to your services configuration
+builder.Services.AddHostedService<ArchiveBackgroundService>();
 
 // ✅ Add SignalR services
 builder.Services.AddSignalR();

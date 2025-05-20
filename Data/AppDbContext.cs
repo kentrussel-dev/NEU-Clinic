@@ -20,6 +20,7 @@ namespace WebApp.Data
 
         // Add SystemConfiguration table
         public DbSet<SystemConfiguration> SystemConfigurations { get; set; }
+        public DbSet<Archive> Archives { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

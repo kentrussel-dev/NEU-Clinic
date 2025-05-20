@@ -44,8 +44,8 @@
 @if (isAdmin || isMedicalStaff || isSuperAdmin)
 {
     <div id="viewrecords-content">
-        @if (Model != null && Model.Any())
-        {
+        
+        
             <div class="container mt-4 mb-4">
                 <h2 class="text-center mb-4 p-4 border rounded shadow-sm bg-light">
                     <i class="fa-solid fa-file-medical"></i> Submitted Health Records History
@@ -140,11 +140,7 @@
                     </table>
                 </div>
             </div>
-        }
-        else
-        {
-            <p>No records found.</p>
-        }
+        
     </div>
 }
 
